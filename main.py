@@ -1,69 +1,72 @@
 import pygame
 from pygame.locals import *
+from pygame.sprite import Sprite, Group
 import sys
+import player
+from config import Config
 
 pygame.init()
 
-size = width, height = 886, 620
-speed = [2, 2]
-black = 0, 0, 0
+conf = Config()
 
-screen = pygame.display.set_mode(size)
+screen = pygame.display.set_mode(conf.size)
+screen_rect = screen.get_rect()
 pygame.display.set_caption('Super Soccer Game')
-background = pygame.image.load('image/background.png')
+background = pygame.image.load(conf.background_image).convert()
 
-player_image = 'image/player1.png'
-ball_image = 'image/ball.png'
-
-player_velocity = 1
-
-class Velocity:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-
-class Player_state:
-    def __init__(self, initial_pos_x, initial_pos_y):
-        self.v = Velocity()
-        self.pos_x = initial_pos_x
-        self.pos_y = initial_pos_y
-        self.player = pygame.image.load(player_image)
-
-    def update_pos(self):
-        left_bound = width * 0.1 + 5
-        right_bound = width * 0.9 - 58
-        upper_bound = height * 0.1 + 14
-        lower_bound = height * 0.9 - 30
-        self.pos_x = self.pos_x + self.v.x
-        self.pos_y = self.pos_y + self.v.y
-
-        if(self.pos_x < left_bound):
-            self.pos_x = left_bound
-        if (self.pos_x > right_bound):
-            self.pos_x = right_bound
-        if (self.pos_y < upper_bound):
-            self.pos_y = upper_bound
-        if (self.pos_y > lower_bound):
-            self.pos_y = lower_bound
-
-    def render(self):
-        self.update_pos()
-        screen.blit(self.player, (int(self.pos_x), int(self.pos_y)))
-
-p = Player_state(width/4-8, height/2-16)
+p = player.Player_state(int(screen_rect.centerx/2), screen_rect.centery, conf.player_image_blue)
 
 
+# Ball
 class Ball_state():
-    def __init__(self):
-        self.ball = pygame.image.load(ball_image)
+    def __init__(self, initial_pos_x, initial_pos_y):
+        self.ball = pygame.image.load(conf.ball_image)
+        self.rect = self.ball.get_rect()
+        self.rect.centerx = initial_pos_x
+        self.rect.centery = initial_pos_y
 
     def update_pos(self):
-        # realize the collision system
+        self.rect.centerx = self.rect.centerx
+        # Do sth here
+
+    def render(self):
+        self.update_pos()
+        screen.blit(self.ball, self.rect)
+
+b = Ball_state(screen_rect.centerx, screen_rect.centery)
+
+
+# Bullet
+bullets = Group()
+
+class Bullet(Sprite):
+    def __init__(self, pos_x, pos_y):
+        super(Bullet, self).__init__()
+        self.rect = pygame.Rect(0, 0, 5, 5)
+        self.rect.centerx = pos_x
+        self.rect.centery = pos_y
+        self.bullet = pygame.draw.rect(screen, (255, 0, 0), self.rect)
+
+    def update_pos(self):
+        self.rect.centerx = self.rect.centerx
 
     def render(self):
         self.update_pos()
 
+def create_bullet(if_shoot, pos_x, pos_y):
+    if (if_shoot):
+        new_bullet = Bullet(pos_x, pos_y)
+        bullets.add(new_bullet)
+        print('create bullet');
 
+def update_bullet():
+    for b in bullets.copy():
+        if ((b.rect.centerx < 0) or (b.rect.centery < 0) or
+        (b.rect.centerx > conf.width) or (b.rect.centery > conf.height)):
+            bullets.remove(b)
+
+
+# While loop for main logic of the game
 while 1:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -72,13 +75,16 @@ while 1:
 
         if event.type == KEYDOWN:
             if event.key == K_LEFT:
-                p.v.x = -player_velocity
+                p.v.x = -conf.player_v
             elif event.key == K_RIGHT:
-                p.v.x = player_velocity
+                p.v.x = conf.player_v
             if event.key == K_UP:
-                p.v.y = -player_velocity
+                p.v.y = -conf.player_v
             elif event.key == K_DOWN:
-                p.v.y = player_velocity
+                p.v.y = conf.player_v
+
+            if event.key == K_SPACE:
+                create_bullet(p.shoot(), p.rect.centerx, p.rect.centery)
 
         if event.type == KEYUP:
             if event.key == K_LEFT or event.key == K_RIGHT:
@@ -87,5 +93,8 @@ while 1:
                 p.v.y = 0
 
     screen.blit(background, (0, 0))
-    p.render()
+    p.render(screen)
+    b.render()
+    for b in bullets:
+        b.render()
     pygame.display.update()
