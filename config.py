@@ -9,5 +9,8 @@ class Config:
         self.background_image = 'image/background.png'
 
         self.player_v = 1
-        self.bullet_v = 5
-        self.bullet_cd_time = 3000
+        self.player_power = 6.0
+        self.friction = 0.1
+        self.shoot_cd_time = 3000
+        #self.bullet_v = 5
+        #self.bullet_cd_time = 3000

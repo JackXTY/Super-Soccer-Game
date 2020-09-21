@@ -1,8 +1,9 @@
 import pygame
 from pygame.locals import *
-from pygame.sprite import Sprite, Group
+from pygame.sprite import Group
 import sys
 import player
+from ball import Ball
 from config import Config
 
 pygame.init()
@@ -14,56 +15,43 @@ screen_rect = screen.get_rect()
 pygame.display.set_caption('Super Soccer Game')
 background = pygame.image.load(conf.background_image).convert()
 
-p = player.Player_state(int(screen_rect.centerx/2), screen_rect.centery, conf.player_image_blue)
+p1 = player.Player(0, int(screen_rect.centerx/2), screen_rect.centery, conf.player_image_blue)
+p2 = player.Player(1, int(screen_rect.centerx*3/2), screen_rect.centery, conf.player_image_red)
+
+players = Group()
+players.add(p1)
+players.add(p2)
+
+ball = Ball(screen_rect.centerx, screen_rect.centery)
 
 
-# Ball
-class Ball_state():
-    def __init__(self, initial_pos_x, initial_pos_y):
-        self.ball = pygame.image.load(conf.ball_image)
-        self.rect = self.ball.get_rect()
-        self.rect.centerx = initial_pos_x
-        self.rect.centery = initial_pos_y
-
-    def update_pos(self):
-        self.rect.centerx = self.rect.centerx
-        # Do sth here
-
-    def render(self):
-        self.update_pos()
-        screen.blit(self.ball, self.rect)
-
-b = Ball_state(screen_rect.centerx, screen_rect.centery)
+def collide(ball, player):
+    if not(player.check_shoot_cd()):
+        return False
+    result = pygame.sprite.collide_rect(ball, player)
+    return result
 
 
-# Bullet
-bullets = Group()
+def handle_event(p, event): # p = player
+    if event.type == KEYDOWN:
+        if event.key == K_LEFT:
+            p.v.x = -conf.player_v
+        elif event.key == K_RIGHT:
+            p.v.x = conf.player_v
+        if event.key == K_UP:
+            p.v.y = -conf.player_v
+        elif event.key == K_DOWN:
+            p.v.y = conf.player_v
 
-class Bullet(Sprite):
-    def __init__(self, pos_x, pos_y):
-        super(Bullet, self).__init__()
-        self.rect = pygame.Rect(0, 0, 5, 5)
-        self.rect.centerx = pos_x
-        self.rect.centery = pos_y
-        self.bullet = pygame.draw.rect(screen, (255, 0, 0), self.rect)
+        if event.key == K_SPACE:
+            p.shoot(ball, conf.player_power)
 
-    def update_pos(self):
-        self.rect.centerx = self.rect.centerx
+    if event.type == KEYUP:
+        if event.key == K_LEFT or event.key == K_RIGHT:
+            p.v.x = 0
+        if event.key == K_UP or event.key == K_DOWN:
+            p.v.y = 0
 
-    def render(self):
-        self.update_pos()
-
-def create_bullet(if_shoot, pos_x, pos_y):
-    if (if_shoot):
-        new_bullet = Bullet(pos_x, pos_y)
-        bullets.add(new_bullet)
-        print('create bullet');
-
-def update_bullet():
-    for b in bullets.copy():
-        if ((b.rect.centerx < 0) or (b.rect.centery < 0) or
-        (b.rect.centerx > conf.width) or (b.rect.centery > conf.height)):
-            bullets.remove(b)
 
 
 # While loop for main logic of the game
@@ -73,28 +61,16 @@ while 1:
             pygame.quit()
             sys.exit()
 
-        if event.type == KEYDOWN:
-            if event.key == K_LEFT:
-                p.v.x = -conf.player_v
-            elif event.key == K_RIGHT:
-                p.v.x = conf.player_v
-            if event.key == K_UP:
-                p.v.y = -conf.player_v
-            elif event.key == K_DOWN:
-                p.v.y = conf.player_v
-
-            if event.key == K_SPACE:
-                create_bullet(p.shoot(), p.rect.centerx, p.rect.centery)
-
-        if event.type == KEYUP:
-            if event.key == K_LEFT or event.key == K_RIGHT:
-                p.v.x = 0
-            if event.key == K_UP or event.key == K_DOWN:
-                p.v.y = 0
+        for player in players.sprites():
+            handle_event(player, event)
+            if not(player.catching) and not(ball.if_catched) and collide(ball, player):
+                player.catch_ball(ball)
 
     screen.blit(background, (0, 0))
-    p.render(screen)
-    b.render()
-    for b in bullets:
-        b.render()
+    for player in players.sprites():
+        player.render(screen)
+        if player.catching:
+            ball.catched(player)
+    ball.render(screen)
+
     pygame.display.update()
