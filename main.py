@@ -60,18 +60,24 @@ while 1:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-
+    """
+    #original method
         for player in players.sprites():
             handle_event(player, event)
             if not(player.catching) and not(ball.if_catched) and collide(ball, player):
                 player.catch_ball(ball)
+    """
 
-    #pressed_keys = pygame.key.get_pressed()
-    #for player in players.sprites():
-    #    player.inputHandler(pressed_keys)
-    #    if not(player.catching) and not(ball.if_catched) and collide(ball, player):
-    #        player.catch_ball(ball)
+    #Add by Louis
+    pressed_keys = pygame.key.get_pressed()
+    for player in players.sprites():
+        player.inputHandler(pressed_keys, ball)
 
+    catched_player = pygame.sprite.spritecollideany(ball, players)
+    if catched_player and not(ball.if_catched):
+        if catched_player.check_shoot_cd():
+            catched_player.catch_ball(ball)
+    #
 
     screen.blit(background, (0, 0))
     for player in players.sprites():
