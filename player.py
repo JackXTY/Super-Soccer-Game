@@ -1,4 +1,5 @@
 import pygame
+from pygame.locals import *
 from pygame.sprite import Sprite
 from config import Config
 
@@ -67,3 +68,16 @@ class Player(Sprite):
             self.cd_time = self.cd_time - self.timer.get_time()
             return False
 
+    def inputHandler(self, pressed_keys):
+        if pressed_keys[K_LEFT]:
+            self.v.x = -conf.player_v
+        elif pressed_keys[K_RIGHT]:
+            self.v.x = conf.player_v
+        else:
+            self.v.x = 0
+        if pressed_keys[K_UP]:
+            self.v.y = -conf.player_v
+        elif pressed_keys[K_DOWN]:
+            self.v.y = conf.player_v
+        else:
+            self.v.y = 0

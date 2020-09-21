@@ -66,6 +66,13 @@ while 1:
             if not(player.catching) and not(ball.if_catched) and collide(ball, player):
                 player.catch_ball(ball)
 
+    #pressed_keys = pygame.key.get_pressed()
+    #for player in players.sprites():
+    #    player.inputHandler(pressed_keys)
+    #    if not(player.catching) and not(ball.if_catched) and collide(ball, player):
+    #        player.catch_ball(ball)
+
+
     screen.blit(background, (0, 0))
     for player in players.sprites():
         player.render(screen)
