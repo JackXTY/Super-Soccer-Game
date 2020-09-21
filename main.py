@@ -87,3 +87,6 @@ while 1:
     ball.render(screen)
 
     pygame.display.update()
+
+#TODO: Boundary checking for ball
+#TODO: Add a input handler for 2 players game
