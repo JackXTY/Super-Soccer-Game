@@ -5,8 +5,10 @@ import sys
 import player
 from ball import Ball
 from config import Config
+import socket
 
-pygame.init()
+
+#pygame.init()
 
 conf = Config()
 
@@ -24,60 +26,34 @@ players.add(p2)
 
 ball = Ball(screen_rect.centerx, screen_rect.centery)
 
-
-def collide(ball, player):
-    if not(player.check_shoot_cd()):
-        return False
-    result = pygame.sprite.collide_rect(ball, player)
-    return result
-
-
-def handle_event(p, event): # p = player
-    if event.type == KEYDOWN:
-        if event.key == K_LEFT:
-            p.v.x = -conf.player_v
-        elif event.key == K_RIGHT:
-            p.v.x = conf.player_v
-        if event.key == K_UP:
-            p.v.y = -conf.player_v
-        elif event.key == K_DOWN:
-            p.v.y = conf.player_v
-
-        if event.key == K_SPACE:
-            p.shoot(ball, conf.player_power)
-
-    if event.type == KEYUP:
-        if event.key == K_LEFT or event.key == K_RIGHT:
-            p.v.x = 0
-        if event.key == K_UP or event.key == K_DOWN:
-            p.v.y = 0
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('127.0.0.1', 6666))
 
 
 
 # While loop for main logic of the game
-while 1:
+while True:
+    s.send(("[" + str(p1.rect.centerx) + "/" + str(p1.rect.centery) + "]").encode('utf8'))
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
-    """
-    #original method
-        for player in players.sprites():
-            handle_event(player, event)
-            if not(player.catching) and not(ball.if_catched) and collide(ball, player):
-                player.catch_ball(ball)
-    """
 
     #Add by Louis
     pressed_keys = pygame.key.get_pressed()
-    for player in players.sprites():
-        player.inputHandler(pressed_keys, ball)
+    p1.inputHandler(pressed_keys, ball)
 
+    # this part about catch ball may needed to be dealt in server
+    '''
     catched_player = pygame.sprite.spritecollideany(ball, players)
     if catched_player and not(ball.if_catched):
         if catched_player.check_shoot_cd():
             catched_player.catch_ball(ball)
-    #
+    '''
+
+    #s.send(("["+p1.rect.centerx+"/"+p1.rect.centery+"]").encode('utf8'))
+
+    # need to receive message from server
 
     screen.blit(background, (0, 0))
     for player in players.sprites():
@@ -88,5 +64,6 @@ while 1:
 
     pygame.display.update()
 
-#TODO: Boundary checking for ball
-#TODO: Add a input handler for 2 players game
+# TODO: Boundary checking for ball
+# TODO: Steal ball checking
+# TODO: Add a input handler for 2 players game
