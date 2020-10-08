@@ -11,8 +11,9 @@ class Velocity:
         self.y = 0.0
 
 class Player(Sprite):
-    def __init__(self, team, initial_pos_x, initial_pos_y, player_image):
+    def __init__(self, team, initial_pos_x, initial_pos_y, id, player_image):
         super(Player, self).__init__()
+        self.id = id
         self.team = team  # team-0: attack right door / team-1: attack left door
         self.v = Velocity()
         self.player_image = pygame.image.load(player_image)
