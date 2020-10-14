@@ -96,12 +96,12 @@ class Player_connection():
 
     def deal_data(self, data):
         client_data = decompress(data.decode('utf8'))
-        if(client_data[0] > 0):
+        if(client_data[0] > 0):  # game start
             self.x = client_data[1]
             self.y = client_data[2]
             for connection in self.connection_pool:
                 self.send_data(connection.id, connection.x, connection.y)
-        else:
+        else:  # game not start
             message = '#' + str(len(self.connection_pool))
             self.socket_client.send(message.encode('utf8'))
 

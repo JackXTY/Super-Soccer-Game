@@ -61,7 +61,6 @@ while True:
 
 # While loop for main logic of the game
 while True:
-
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
