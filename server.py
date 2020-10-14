@@ -55,7 +55,7 @@ class Data_controller:
 
 data_cont = Data_controller()
 
-
+# server won't send msg to the client actively, except assigning id to client
 @Server.register_class
 class Player_connection():
 
@@ -66,7 +66,7 @@ class Player_connection():
         self.id = data_cont.distribute_player_id()
         self.x = data_cont.pos[self.id][0]
         self.y = data_cont.pos[self.id][1]
-        self.send_data(self.id, self.x, self.y)
+        self.send_data(self.id, self.x, self.y)  # assign id to client
 
     def data_handler(self):
         # build an independent thread for every connection
@@ -92,11 +92,18 @@ class Player_connection():
     def send_data(self, player_id, x, y):
         message = compress(player_id, x, y)
         print(message)
-        self.socket_client.send(message. encode('utf8'))
+        self.socket_client.send(message.encode('utf8'))
 
     def deal_data(self, data):
-        print('\nMessage:', data.decode('utf8'))
-        #self.send_data("Must send sth here")
+        client_data = decompress(data.decode('utf8'))
+        if(client_data[0] > 0):
+            self.x = client_data[1]
+            self.y = client_data[2]
+            for connection in self.connection_pool:
+                self.send_data(connection.id, connection.x, connection.y)
+        else:
+            message = '#' + str(len(self.connection_pool))
+            self.socket_client.send(message.encode('utf8'))
 
 Server('127.0.0.1', 6666)
 

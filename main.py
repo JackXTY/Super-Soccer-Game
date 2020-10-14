@@ -11,6 +11,7 @@ import select
 pygame.init()
 
 conf = Config()
+N = conf.total_number
 
 screen = pygame.display.set_mode(conf.size)
 screen_rect = screen.get_rect()
@@ -20,35 +21,43 @@ background = pygame.image.load(conf.background_image).convert()
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('127.0.0.1', 6666))
 
-while True:
-    pre_data = s.recv(2048).decode('utf8')
-    if pre_data != None:
-        break
-pre_data = decompress(pre_data)
+
+pre_data = decompress(s.recv(2048).decode('utf8'))
 team_now = 0
-if pre_data[0] > conf.total_number/2:
+image = conf.player_image_blue
+if pre_data[0] > N/2:
     team_now = 1
+    image = conf.player_image_red
 print("my_player: id={}, team={}".format(pre_data[0], team_now))
 p1 = player.Player(0, int(screen_rect.centerx*pre_data[1]), int(screen_rect.centery*pre_data[2]),
-                   pre_data[0], conf.player_image_blue)
+                   pre_data[0], image)
 
 # read other player data directly from config
-other_players = Group()
-for i in range(1, conf.total_number+1):
+players = Group()
+for i in range(1, N+1):
     if i == p1.id:
+        players.add(p1)
         continue
     team_now = 0
     image = conf.player_image_blue
-    print("other_player: id={}, team={}".format(i, team_now))
-    if i > conf.total_number/2:
+    if i > N/2:
         team_now = 1
         image = conf.player_image_red
-    other_players.add(player.Player(team_now, int(screen_rect.centerx * conf.init_pos[i][0]),
+    print("other_player: id={}, team={}".format(i, team_now))
+    players.add(player.Player(team_now, int(screen_rect.centerx * conf.init_pos[i][0]),
                                     int(screen_rect.centery * conf.init_pos[i][1]), i, image))
 
 
 ball = Ball(screen_rect.centerx, screen_rect.centery)
 
+
+# While loop waiting for all client to be ready
+while True:
+    s.send((compress(-p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
+    recv_data = s.recv(2048).decode('utf8')
+    if recv_data[0] == '#':
+        if int(recv_data[1:]) == conf.total_number:
+            break
 
 # While loop for main logic of the game
 while True:
@@ -62,6 +71,15 @@ while True:
     p1.inputHandler(pressed_keys, ball)
 
     s.send((compress(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
+    for i in range(conf.total_number):
+        recv_data = decompress(s.recv(2048).decode('utf8'))
+        print(recv_data)
+        pid = recv_data[0]
+        for player in players:
+            if player.id == pid and pid != p1.id:
+                player.rect.centerx = recv_data[1]
+                player.rect.centery = recv_data[2]
+
 
     # this part about catch ball may needed to be dealt in server
     '''
@@ -75,9 +93,8 @@ while True:
     # need to receive message from server
 
     screen.blit(background, (0, 0))
-    for other_player in other_players.sprites():
-        other_player.render(screen)
-    p1.render(screen)
+    for player in players.sprites():
+        player.render(screen)
     ball.render(screen)
 
     pygame.display.update()

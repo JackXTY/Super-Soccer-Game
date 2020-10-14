@@ -28,4 +28,4 @@ def decompress(target):
         result[0] = int(result[0])
         result[1] = float(result[1])
         result[2] = float(result[2])
-    return result
+        return result
