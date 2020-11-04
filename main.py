@@ -25,12 +25,12 @@ s.connect(('127.0.0.1', 6666))
 pre_data = decompress(s.recv(2048).decode('utf8'))
 team_now = 0
 image = conf.player_image_blue
-if pre_data[0] > N/2:
+if pre_data[1] > N/2:
     team_now = 1
     image = conf.player_image_red
-print("my_player: id={}, team={}".format(pre_data[0], team_now))
-p1 = player.Player(0, int(screen_rect.centerx*pre_data[1]), int(screen_rect.centery*pre_data[2]),
-                   pre_data[0], image)
+print("my_player: id={}, team={}".format(pre_data[1], team_now))
+p1 = player.Player(0, int(screen_rect.centerx*pre_data[2]), int(screen_rect.centery*pre_data[3]),
+                   pre_data[1], image)
 
 # read other player data directly from config
 players = Group()
@@ -53,14 +53,16 @@ ball = Ball(screen_rect.centerx, screen_rect.centery)
 
 # While loop waiting for all client to be ready
 while True:
-    s.send((compress(-p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
-    recv_data = s.recv(2048).decode('utf8')
-    if recv_data[0] == '#':
-        if int(recv_data[1:]) == conf.total_number:
-            break
+    s.send((compress("False", p1.id, p1.rect.centerx, p1.rect.centery, 0.0)).encode('utf8'))
+    recv_data = decompress(s.recv(2048).decode('utf8'))
+    if recv_data[0] == "Begin":
+        break
+
+
+game_on = True
 
 # While loop for main logic of the game
-while True:
+while game_on:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
@@ -69,15 +71,18 @@ while True:
     pressed_keys = pygame.key.get_pressed()
     p1.inputHandler(pressed_keys, ball)
 
-    s.send((compress(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
+    s.send((compress("True", p1.id, p1.rect.centerx, p1.rect.centery, 0.0)).encode('utf8'))
     for i in range(conf.total_number):
         recv_data = decompress(s.recv(2048).decode('utf8'))
         print(recv_data)
-        pid = recv_data[0]
+        if (recv_data[0]=="End"):
+            game_on = False
+            break
+        pid = recv_data[1]
         for player in players:
             if player.id == pid and pid != p1.id:
-                player.rect.centerx = recv_data[1]
-                player.rect.centery = recv_data[2]
+                player.rect.centerx = recv_data[2]
+                player.rect.centery = recv_data[3]
 
 
     # this part about catch ball may needed to be dealt in server
@@ -98,6 +103,15 @@ while True:
 
     pygame.display.update()
 
+
+# wait for game exit
+while True:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+            sys.exit()
+
+
+# should be implemented in server.py
 # TODO: Boundary checking for ball
 # TODO: Steal ball checking
-# TODO: Add a input handler for 2 players game
