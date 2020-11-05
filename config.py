@@ -16,19 +16,31 @@ class Config:
         self.max_time = 60000
         self.total_number = 2
         self.init_pos = [[1.0, 1.0], [0.5, 1.0], [1.5, 1.0]]
+
+        self.ball_cd_time = 1000
         #self.bullet_v = 5
         #self.bullet_cd_time = 3000
 
 
 def compress(status, id, x, y, time):
-    result = "[" + status + '/' + str(id) + '/' + str(x) + '/' + str(y) + '/' + str(time) + ']'
+    result = "{" + status + '/' + str(id) + '/' + str(x) + '/' + str(y) + '/' + str(time) + '}'
+    return result
+
+def compress_ball(id, x, y):
+    result = "{" + "Ball" + '/' + str(id) + '/' + str(x) + '/' + str(y) + '}'
     return result
 
 def decompress(target):
-    if target[0]=='[' and target[-1]==']':
-        result = target[1:-1].split('/')
-        result[1] = int(result[1])
-        result[2] = float(result[2])
-        result[3] = float(result[3])
-        result[4] = float(result[4])
-        return result
+    if target[0] == '{' and target[-1] == '}':
+        results = target[1:-1].split("}{")
+        for i in range(len(results)):
+            result = results[i].split('/')
+            result[1] = int(result[1])  # id
+            result[2] = float(result[2])  # x
+            result[3] = float(result[3])  # y
+            if result[0] == "Shoot":
+                result[4] = int(result[4])  # direction
+            if result[0] == "True":
+                result[4] = float(result[4])  # time
+            results[i] = result
+        return results

@@ -53,17 +53,16 @@ class Player(Sprite):
     def catch_ball(self, ball):
         print("catch ball")
         self.catching = True
-        ball.if_catched = True
 
     def shoot(self, ball, power):
         if self.catching:
             self.catching = False
             self.timer.tick()
             self.cd_time = conf.shoot_cd_time
-            ball.shoot(self.team, power)
+
 
     def check_shoot_cd(self):
-        if (self.timer.tick()>self.cd_time):
+        if self.timer.tick()>self.cd_time:
             return True
         else:
             self.cd_time = self.cd_time - self.timer.get_time()

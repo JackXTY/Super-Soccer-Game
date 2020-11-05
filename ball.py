@@ -14,10 +14,9 @@ class Ball(Sprite):
         self.v = 0.  # v = v - at, only in x-axis
         self.direction = 0
         self.if_catched = False
-
-    def catched(self, player):
-        self.rect.centerx = player.rect.centerx
-        self.rect.centery = player.rect.centery
+        self.catcher = -1
+        self.timer = pygame.time.Clock()
+        self.remain_time = 0.0
 
     def shoot(self, team, power):
         self.if_catched = False
@@ -40,3 +39,22 @@ class Ball(Sprite):
         self.update_pos()
         screen.blit(self.ball, self.rect)
 
+    def check_ball(self, new_id, new_x, new_y):
+        if self.catcher < 0:
+            self.if_catched = True
+            self.catcher = new_id
+            self.rect.centerx = new_x
+            self.rect.centery = new_y
+            self.timer.tick()
+            self.remain_time = conf.ball_cd_time
+        elif self.catcher == new_id:
+            self.rect.centerx = new_x
+            self.rect.centery = new_y
+        else:
+            self.remain_time = self.remain_time - self.timer.tick()
+            if self.remain_time < 0 and new_id != self.catcher:
+                self.catcher = new_id
+                self.rect.centerx = new_x
+                self.rect.centery = new_y
+                self.timer.tick()
+                self.remain_time = conf.ball_cd_time

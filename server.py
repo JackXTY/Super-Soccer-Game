@@ -3,7 +3,8 @@ import traceback
 import datetime
 import pygame
 from threading import Thread
-from config import Config, compress, decompress
+from config import Config, compress, decompress, compress_ball
+from ball import Ball
 
 class Server:
 
@@ -46,9 +47,9 @@ class Data_controller:
     def __init__(self):
         self.max_id = conf.total_number
         self.id_now = 0
-        self.pos = conf.init_pos  # pos[0] reserve for ball, other for playerss(i)
+        self.pos = conf.init_pos  # pos[0] reserve for ball, other for players(i)
         self.ball_catcher = 0  # represent which player catch the ball
-        self.timer = pygame.time.Clock()
+        self.game_timer = pygame.time.Clock()
         self.remain_time = conf.max_time
 
     def distribute_player_id(self):
@@ -58,9 +59,13 @@ class Data_controller:
         return self.id_now
 
     def check_time(self):
-        time_interval = self.timer.tick()
+        time_interval = self.game_timer.tick()
         self.remain_time -= time_interval
         return self.remain_time
+
+
+
+ball = Ball(conf.size[0]/2, conf.size[1]/2)
 
 data_cont = Data_controller()
 
@@ -104,27 +109,39 @@ class Player_connection():
         print(message)
         self.socket_client.send(message.encode('utf8'))
 
+    def send_ball_data(self, player_id, x, y):
+        message = compress_ball(player_id, x, y)
+        print(message)
+        self.socket_client.send(message.encode('utf8'))
+
     def deal_recv_data(self, data):
-        client_data = decompress(data.decode('utf8'))
+        client_datas = decompress(data.decode('utf8'))
+        for client_data in client_datas:
+            if client_data[0] == "True":  # game on
+                game_time = data_cont.check_time()
+                if game_time <= 0:  # game end
+                    self.send_data("End", self.id, self.x, self.y, 0.0)
+                else:
+                    self.x = client_data[2]
+                    self.y = client_data[3]
+                    # send data of this client to other clients
+                    for connection in self.connection_pool:
+                        self.send_data("True", connection.id, connection.x, connection.y, game_time)
+                    self.send_ball_data(ball.catcher, ball.rect.centerx, ball.rect.centery)
 
-        if(client_data[0] == "True"):  # game on
-            game_time = data_cont.check_time()
-            if game_time <= 0:  # game end
-                self.send_data("End", self.id, self.x, self.y, 0.0)
-            else:
-                self.x = client_data[2]
-                self.y = client_data[3]
-                # send data of this client to other clients
-                for connection in self.connection_pool:
-                    self.send_data("True", connection.id, connection.x, connection.y, game_time)
+            elif client_data[0] == "Ball":
+                ball.check_ball(client_data[1], client_data[2], client_data[3])
+                self.send_ball_data(ball.catcher, ball.rect.centerx, ball.rect.centery)
 
-        else:  # game not start
-            if (len(self.connection_pool) == conf.total_number):
-                self.send_data("Begin", self.id, self.x, self.y, 0.0)
-                data_cont.timer.tick()
-            else:
-                self.send_data("False", self.id, self.x, self.y, 0.0)
+            elif client_data[0] == "Shoot" and client_data[1] == data_cont.ball_catcher:
+                ball.shoot_ball(client_data[2], client_data[3], client_data[4])  # x, y, dir
+
+            else:  # game not start
+                if len(self.connection_pool) == conf.total_number:
+                    self.send_data("Begin", self.id, self.x, self.y, 0.0)
+                    data_cont.game_timer.tick()
+                else:
+                    self.send_data("False", self.id, self.x, self.y, 0.0)
+
 
 Server('127.0.0.1', 6666)
-
-# TODO: modify in form of code

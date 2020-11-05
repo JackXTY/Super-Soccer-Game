@@ -4,7 +4,7 @@ from pygame.sprite import Group
 import sys
 import player
 from ball import Ball
-from config import Config, compress, decompress
+from config import Config, compress, decompress, compress_ball
 import socket
 import select
 
@@ -22,7 +22,8 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('127.0.0.1', 6666))
 
 
-pre_data = decompress(s.recv(2048).decode('utf8'))
+pre_data = decompress(s.recv(2048).decode('utf8'))[0]
+print(pre_data)
 team_now = 0
 image = conf.player_image_blue
 if pre_data[1] > N/2:
@@ -54,7 +55,7 @@ ball = Ball(screen_rect.centerx, screen_rect.centery)
 # While loop waiting for all client to be ready
 while True:
     s.send((compress("False", p1.id, p1.rect.centerx, p1.rect.centery, 0.0)).encode('utf8'))
-    recv_data = decompress(s.recv(2048).decode('utf8'))
+    recv_data = decompress(s.recv(2048).decode('utf8'))[0]
     if recv_data[0] == "Begin":
         break
 
@@ -71,30 +72,43 @@ while game_on:
     pressed_keys = pygame.key.get_pressed()
     p1.inputHandler(pressed_keys, ball)
 
+    # catch the ball
+    if pygame.sprite.collide_rect(ball, p1):
+        if p1.check_shoot_cd():  # check if the player just shoot the ball
+            s.send((compress_ball(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
+            print(str(p1.id) + " get ball")
+            # there could be bug due to packet splicing, but I'm a bit lazy to, hope no bug
+            recv_data = decompress(s.recv(2048).decode('utf8'))[0]
+            if recv_data[0] == "Ball" and recv_data[1] == p1.id:
+                p1.catch_ball(ball)
+    elif p1.id == ball.catcher:  # update ball position to server
+        print(str(p1.id) + " have ball")
+        s.send((compress_ball(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
+        recv_data = decompress(s.recv(2048).decode('utf8'))[0]
+        if recv_data[0] == "Ball" and recv_data[1] != p1.id:
+            ball.catcher = recv_data[1]
+
     s.send((compress("True", p1.id, p1.rect.centerx, p1.rect.centery, 0.0)).encode('utf8'))
-    for i in range(conf.total_number):
-        recv_data = decompress(s.recv(2048).decode('utf8'))
-        print(recv_data)
-        if (recv_data[0]=="End"):
-            game_on = False
-            break
-        pid = recv_data[1]
-        for player in players:
-            if player.id == pid and pid != p1.id:
-                player.rect.centerx = recv_data[2]
-                player.rect.centery = recv_data[3]
-
-
-    # this part about catch ball may needed to be dealt in server
-    '''
-    catched_player = pygame.sprite.spritecollideany(ball, players)
-    if catched_player and not(ball.if_catched):
-        if catched_player.check_shoot_cd():
-            catched_player.catch_ball(ball)
-            ball.catched(catched_player)
-    '''
-
-    # need to receive message from server
+    i = 0
+    while i < conf.total_number:
+        recv_datas = decompress(s.recv(2048).decode('utf8'))
+        #print(recv_datas)
+        for recv_data in recv_datas:
+            i = i + 1
+            if recv_data[0]=="End":
+                game_on = False
+                break
+            elif recv_data[0] == "Ball":
+                ball.catcher = recv_data[1]
+                ball.rect.centerx = recv_data[2]
+                ball.rect.centery = recv_data[3]
+            else:
+                pid = recv_data[1]
+                for player in players:
+                    if player.id == pid and pid != p1.id:
+                        player.rect.centerx = recv_data[2]
+                        player.rect.centery = recv_data[3]
+                        break
 
     screen.blit(background, (0, 0))
     for player in players.sprites():
