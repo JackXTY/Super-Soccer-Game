@@ -4,9 +4,8 @@ from pygame.sprite import Group
 import sys
 import player
 from ball import Ball
-from config import Config, compress, decompress, compress_ball
+from config import Config, compress, decompress, compress_update_ball, compress_shoot
 import socket
-import select
 
 pygame.init()
 
@@ -61,6 +60,7 @@ while True:
 
 
 game_on = True
+recv_datas = []
 
 # While loop for main logic of the game
 while game_on:
@@ -70,45 +70,90 @@ while game_on:
             sys.exit()
 
     pressed_keys = pygame.key.get_pressed()
-    p1.inputHandler(pressed_keys, ball)
+    #print(pressed_keys[K_SPACE])
+    p1.input_handler(pressed_keys)
 
-    # catch the ball
-    if pygame.sprite.collide_rect(ball, p1):
+    if p1.shoot_dir < 99:
+        #print("press space, dir:" + str(p1.shoot_dir))
+        if ball.catcher == p1.id and p1.check_shoot_cd():
+            print("try to shoot")
+            s.send((compress_shoot(p1.id, p1.rect.centerx, p1.rect.centery, p1.shoot_dir)).encode('utf8'))
+            '''
+            while True:
+                recv_datas = decompress(s.recv(2048).decode('utf8'))
+                for recv_data in recv_datas:
+                    print(recv_data)
+                    if recv_data[0] == "Ball" and recv_data[1] < 0:
+                        p1.shoot_update()
+                        ball.catcher = -1
+                        break
+                    else:
+                        print("waiting for ball msg")
+            '''
+            p1.shoot_update()
+            ball.catcher = -1
+        p1.shoot_dir = 99
+
+    # if collides, catch the ball
+    if pygame.sprite.collide_rect(ball, p1) and ball.catcher == -1:
         if p1.check_shoot_cd():  # check if the player just shoot the ball
-            s.send((compress_ball(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
+            s.send((compress_update_ball(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
             print(str(p1.id) + " get ball")
             # there could be bug due to packet splicing, but I'm a bit lazy to, hope no bug
-            recv_data = decompress(s.recv(2048).decode('utf8'))[0]
-            if recv_data[0] == "Ball" and recv_data[1] == p1.id:
-                p1.catch_ball(ball)
-    elif p1.id == ball.catcher:  # update ball position to server
-        print(str(p1.id) + " have ball")
-        s.send((compress_ball(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
-        recv_data = decompress(s.recv(2048).decode('utf8'))[0]
-        if recv_data[0] == "Ball" and recv_data[1] != p1.id:
+            temp_recv_data = decompress(s.recv(2048).decode('utf8'))[0]
+            if temp_recv_data[0] == "Ball" and temp_recv_data[1] == p1.id:
+                print(temp_recv_data)
+                ball.catcher = p1.id
+    # if catching the ball, update ball position to server
+    elif p1.id == ball.catcher:
+        #print(str(p1.id) + " have ball")
+        s.send((compress_update_ball(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
+        temp_recv_data = decompress(s.recv(2048).decode('utf8'))[0]
+        if temp_recv_data[0] == "Ball" and temp_recv_data[1] != p1.id:
             ball.catcher = recv_data[1]
+            print("ball is stealed by "+str(ball.catcher))
 
+    # update p1 position to server, and receive other players' & ball's positions
     s.send((compress("True", p1.id, p1.rect.centerx, p1.rect.centery, 0.0)).encode('utf8'))
+
+    if_begin = False
+    if_end = False
     i = 0
-    while i < conf.total_number:
-        recv_datas = decompress(s.recv(2048).decode('utf8'))
-        #print(recv_datas)
-        for recv_data in recv_datas:
-            i = i + 1
-            if recv_data[0]=="End":
+    while not(if_begin):
+        recv_datas.extend(decompress(s.recv(2048).decode('utf8')))
+        recv_data = recv_datas[0]
+        #print(recv_data)
+        if recv_data[0] == "Begin_line":
+            recv_datas.pop(0)
+            if_begin = True
+    while not(if_end):
+        recv_datas.extend(decompress(s.recv(2048).decode('utf8')))
+        while len(recv_datas) > 0:
+            recv_data = recv_datas[0]
+            #print(recv_data)
+            recv_datas.pop(0)
+            if recv_data[0] == "End":
                 game_on = False
                 break
+            elif recv_data[0] == "End_line":
+                if_end = True
             elif recv_data[0] == "Ball":
+                i = i + 1
+                if recv_data[1] != ball.catcher:
+                    print("catcher changes")
                 ball.catcher = recv_data[1]
                 ball.rect.centerx = recv_data[2]
                 ball.rect.centery = recv_data[3]
-            else:
+            else:  # default case: recv_data[0] == "True"
+                i = i + 1
                 pid = recv_data[1]
                 for player in players:
                     if player.id == pid and pid != p1.id:
                         player.rect.centerx = recv_data[2]
                         player.rect.centery = recv_data[3]
                         break
+    if i != N + 1:
+        print("CONNECTION ERROR")
 
     screen.blit(background, (0, 0))
     for player in players.sprites():

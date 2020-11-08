@@ -48,7 +48,6 @@ class Data_controller:
         self.max_id = conf.total_number
         self.id_now = 0
         self.pos = conf.init_pos  # pos[0] reserve for ball, other for players(i)
-        self.ball_catcher = 0  # represent which player catch the ball
         self.game_timer = pygame.time.Clock()
         self.remain_time = conf.max_time
 
@@ -106,35 +105,51 @@ class Player_connection():
 
     def send_data(self, status, player_id, x, y, time):
         message = compress(status, player_id, x, y, time)
-        print(message)
+        #print(message)
         self.socket_client.send(message.encode('utf8'))
 
     def send_ball_data(self, player_id, x, y):
         message = compress_ball(player_id, x, y)
-        print(message)
+        #print(message)
         self.socket_client.send(message.encode('utf8'))
+
+    def send_end_data(self):
+        self.socket_client.send("{End_line/99}".encode('utf8'))
+
+    def send_begin_data(self):
+        self.socket_client.send("{Begin_line/99}".encode('utf8'))
 
     def deal_recv_data(self, data):
         client_datas = decompress(data.decode('utf8'))
         for client_data in client_datas:
+            print(client_data)
             if client_data[0] == "True":  # game on
                 game_time = data_cont.check_time()
                 if game_time <= 0:  # game end
                     self.send_data("End", self.id, self.x, self.y, 0.0)
                 else:
+                    self.send_begin_data()
                     self.x = client_data[2]
                     self.y = client_data[3]
                     # send data of this client to other clients
                     for connection in self.connection_pool:
                         self.send_data("True", connection.id, connection.x, connection.y, game_time)
+                    if ball.v.x != 0 or ball.v.y != 0:
+                        print("old_ball_pos:("+str(ball.rect.centerx)+", "+str(ball.rect.centery)+")")
+                    ball.update_pos()
+                    if ball.v.x != 0 or ball.v.y != 0:
+                        print("new_ball_pos:("+str(ball.rect.centerx)+", "+str(ball.rect.centery)+")")
                     self.send_ball_data(ball.catcher, ball.rect.centerx, ball.rect.centery)
+                    self.send_end_data()
 
-            elif client_data[0] == "Ball":
+            elif client_data[0] == "Ball_update":
                 ball.check_ball(client_data[1], client_data[2], client_data[3])
                 self.send_ball_data(ball.catcher, ball.rect.centerx, ball.rect.centery)
 
-            elif client_data[0] == "Shoot" and client_data[1] == data_cont.ball_catcher:
+            elif client_data[0] == "Shoot" and client_data[1] == ball.catcher:
+                print("receive shoot data"+str(client_data))
                 ball.shoot_ball(client_data[2], client_data[3], client_data[4])  # x, y, dir
+                #self.send_ball_data(ball.catcher, ball.rect.centerx, ball.rect.centery)
 
             else:  # game not start
                 if len(self.connection_pool) == conf.total_number:
