@@ -7,9 +7,9 @@ conf = Config()
 
 
 class Player(Sprite):
-    def __init__(self, team, initial_pos_x, initial_pos_y, id, player_image):
+    def __init__(self, team, initial_pos_x, initial_pos_y, pid, player_image):
         super(Player, self).__init__()
-        self.id = id
+        self.id = pid
         self.team = team  # team-0: attack right door / team-1: attack left door
         self.v = Velocity(0.0, 0.0)
         self.player_image = pygame.image.load(player_image)
@@ -17,7 +17,6 @@ class Player(Sprite):
         self.rect.centerx = initial_pos_x
         self.rect.centery = initial_pos_y
         self.timer = pygame.time.Clock()
-        #self.timer.tick()
         self.cd_time = conf.shoot_cd_time
         self.shoot_dir = 99
 

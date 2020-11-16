@@ -119,28 +119,48 @@ class Player_connection():
     def send_begin_data(self):
         self.socket_client.send("{Begin_line/99}".encode('utf8'))
 
+    def restart(self, goal):
+        # reset positions
+        ball.rect.centerx = conf.width / 2
+        ball.rect.centery = conf.height / 2
+        ball.if_catched = False
+        ball.catcher = -1
+        ball.v.x = 0
+        ball.v.y = 0
+        for con in self.connection_pool:
+            con.x = ball.rect.centerx * conf.init_pos[con.id][0]
+            con.y = ball.rect.centery * conf.init_pos[con.id][1]
+        self.socket_client.send(("{Restart/" + str(goal) + "}").encode('utf8'))
+
     def deal_recv_data(self, data):
         client_datas = decompress(data.decode('utf8'))
         for client_data in client_datas:
-            print(client_data)
+            #print(client_data)
             if client_data[0] == "True":  # game on
                 game_time = data_cont.check_time()
                 if game_time <= 0:  # game end
                     self.send_data("End", self.id, self.x, self.y, 0.0)
                 else:
-                    self.send_begin_data()
+                    goal = ball.in_door()
+                    print(goal)
+                    #print("ball.x = "+str(ball.rect.centerx)+", ball.y = "+str(ball.rect.centery))
+                    if goal >= 0:
+                        print("restart")
+                        self.restart(goal)  # instead of begin_data
+                    else:
+                        self.send_begin_data()  # start of massage sending
                     self.x = client_data[2]
                     self.y = client_data[3]
                     # send data of this client to other clients
                     for connection in self.connection_pool:
                         self.send_data("True", connection.id, connection.x, connection.y, game_time)
-                    if ball.v.x != 0 or ball.v.y != 0:
-                        print("old_ball_pos:("+str(ball.rect.centerx)+", "+str(ball.rect.centery)+")")
+                    #if ball.v.x != 0 or ball.v.y != 0:
+                        #print("old_ball_pos:("+str(ball.rect.centerx)+", "+str(ball.rect.centery)+")")
                     ball.update_pos()
-                    if ball.v.x != 0 or ball.v.y != 0:
-                        print("new_ball_pos:("+str(ball.rect.centerx)+", "+str(ball.rect.centery)+")")
+                    #if ball.v.x != 0 or ball.v.y != 0:
+                        #print("new_ball_pos:("+str(ball.rect.centerx)+", "+str(ball.rect.centery)+")")
                     self.send_ball_data(ball.catcher, ball.rect.centerx, ball.rect.centery)
-                    self.send_end_data()
+                    self.send_end_data()  # end of massage sending
 
             elif client_data[0] == "Ball_update":
                 ball.check_ball(client_data[1], client_data[2], client_data[3])

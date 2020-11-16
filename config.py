@@ -55,7 +55,7 @@ def decompress(target):
         for i in range(len(results)):
             result = results[i].split('/')
             result[1] = int(result[1])  # id
-            if not((result[0] == "End_line" or result[0] == "Begin_line") and result[1] == 99):
+            if not(result[0] == "End_line" or result[0] == "Begin_line" or result[0] == "Restart"):
                 result[2] = float(result[2])  # x
                 result[3] = float(result[3])  # y
                 if result[0] == "Shoot":

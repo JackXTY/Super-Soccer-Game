@@ -61,3 +61,11 @@ class Ball(Sprite):
                 self.rect.centery = new_y
                 self.timer.tick()
                 self.remain_time = conf.ball_cd_time
+
+    def in_door(self):
+        if 3.5/15 * conf.height < self.rect.centery < 11.5/15 * conf.height:
+            if self.rect.centerx < conf.width * 0.125:
+                return 1
+            if self.rect.centerx > conf.width * 0.875:
+                return 0
+        return -1
