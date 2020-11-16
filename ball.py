@@ -4,6 +4,7 @@ from config import Config, dir_to_xy, update_v, Velocity
 
 conf = Config()
 
+
 class Ball(Sprite):
     def __init__(self, initial_pos_x, initial_pos_y):
         super(Ball, self).__init__()
@@ -32,6 +33,20 @@ class Ball(Sprite):
             self.v.y = self.v.y * (conf.player_power ** 0.5)
 
     def update_pos(self):
+        # judge and revert velocity here
+        if 3.5 / 15 * conf.height > self.rect.centery or self.rect.centery > 11.5 / 15 * conf.height:
+            if self.rect.centerx < conf.width * 0.125:
+                self.rect.centerx = conf.width * 0.125
+                self.v.x = update_v(self.v.x * -1, conf.friction * 2)
+            if self.rect.centerx > conf.width * 0.875:
+                self.rect.centerx = conf.width * 0.875
+                self.v.x = update_v(self.v.x * -1, conf.friction * 2)
+        if self.rect.centery < conf.height * 0.125:
+            self.rect.centery = conf.height * 0.125
+            self.v.y = update_v(self.v.y * -1, conf.friction * 2)
+        if self.rect.centery > conf.height * 0.875:
+            self.rect.centery = conf.height * 0.875
+            self.v.y = update_v(self.v.y * -1, conf.friction * 2)
         if self.v.x != 0 or self.v.y != 0:
             self.rect.centerx = self.rect.centerx + int(self.v.x)
             self.rect.centery = self.rect.centery + int(self.v.y)
@@ -63,7 +78,7 @@ class Ball(Sprite):
                 self.remain_time = conf.ball_cd_time
 
     def in_door(self):
-        if 3.5/15 * conf.height < self.rect.centery < 11.5/15 * conf.height:
+        if 3.5 / 15 * conf.height < self.rect.centery < 11.5 / 15 * conf.height:
             if self.rect.centerx < conf.width * 0.125:
                 return 1
             if self.rect.centerx > conf.width * 0.875:

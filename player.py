@@ -24,10 +24,10 @@ class Player(Sprite):
         pos_x = self.rect.centerx + self.v.x
         pos_y = self.rect.centery + self.v.y
 
-        left_bound = conf.width * 0.13
-        right_bound = conf.width * 0.87
-        upper_bound = conf.height * 0.13
-        lower_bound = conf.height * 0.87
+        left_bound = conf.width * 0.125
+        right_bound = conf.width * 0.875
+        upper_bound = conf.height * 0.125
+        lower_bound = conf.height * 0.875
         if pos_x < left_bound:
             pos_x = left_bound
         if pos_x > right_bound:
