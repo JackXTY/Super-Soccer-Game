@@ -86,6 +86,7 @@ def xy_to_dir(team, x, y):
         return 1
 
 
+
 def dir_to_xy(dir):
     x = dir % 10
     if x == 2:

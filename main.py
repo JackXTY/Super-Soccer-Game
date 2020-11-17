@@ -106,7 +106,7 @@ while game_on:
             ball.catcher = -1
         p1.shoot_dir = 99
 
-    # if collides, catch the ball
+    # case-1: if collides and no catcher, ask server and then catch the ball
     if pygame.sprite.collide_rect(ball, p1) and ball.catcher == -1:
         if p1.check_shoot_cd():  # check if the player just shoot the ball
             s.send((compress_update_ball(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
@@ -116,7 +116,15 @@ while game_on:
             if temp_recv_data[0] == "Ball" and temp_recv_data[1] == p1.id:
                 print(temp_recv_data)
                 ball.catcher = p1.id
-    # if catching the ball, update ball position to server
+    # case-2: if collides and there's another catcher, ask server and may catch the ball (according to ball cd_time)
+    elif pygame.sprite.collide_rect(ball, p1) and ball.catcher != p1.id:
+        s.send((compress_update_ball(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
+        temp_recv_data = decompress(s.recv(2048).decode('utf8'))[0]
+        if temp_recv_data[0] == "Ball" and temp_recv_data[1] == p1.id:
+            print(str(p1.id) + " get ball")
+            print(temp_recv_data)
+            ball.catcher = p1.id
+    # case-3: if catching the ball, update ball position to server
     elif p1.id == ball.catcher:
         # print(str(p1.id) + " have ball")
         s.send((compress_update_ball(p1.id, p1.rect.centerx, p1.rect.centery)).encode('utf8'))
@@ -187,7 +195,4 @@ while True:
             pygame.quit()
             sys.exit()
 
-
-# should be implemented in server.py
-# TODO: Boundary checking for ball
-# TODO: Steal ball checking
+# TODO: 1.Test & Debug; 2.Modify & Update
