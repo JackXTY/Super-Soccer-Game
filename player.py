@@ -55,6 +55,7 @@ class Player(Sprite):
 
     def check_shoot_cd(self):
         if self.timer.tick() > self.cd_time:
+            self.cd_time = conf.shoot_cd_time
             return True
         else:
             self.cd_time = self.cd_time - self.timer.get_time()
@@ -74,6 +75,6 @@ class Player(Sprite):
         else:
             self.v.y = 0
         if input_array[4] == 1:
-            self.shoot_dir = xy_to_dir(self.team, self.v.x, self.v.y)
+            self.shoot_dir = xy_to_dir(self.team, input_array[3] - input_array[2], input_array[0] - input_array[1])
         else:
             self.shoot_dir = 99

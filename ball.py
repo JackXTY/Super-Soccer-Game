@@ -32,41 +32,41 @@ class Ball(Sprite):
     def check_time_up(self):
         self.remain_time = self.remain_time - self.timer.tick()
         if self.remain_time <= 0:
-            self.remain.time = 0
+            self.remain_time = 0
             return True
         else:
             return False
 
     def shoot_ball(self, dir):
         self.catcher = -1
-        self.v = dir_to_xy(dir)
-        if self.v.x == 0:
-            self.v.y = self.v.y * conf.player_power
-        elif self.v.y == 0:
-            self.v.x = self.v.x * conf.player_power
-        else:
-            self.v.x = self.v.x * (conf.player_power ** 0.5)
-            self.v.y = self.v.y * (conf.player_power ** 0.5)
+        self.v.x, self.v.y = dir_to_xy(dir)
 
     def update_pos(self):
-        # judge and revert velocity here
+        # boundary and revert velocity here
         if 3.5 / 15 * conf.height > self.rect.centery or self.rect.centery > 11.5 / 15 * conf.height:
             if self.rect.centerx < conf.width * 0.125:
                 self.rect.centerx = conf.width * 0.125
-                self.v.x = update_v(self.v.x * -1, conf.friction * 2)
+                self.v.x = update_v(self.v.x * -1, conf.friction)
             if self.rect.centerx > conf.width * 0.875:
                 self.rect.centerx = conf.width * 0.875
-                self.v.x = update_v(self.v.x * -1, conf.friction * 2)
+                self.v.x = update_v(self.v.x * -1, conf.friction)
         if self.rect.centery < conf.height * 0.125:
             self.rect.centery = conf.height * 0.125
-            self.v.y = update_v(self.v.y * -1, conf.friction * 2)
+            self.v.y = update_v(self.v.y * -1, conf.friction)
         if self.rect.centery > conf.height * 0.875:
             self.rect.centery = conf.height * 0.875
-            self.v.y = update_v(self.v.y * -1, conf.friction * 2)
-        if self.v.x != 0 or self.v.y != 0:
+            self.v.y = update_v(self.v.y * -1, conf.friction)
+        # update velocity according to friction
+        if self.v.x != 0 and self.v.y != 0:
             self.rect.centerx = self.rect.centerx + int(self.v.x)
             self.rect.centery = self.rect.centery + int(self.v.y)
             self.v.x = update_v(self.v.x, conf.friction)
+            self.v.y = update_v(self.v.y, conf.friction)
+        elif self.v.x != 0:
+            self.rect.centerx = self.rect.centerx + int(self.v.x)
+            self.v.x = update_v(self.v.x, conf.friction)
+        elif self.v.y != 0:
+            self.rect.centery = self.rect.centery + int(self.v.y)
             self.v.y = update_v(self.v.y, conf.friction)
 
     def render(self, screen):

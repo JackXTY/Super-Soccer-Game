@@ -4,8 +4,10 @@ from pygame.sprite import Group
 import sys
 from player import Player
 from ball import Ball
+from text import Text
 from config import Config
 import random
+import time
 
 pygame.init()
 conf = Config()
@@ -26,7 +28,7 @@ def initialize_game():
             team_now = 1
             image = conf.player_image_red
         pos = conf.init_pos[i]
-        p = Player(team_now, int(screen_rect.centerx * pos[2]), int(screen_rect.centery * pos[3]),
+        p = Player(team_now, int(screen_rect.centerx * pos[0]), int(screen_rect.centery * pos[1]),
                    i, image)
         players.add(p)
         print("player: id={}, team={}".format(p.id, p.team))
@@ -46,7 +48,8 @@ def reset():
         p.v.y = 0
 
 
-def get_input(pid):  # here may need to adjust with the ai
+# ai interact with game from here
+def get_input(pid):
     #        W  S  A  D  Space
     input_array = [0, 0, 0, 0, 0]
     if pid == p1_id and pid > 0:  # deal with user_keyboard input
@@ -74,8 +77,11 @@ def get_input(pid):  # here may need to adjust with the ai
 game_on = True
 score = [0, 0]
 p1_id = 1
+game_timer = pygame.time.Clock()
+game_time = conf.max_time
+game_timer.tick()
 initialize_game()
-
+info = Text()
 
 # While loop for main logic of the game
 while game_on:
@@ -87,30 +93,36 @@ while game_on:
     # deal with input
     for p in players.sprites():
         input_array = get_input(p.id)
-        p.input_hadler(input_array)
+        p.input_handler(input_array)
         if p.shoot_dir < 99:
             if ball.belong(p.id):
                 p.shoot_update()
                 ball.shoot_ball(p.shoot_dir)
+                print("p-{} shoot, dir in ({},{}) {}, input={}".format(p.id, ball.v.x, ball.v.y, p.shoot_dir, input_array))
             p.shoot_dir = 99
 
     # deal with collision
     stealer_list = []
+    holder = None
+    stealer = None
     for p in players.sprites():  # check if anyone want to steal the ball
         if pygame.sprite.collide_rect(ball, p):
-            stealer_list += [p]
-    controller = None
+            if ball.belong(p.id):
+                holder = p
+            elif p.check_shoot_cd():
+                stealer_list += [p]
     if len(stealer_list) == 1:
-        controller = stealer_list[0]
+        stealer = stealer_list[0]
     elif len(stealer_list) > 1:
-        controller = stealer_list[random.randint(0, len(stealer_list) - 1)]
-    if controller is not None:
+        stealer = stealer_list[random.randint(0, len(stealer_list) - 1)]
+
+    if stealer is None and holder is not None:  # still hold the ball
+        ball.copy_pos(holder.rect.centerx, holder.rect.centery)
+    elif stealer is not None:  # steal the ball
         if ball.belong(-1):  # if ball is free
-            ball.caught(controller.id)
-        elif ball.belong(controller):  # if ball is caught by original catcher
-            ball.copy_pos(controller.rect.centerx, controller.rect.centery)
+            ball.caught(stealer.id)
         elif ball.check_time_up():  # if ball is stolen
-            ball.caught(controller)
+            ball.caught(stealer.id)
 
     ball.update_pos()
     shot = ball.in_door()
@@ -122,12 +134,22 @@ while game_on:
     for player in players.sprites():
         player.render(screen)
     ball.render(screen)
-
+    info.render(screen, score, game_time)
     pygame.display.update()
 
+    game_time -= game_timer.tick()
+    if game_time < 0:
+        game_on = False
+
+
 # wait for game exit
-while True:
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
-            sys.exit()
+screen.blit(background, (0, 0))
+for player in players.sprites():
+    player.render(screen)
+ball.render(screen)
+info.render(screen, score, 0)
+pygame.display.update()
+
+time.sleep(1000)
+pygame.quit()
+sys.exit()
