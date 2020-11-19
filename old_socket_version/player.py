@@ -1,4 +1,5 @@
 import pygame
+from pygame.locals import *
 from pygame.sprite import Sprite
 from config import Config, xy_to_dir, Velocity
 
@@ -18,12 +19,6 @@ class Player(Sprite):
         self.timer = pygame.time.Clock()
         self.cd_time = conf.shoot_cd_time
         self.shoot_dir = 99
-
-    def belong(self, pid):
-        if self.id == pid:
-            return True
-        else:
-            return False
 
     def update(self):
         pos_x = self.rect.centerx + self.v.x
@@ -60,20 +55,20 @@ class Player(Sprite):
             self.cd_time = self.cd_time - self.timer.get_time()
             return False
 
-    def input_handler(self, input_array):
-        if input_array[2] == 1 and input_array[3] == 0:
+    def input_handler(self, pressed_keys):
+        if pressed_keys[K_LEFT]:
             self.v.x = -conf.player_v
-        elif input_array[3] == 1 and input_array[2] == 0:
+        elif pressed_keys[K_RIGHT]:
             self.v.x = conf.player_v
         else:
             self.v.x = 0
-        if input_array[0] == 1 and input_array[1] == 0:
+        if pressed_keys[K_UP]:
             self.v.y = -conf.player_v
-        elif input_array[0] == 0 and input_array[1] == 1:
+        elif pressed_keys[K_DOWN]:
             self.v.y = conf.player_v
         else:
             self.v.y = 0
-        if input_array[4] == 1:
+        if pressed_keys[K_SPACE]:
             self.shoot_dir = xy_to_dir(self.team, self.v.x, self.v.y)
         else:
             self.shoot_dir = 99

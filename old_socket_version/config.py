@@ -28,6 +28,44 @@ class Velocity:
         self.y = y
 
 
+def compress(status, id, x, y, time):
+    result = "{" + status + '/' + str(id) + '/' + str(x) + '/' + str(y) + '/' + str(time) + '}'
+    return result
+
+
+def compress_ball(id, x, y):
+    result = "{" + "Ball" + '/' + str(id) + '/' + str(x) + '/' + str(y) + '}'
+    return result
+
+
+def compress_update_ball(id, x, y):
+    result = "{" + "Ball_update" + '/' + str(id) + '/' + str(x) + '/' + str(y) + '}'
+    return result
+
+
+def compress_shoot(id, x, y, dir):
+    result = "{" + "Shoot" + '/' + str(id) + '/' + str(x) + '/' + str(y) + '/' + str(dir) + '}'
+    return result
+
+
+def decompress(target):
+    results = []
+    if target[0] == '{' and target[-1] == '}':
+        results += target[1:-1].split("}{")
+        for i in range(len(results)):
+            result = results[i].split('/')
+            result[1] = int(result[1])  # id
+            if not(result[0] == "End_line" or result[0] == "Begin_line" or result[0] == "Restart"):
+                result[2] = float(result[2])  # x
+                result[3] = float(result[3])  # y
+                if result[0] == "Shoot":
+                    result[4] = int(result[4])  # direction
+                if result[0] == "True":
+                    result[4] = float(result[4])  # time
+            results[i] = result
+        return results
+
+
 def xy_to_dir(team, x, y):
     # 01-Right, 11-RightUp, 10-Up, 12-LeftUp, 02-Left, 22-LeftDown, 20-Down, 21-RightDown
     res = 0
