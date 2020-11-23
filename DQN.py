@@ -2,9 +2,14 @@ import numpy as np
 import math
 from config import Config
 
+from collections import deque
+import random
+import numpy as np
+from tensorflow.keras import models, layers, optimizers
+
 conf = Config()
 
-class Agent():
+class AgentsQT():
 
     def __init__(self, id):
 
@@ -24,18 +29,19 @@ class Agent():
         #
         self.greedy = 0.7
 
+
     # to simplify the state of current game
     def get_state(self, state):
         """
         :param state: state is a dictionary containing the current state
         """
         return_state = np.zeros((6,), dtype=int);
-        player_x = state['player_x']
-        player_y = state['player_y']
-        opponent_x = state['opponent_x']
-        opponent_y = state['opponent_y']
-        ball_x = state['ball_x']
-        ball_y = state['ball_y']
+        player_x = state[0]
+        player_y = state[1]
+        opponent_x = state[2]
+        opponent_y = state[3]
+        ball_x = state[4]
+        ball_y = state[5]
 
         interval_x = 1/12 * conf.width
         return_state[0] = (player_x - (0.125 * conf.width)) // interval_x
@@ -85,25 +91,25 @@ class Agent():
     def make_decision(self, state, random=True):
         act = []
         ret_act = 0
-        act[0] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 0, 0]
-        act[1] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 1, 0]
-        act[2] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 2, 0]
-        act[3] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 3, 0]
-        act[4] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 4, 0]
-        act[5] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 5, 0]
-        act[6] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 6, 0]
-        act[7] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 7, 0]
-        act[8] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 8, 0]
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 0, 0])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 1, 0])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 2, 0])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 3, 0])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 4, 0])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 5, 0])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 6, 0])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 7, 0])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 8, 0])
 
-        act[9] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 0, 1]
-        act[10] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 1, 1]
-        act[11] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 2, 1]
-        act[12] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 3, 1]
-        act[13] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 4, 1]
-        act[14] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 5, 1]
-        act[15] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 6, 1]
-        act[16] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 7, 1]
-        act[17] = self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 8, 1]
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 0, 1])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 1, 1])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 2, 1])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 3, 1])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 4, 1])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 5, 1])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 6, 1])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 7, 1])
+        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 8, 1])
         
         if (random):
             if np.random.rand(1) < self.greedy:
@@ -121,10 +127,55 @@ class Agent():
     def update_greedy(self):
         self.greedy *= 0.95
 
-    def act(self, p, action):
-        """
-        :param p: sending action to game
-        """
+    def save_model(self):
         pass
 
-    
+# TODO: ENV!    
+class AgentsDQN():
+    def __init__(self, action_set):
+        self.gamma = 1
+        self.model = self.init_netWork()
+        self.batch_size = 128
+        self.memory = deque(maxlen=2000000)
+        self.greedy = 1
+        self.action_set = action_set
+
+
+    def get_state(self, state):
+        """
+        提取游戏state中我们需要的数据
+        :param state: 游戏state
+        :return: 返回提取好的数据
+        """
+        return_state = np.zeros((6,))
+        return_state[0] = state['player_x']
+        return_state[1] = state['player_y']
+        return_state[2] = state['opponent_x']
+        return_state[3] = state['opponent_y']
+        return_state[4] = state['ball_x']
+        return_state[5] = state['ball_y']
+        
+        return return_state
+
+
+    def init_netWork(self):
+        """
+        构建模型
+        :return:
+        """
+        model = models.Sequential([
+            layers.Dense(64 * 4, activation="tanh", input_dim=self.observation_space.shape[0]),
+            layers.Dense(18, activation="linear")
+        ])
+
+        model.compile(loss='mean_squared_error',
+                      optimizer=optimizers.Adam(0.001))
+        return model
+
+    def add_memory(self, sample):
+        self.memory.append(sample)
+
+    def update_greedy(self):
+        # 小于最小探索率的时候就不进行更新了。
+        if self.greedy > 0.01:
+            self.greedy *= 0.995

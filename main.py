@@ -1,4 +1,5 @@
 import pygame
+from pygame.event import get
 from pygame.locals import *
 from pygame.sprite import Group
 import sys
@@ -8,6 +9,7 @@ from text import Text
 from config import Config
 import random
 import time
+from dqn import AgentsQT
 
 pygame.init()
 conf = Config()
@@ -18,7 +20,21 @@ pygame.display.set_caption('Super Soccer Game')
 background = pygame.image.load(conf.background_image).convert()
 players = Group()
 ball = Ball(screen_rect.centerx, screen_rect.centery)
+agents = []
 
+
+def getGameState(pid, players, ball):
+    ret_state = [0, 0, 0, 0, 0, 0]
+    for p in players:
+        if p.id == pid:
+            ret_state[0] = p.rect.centerx
+            ret_state[1] = p.rect.centery
+        else:
+            ret_state[2] = p.rect.centerx
+            ret_state[3] = p.rect.centery
+    ret_state[4] = ball.rect.centerx
+    ret_state[5] = ball.rect.centery
+    return ret_state
 
 def initialize_game():
     for i in range(1, N + 1):
@@ -32,6 +48,8 @@ def initialize_game():
                    i, image)
         players.add(p)
         print("player: id={}, team={}".format(p.id, p.team))
+        agent = AgentsQT(p.id)
+        agents.append(agent)
 
 
 def reset():
@@ -73,6 +91,20 @@ def get_input(pid):
         '''
         return input_array
 
+def get_input_ai(pid, action):
+    ret_array = [0, 0, 0, 0, 0]
+    if action[0] == 1 or action[0] == 2 or action[0] == 8:
+        ret_array[0] = 1
+    if action[0] == 2 or action[0] == 3 or action[0] == 4:
+        ret_array[3] = 1
+    if action[0] == 4 or action[0] == 5 or action[0] == 6:
+        ret_array[1] = 1
+    if action[0] == 6 or action[0] == 7 or action[0] == 8:
+        ret_array[2] = 1
+    if action[1] == 1:
+        ret_array[4] = 1
+    return ret_array
+
 
 game_on = True
 score = [0, 0]
@@ -82,64 +114,96 @@ game_time = conf.max_time
 game_timer.tick()
 initialize_game()
 info = Text()
+episodes = 1000
 
 # While loop for main logic of the game
-while game_on:
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            pygame.quit()
-            sys.exit()
+for episode in range(episodes):
+    reset()    
+    state = []
+    state.append(agents[0].get_state(getGameState(1, players, ball)))
+    state.append(agents[1].get_state(getGameState(2, players, ball)))
+    agents[0].update_greedy()
+    agents[1].update_greedy()
 
-    # deal with input
-    for p in players.sprites():
-        input_array = get_input(p.id)
-        p.input_handler(input_array)
-        if p.shoot_dir < 99:
-            if ball.belong(p.id):
-                p.shoot_update()
-                ball.shoot_ball(p.shoot_dir)
-                print("p-{} shoot, dir in ({},{}) {}, input={}".format(p.id, ball.v.x, ball.v.y, p.shoot_dir, input_array))
-            p.shoot_dir = 99
+    while game_on:
+        next_state = []
+        rewards = [0, 0]
+        action = [0,0]
 
-    # deal with collision
-    stealer_list = []
-    holder = None
-    stealer = None
-    for p in players.sprites():  # check if anyone want to steal the ball
-        if pygame.sprite.collide_rect(ball, p):
-            if ball.belong(p.id):
-                holder = p
-            elif p.check_shoot_cd():
-                stealer_list += [p]
-    if len(stealer_list) == 1:
-        stealer = stealer_list[0]
-    elif len(stealer_list) > 1:
-        stealer = stealer_list[random.randint(0, len(stealer_list) - 1)]
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+        # deal with input
+        
+        for p in players.sprites():
+            #input_array = get_input(p.id)
+            action[p.id - 1] = agents[p.id - 1].make_decision(state[p.id - 1])
+            input_array = get_input_ai(p.id, action[p.id - 1])
+            p.input_handler(input_array)
+            if p.shoot_dir < 99:
+                if ball.belong(p.id):
+                    p.shoot_update()
+                    ball.shoot_ball(p.shoot_dir)
+                    print("p-{} shoot, dir in ({},{}) {}, input={}".format(p.id, ball.v.x, ball.v.y, p.shoot_dir, input_array))
+                p.shoot_dir = 99
 
-    if stealer is None and holder is not None:  # still hold the ball
-        ball.copy_pos(holder.rect.centerx, holder.rect.centery)
-    elif stealer is not None:  # steal the ball
-        if ball.belong(-1):  # if ball is free
-            ball.caught(stealer.id)
-        elif ball.check_time_up():  # if ball is stolen
-            ball.caught(stealer.id)
+        # deal with collision
+        stealer_list = []
+        holder = None
+        stealer = None
+        for p in players.sprites():  # check if anyone want to steal the ball
+            if pygame.sprite.collide_rect(ball, p):
+                if ball.belong(p.id):
+                    holder = p
+                elif p.check_shoot_cd():
+                    stealer_list += [p]
+        if len(stealer_list) == 1:
+            stealer = stealer_list[0]
+        elif len(stealer_list) > 1:
+            stealer = stealer_list[random.randint(0, len(stealer_list) - 1)]
 
-    ball.update_pos()
-    shot = ball.in_door()
-    if shot >= 0:
-        score[shot] += 1
-        reset()
+        if stealer is None and holder is not None:  # still hold the ball
+            ball.copy_pos(holder.rect.centerx, holder.rect.centery)
+        elif stealer is not None:  # steal the ball
+            if ball.belong(-1):  # if ball is free
+                ball.caught(stealer.id)
+                rewards[stealer.id - 1] += 10
+            elif ball.check_time_up():  # if ball is stolen
+                ball.caught(stealer.id)
+                if stealer.id == 1:
+                    rewards[0] += 10
+                    rewards[1] -= 10
+                else:
+                    rewards[1] += 10
+                    rewards[0] -= 10
 
-    screen.blit(background, (0, 0))
-    for player in players.sprites():
-        player.render(screen)
-    ball.render(screen)
-    info.render(screen, score, game_time)
-    pygame.display.update()
+        ball.update_pos()
+        shot = ball.in_door()
+        if shot >= 0:
+            score[shot] += 1
+            rewards[shot] += 1000
+            reset()
 
-    game_time -= game_timer.tick()
-    if game_time < 0:
-        game_on = False
+        
+        next_state.append(agents[0].get_state(getGameState(1, players, ball)))
+        next_state.append(agents[1].get_state(getGameState(2, players, ball)))
+
+        agents[0].update_q_table(state[0], action[0], next_state[0], rewards[0])
+        agents[1].update_q_table(state[1], action[1], next_state[1], rewards[1])
+
+        state = next_state
+
+        screen.blit(background, (0, 0))
+        for player in players.sprites():
+            player.render(screen)
+        ball.render(screen)
+        info.render(screen, score, game_time)
+        pygame.display.update()
+
+        game_time -= game_timer.tick()
+        if game_time < 0:
+            game_on = False
 
 
 # wait for game exit
