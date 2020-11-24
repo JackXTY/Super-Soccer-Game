@@ -105,6 +105,44 @@ def get_input_ai(pid, action):
         ret_array[4] = 1
     return ret_array
 
+def rewards_func(r, p_x, p_y, n_x, n_y):
+    rewards = r
+    prev_pos_x = p_x
+    prev_pos_y = p_y
+    new_pos_x = n_x
+    new_pos_y = n_y
+    
+
+    if abs(prev_pos_x[2] - prev_pos_x[0]) > abs(new_pos_x[2] - new_pos_x[0]):
+         rewards[0] += 200
+    elif abs(prev_pos_x[2] - prev_pos_x[0]) < abs(new_pos_x[2] - new_pos_x[0]):
+         rewards[0] -= 200
+
+    if abs(prev_pos_x[2] - prev_pos_x[1]) > abs(new_pos_x[2] - new_pos_x[1]):
+        rewards[1] += 200
+    elif abs(prev_pos_x[2] - prev_pos_x[1]) < abs(new_pos_x[2] - new_pos_x[1]):
+         rewards[1] -= 200
+
+    if abs(prev_pos_y[2] - prev_pos_y[0]) > abs(new_pos_y[2] - new_pos_y[0]):
+        rewards[0] += 200
+    elif abs(prev_pos_y[2] - prev_pos_y[0]) < abs(new_pos_y[2] - new_pos_y[0]):
+         rewards[0] -= 200
+
+    if abs(prev_pos_y[2] - prev_pos_y[1]) > abs(new_pos_y[2] - new_pos_y[1]):
+        rewards[1] += 200
+    elif abs(prev_pos_y[2] - prev_pos_y[1]) < abs(new_pos_y[2] - new_pos_y[1]):
+         rewards[1] -= 200
+
+    if new_pos_x[2] > prev_pos_x[2]:
+        rewards[0] += 600
+        rewards[1] -= 600
+    elif new_pos_x[2] < prev_pos_x[2]:
+        rewards[0] -= 600
+        rewards[1] += 600  
+
+    print(rewards)
+    return rewards
+
 
 game_on = True
 score = [0, 0]
@@ -126,6 +164,10 @@ for episode in range(episodes):
     agents[1].update_greedy()
 
     while game_on:
+        prev_pos_x = [0, 0, 0]
+        prev_pos_y = [0, 0, 0]
+        new_pos_x = [0, 0, 0]
+        new_pos_y = [0, 0, 0]
         next_state = []
         rewards = [0, 0]
         action = [0,0]
@@ -136,8 +178,12 @@ for episode in range(episodes):
                 sys.exit()
         # deal with input
         
+        prev_pos_x[2] = ball.rect.centerx
+        prev_pos_y[2] = ball.rect.centery
         for p in players.sprites():
             #input_array = get_input(p.id)
+            prev_pos_x[p.id - 1] = p.rect.centerx
+            prev_pos_y[p.id - 1] = p.rect.centery
             action[p.id - 1] = agents[p.id - 1].make_decision(state[p.id - 1])
             input_array = get_input_ai(p.id, action[p.id - 1])
             p.input_handler(input_array)
@@ -145,8 +191,10 @@ for episode in range(episodes):
                 if ball.belong(p.id):
                     p.shoot_update()
                     ball.shoot_ball(p.shoot_dir)
+                    rewards[p.id - 1] -= 1000
                     print("p-{} shoot, dir in ({},{}) {}, input={}".format(p.id, ball.v.x, ball.v.y, p.shoot_dir, input_array))
                 p.shoot_dir = 99
+            
 
         # deal with collision
         stealer_list = []
@@ -168,23 +216,26 @@ for episode in range(episodes):
         elif stealer is not None:  # steal the ball
             if ball.belong(-1):  # if ball is free
                 ball.caught(stealer.id)
-                rewards[stealer.id - 1] += 10
+                rewards[stealer.id - 1] += 1500
             elif ball.check_time_up():  # if ball is stolen
                 ball.caught(stealer.id)
                 if stealer.id == 1:
-                    rewards[0] += 10
-                    rewards[1] -= 10
+                    rewards[0] += 2000
+                    rewards[1] -= 2000
                 else:
-                    rewards[1] += 10
-                    rewards[0] -= 10
+                    rewards[1] += 2000
+                    rewards[0] -= 2000
 
         ball.update_pos()
+        new_pos_x[2] = ball.rect.centerx
+        new_pos_y[2] = ball.rect.centery
         shot = ball.in_door()
         if shot >= 0:
             score[shot] += 1
-            rewards[shot] += 1000
+            rewards[shot] += 100000
+            rewards[shot-1] -= 10000
             reset()
-
+        
         
         next_state.append(agents[0].get_state(getGameState(1, players, ball)))
         next_state.append(agents[1].get_state(getGameState(2, players, ball)))
@@ -197,6 +248,13 @@ for episode in range(episodes):
         screen.blit(background, (0, 0))
         for player in players.sprites():
             player.render(screen)
+            new_pos_x[player.id - 1] = player.rect.centerx
+            new_pos_y[player.id - 1] = player.rect.centery
+
+        rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y)
+        print(prev_pos_x, prev_pos_y)
+        print(new_pos_x, new_pos_y)
+        
         ball.render(screen)
         info.render(screen, score, game_time)
         pygame.display.update()

@@ -23,11 +23,11 @@ class AgentsQT():
         self.id = id
         self.q_table = np.zeros((9, 9, 7, 7, 7, 7, 9, 2))
         # learning rate
-        self.alpha = 0.7
+        self.alpha = 1
         # 
         self.gamma = 0.7
         #
-        self.greedy = 0.7
+        self.greedy = 0.9
 
 
     # to simplify the state of current game
