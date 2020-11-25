@@ -8,12 +8,12 @@ class Config:
         self.ball_image = 'image/ball.png'
         self.background_image = 'image/background.png'
 
-        self.player_v = 1
+        self.player_v = 5
         self.player_power = 7
         self.friction = 0.14
         self.shoot_cd_time = 1000
 
-        self.max_time = 40000
+        self.max_time = 400000
         self.total_number = 2
         self.init_pos = [[1.0, 1.0], [0.5, 1.0], [1.5, 1.0]]
 

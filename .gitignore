@@ -1,1 +1,11 @@
+<<<<<<< HEAD
 __pycache__
+=======
+# Python:
+*.so
+*.egg
+*.egg-info
+dist
+build
+*.pyc
+>>>>>>> da686a009984d2a16200a8cc0a77f6ef6c42decc
