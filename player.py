@@ -19,12 +19,6 @@ class Player(Sprite):
         self.cd_time = conf.shoot_cd_time
         self.shoot_dir = 99
 
-    def belong(self, pid):
-        if self.id == pid:
-            return True
-        else:
-            return False
-
     def update(self):
         pos_x = self.rect.centerx + self.v.x
         pos_y = self.rect.centery + self.v.y
@@ -75,6 +69,7 @@ class Player(Sprite):
         else:
             self.v.y = 0
         if input_array[4] == 1:
-            self.shoot_dir = xy_to_dir(self.team, input_array[3] - input_array[2], input_array[0] - input_array[1])
+            self.shoot_dir = xy_to_dir(self.team, input_array[3] - input_array[2],
+                                       input_array[0] - input_array[1])
         else:
             self.shoot_dir = 99
