@@ -66,7 +66,7 @@ Instructor: & Prof. Andrej Bogdanov % Instructor/supervisor
 %	SECTION 1
 %----------------------------------------------------------------------------------------
 
-\section{Background}
+\section{Abstract}
 
 To determine the atomic weight of magnesium via its reaction with oxygen and to study the stoichiometry of the reaction (as defined in \ref{definitions}):
 
@@ -92,7 +92,13 @@ The mass of an atom of a chemical element expressed in atomic mass units. It is 
 %	SECTION 2
 %----------------------------------------------------------------------------------------
 
-\section{Experimental Data}
+\section{Background}
+
+\subsection{Related Works}
+
+\subsection{Tensorflow}
+
+\subsection{Pygame}
 
 \begin{tabular}{ll}
 Mass of empty crucible & \SI{7.28}{\gram}\\
@@ -106,28 +112,56 @@ Magnesium from sample bottle & \#1
 %	SECTION 3
 %----------------------------------------------------------------------------------------
 
-\section{Sample Calculation}
+\section{Introduction}
 
-\begin{tabular}{ll}
-Mass of magnesium metal & = \SI{8.59}{\gram} - \SI{7.28}{\gram}\\
-& = \SI{1.31}{\gram}\\
-Mass of magnesium oxide & = \SI{9.46}{\gram} - \SI{7.28}{\gram}\\
-& = \SI{2.18}{\gram}\\
-Mass of oxygen & = \SI{2.18}{\gram} - \SI{1.31}{\gram}\\
-& = \SI{0.87}{\gram}
-\end{tabular}
-
-placeholder
+\subsection{Game Development Platform}
+Considering the training process of AI, a game platform based on Python would be more suitable than other main stream game development platforms nowadays, like Unity or Unreal Engine 4. Therefore, we choose Pygame as our game development platform.
 
 %----------------------------------------------------------------------------------------
 %	SECTION 4
 %----------------------------------------------------------------------------------------
 
-\section{Results and Conclusions}
+\section{Design}
 
-The atomic weight of magnesium is concluded to be \SI{24}{\gram\per\mol}, as determined by the stoichiometry of its chemical combination with oxygen. This result is in agreement with the accepted value.
+The design of our FYP is based on two parts, which are the game part and AI part.
 
-\begin{figure}[h]
+\subsection{Game Design}
+
+\subsubsection{Game Mode}
+In consideration of the cost of game development, basically the time cost, we decide to implement a game with straightforward structure. For the purpose of AI training, the game should have one clear goal and controllable user inputs, otherwise the workload and cost of the FYP could be hard to measure. Then as the result of teamwork discussion, soccer game is chosen as the game mode.
+
+\subsubsection{Game Rule}
+\begin{description}
+	\item[Team and players]
+	There are two teams in the game. For each team, ther are N players (1 $\leq$ N $\leq$ 7).
+	\item[Goal]
+	If a ball pass through the goal of a team, then opposite team would get a score. And in each turn of the game, the team who get most scores will win the game, otherwise it ends in a draw. Therefore, for each team, they should try their best to get more scores and prevent the opposite team to get any score.
+	\item[time]
+	Every turn of game has a time limit. As soon as it reaches time limit, this turn of game will be forcely over.
+\end{description}
+
+\subsubsection{Player Action}
+For each player, it can get the ball when it is free, steal the ball when it is catched by another player, and shoot the ball when it is catching the ball.
+\begin{description}
+	\item[catch]
+	When a ball is not catched by any player, any player can try to get the ball. As soon as a player touch the ball, the player will get the ball.
+	\item[Steal]
+	When a ball is catched by a player, other players can steal the ball from player. As long as another player touch the player with ball, the ball would be stolen. However, after a player just get the ball, there will be a short invincible period. Only after the invincible period, can other players steal the ball.
+	\item[shoot]
+	When a player is catching the ball, the player can shoot the ball away. It can shoot the ball along the eight directions, which are left, right, up, down, upper-left, upper-right, lower-left, lower-right.
+\end{description}
+
+\subsubsection{Other Details About Game}
+\begin{description}
+	\item[boundary]
+	When the ball reach the boundary, it will bounce back. Players are not able to get out of boundary.
+	\item[Initialization and Reset]
+	When each turn of game begins, every player would be assigned to an initial position, and ball will be placed in the center of the field. And when any of two teams get a score, the positions of players and ball will also be reset to initial positions.
+\end{description}
+
+\subsection{AI Design}
+
+\begin{figure}
 \begin{center}
 \includegraphics[width=0.65\textwidth]{placeholder} % Include the image placeholder.png
 \caption{Figure caption.}
@@ -138,17 +172,40 @@ The atomic weight of magnesium is concluded to be \SI{24}{\gram\per\mol}, as det
 %	SECTION 5
 %----------------------------------------------------------------------------------------
 
-\section{Discussion of Experimental Uncertainty}
+\section{Implement}
 
-placeholder
+\subsection{Game Implementation}
 
-The most obvious source of experimental uncertainty is the limited precision of the balance. Other potential sources of experimental uncertainty are: the reaction might not be complete; if not enough time was allowed for total oxidation, less than complete oxidation of the magnesium might have, in part, reacted with nitrogen in the air (incorrect reaction); the magnesium oxide might have absorbed water from the air, and thus weigh ``too much." Because the result obtained is close to the accepted value it is possible that some of these experimental uncertainties have fortuitously cancelled one another.
+In our pygame implementation of the soccer game, we build two important classes \textbf{Player} and \textbf{Ball}.
+
+\subsubsection{Player}
+The Player class inherits from Sprite, which is a pre-defined class of pygame module.
+\begin{description}
+	\item[\_\_init\_\_]
+	In the \_\_init\_\_ function, we define the related variavles of a player, assign an id and initial position to the player, and load the image of players.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Player_init} % Include the image placeholder.png
+			\caption{implementation of \_\_init\_\_}
+		\end{center}
+	\end{figure}
+	\item[inpur\_handler]
+	
+	\item[update]
+	
+	\item[check\_shoot\_cd]
+	
+	\item[shoot\_update]
+	
+	\item[render]
+	
+\end{description}
 
 %----------------------------------------------------------------------------------------
 %	SECTION 6
 %----------------------------------------------------------------------------------------
 
-\section{Answers to Definitions}
+\section{Current Conclusion}
 
 \begin{enumerate}
 \begin{item}
@@ -164,6 +221,16 @@ The \emph{units of atomic weight} are two-fold, with an identical numerical valu
 \end{equation*}
 \end{item}
 \end{enumerate}
+
+%----------------------------------------------------------------------------------------
+%	SECTION 5
+%----------------------------------------------------------------------------------------
+
+\section{Future Plan}
+
+placeholder
+
+The most obvious source of experimental uncertainty is the limited precision of the balance. Other potential sources of experimental uncertainty are: the reaction might not be complete; if not enough time was allowed for total oxidation, less than complete oxidation of the magnesium might have, in part, reacted with nitrogen in the air (incorrect reaction); the magnesium oxide might have absorbed water from the air, and thus weigh ``too much." Because the result obtained is close to the accepted value it is possible that some of these experimental uncertainties have fortuitously cancelled one another.
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
