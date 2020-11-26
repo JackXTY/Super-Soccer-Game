@@ -210,7 +210,7 @@ The second technique is to use two separate networks. One is called target netwo
 \subsubsection*{\small Implementation detail of DQN}
 
 The pseudo code of DQN provided by DeepMind is shown in Algorithm 3.
-\begin{algorithm}
+\begin{algorithm}[H]
     \caption{Deep $Q$-Network(Mnih et al)}\label{euclid}
     \begin{algorithmic}[1]
     \State Setup replay memory $D$ to capacity $N$
@@ -508,13 +508,19 @@ The \emph{units of atomic weight} are two-fold, with an identical numerical valu
 \end{enumerate}
 
 %----------------------------------------------------------------------------------------
-%	SECTION 5
+%	SECTION 7
 %----------------------------------------------------------------------------------------
 
 \section{Future Plan}
 
-placeholder
+\subsection{Implementation of DQN}
+So far, we have implementaed Q-learning. However, the performance of Q-learning is not satisfactory. Therefore, we need to implement DQN, to improve the performance of agent.
 
+\subsection{Multiple Agents}
+Up to now, our agents are all trains on the 1v1 mode of the soccer game. In the future, we will also train different kinds of agents on the 2v2, 3v3, 5v5 and 7v7 modes, and compare what is different in strategy and their performance in different modes.
+
+\subsection{Standardization of Interface Between Game and Agent}
+The main part of game is implemented correctly. However, the interfaces between game and agent should be more standard, especially for the implementation of DQN.
 
 
 %----------------------------------------------------------------------------------------
