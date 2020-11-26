@@ -73,7 +73,6 @@ def dir_to_xy(d):
     elif d == 22:
         x = - conf.player_power * 0.78
         y = conf.player_power * 0.78
-
     return x, y
 
 

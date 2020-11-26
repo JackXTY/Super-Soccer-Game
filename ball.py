@@ -43,7 +43,8 @@ class Ball(Sprite):
 
     def update_pos(self):
         # boundary and revert velocity here
-        if 3.5 / 15 * conf.height > self.rect.centery or self.rect.centery > 11.5 / 15 * conf.height:
+        if 3.5 / 15 * conf.height > self.rect.centery \
+                or self.rect.centery > 11.5 / 15 * conf.height:
             if self.rect.centerx < conf.width * 0.125:
                 self.rect.centerx = conf.width * 0.125
                 self.v.x = update_v(self.v.x * -1, conf.friction)

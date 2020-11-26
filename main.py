@@ -44,8 +44,8 @@ def initialize_game():
             team_now = 1
             image = conf.player_image_red
         pos = conf.init_pos[i]
-        p = Player(team_now, int(screen_rect.centerx * pos[0]), int(screen_rect.centery * pos[1]),
-                   i, image)
+        p = Player(team_now, int(screen_rect.centerx * pos[0]),
+                   int(screen_rect.centery * pos[1]), i, image)
         players.add(p)
         print("player: id={}, team={}".format(p.id, p.team))
         agent = AgentsQT(p.id)
