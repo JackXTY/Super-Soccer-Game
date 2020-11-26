@@ -278,7 +278,8 @@ For each player, it can get the ball when it is free, steal the ball when it is 
 
 \subsection{AI Design}
 \subsubsection{Objection}
-The objection of our project is %todo
+The objection of our project is to build agents which is able to play the game with cretain strategy, to find how and why the configuration of environment effect the agents and to compare the difference between different model.
+
 Therefore we design 2 kinds of agents in this project, the agent using $Q$-learning and the agent using DQN. The former is simpler, and don't need the use of machine learning. The latter is an artificial intelligence and expected to perform better.
 \subsubsection{Structure of Agents}
 
@@ -583,7 +584,13 @@ The implementation of DQN agents are not finished yet, we need to normalize the 
 
 \section{Current Conclusion}
 
+In this term?
 
+$Q$-learning may not work well in our game, because the huge size of $Q$-table. if we want to store all the details in the table, the size of the table will be $ (664 \times 465)^3 \times 8 \times 2 = 4.7095\times 10^{17} $, which is incredible huge. Even if we simplify the table, there still are 3,111,696 cells in the table. 
+
+The size of the table make the time and space complexity far beyond our expectation, but it is not the toughest problem. The main issue make this algorithm performing bad is the times of states reached by agents. Because of the scheme we use to simplify tables and the property of random walks, the agents seldom reach some of the states, which make the updating of the table slower. 
+
+Due to these reason, we do not regard the $Q$-learning as a good model in this game, before we find a properly learning rate and reward function.
 %----------------------------------------------------------------------------------------
 %	SECTION 7
 %----------------------------------------------------------------------------------------
