@@ -58,16 +58,15 @@ Instructor: & Prof. Andrej Bogdanov % Instructor/supervisor
 \end{tabular}
 \end{center}
 \newpage
-% If you wish to include an abstract, uncomment the lines below
-\begin{abstract}
-% Abstract text
-\end{abstract}
+
 
 %----------------------------------------------------------------------------------------
 %	SECTION 1
 %----------------------------------------------------------------------------------------
 
-
+\begin{abstract}
+	Abstract text
+\end{abstract}
  
 %----------------------------------------------------------------------------------------
 %	SECTION 2
@@ -76,10 +75,16 @@ Instructor: & Prof. Andrej Bogdanov % Instructor/supervisor
 \section{Background}
 
 \subsection{Related Works}
+As the development of science technology, the game also evolves from the ancient chess game to the fantastic AAA video games nowadays. And with the development of artificial intelligence, bulding an agent to play a game is always a popular and interesting topic. Up to now, there are many research on playing game with nerual netwrok, like AlphaGO(Silver et al), playing Atari game(Mnih et al), and playing Dota2(Berner et al).\\\\
+Inspired by previous works, we found that Reinforcement Learning is widely used in game agent training. Therefore, we decide to build reinforcement learning model in our project. Also, the game to be played by AI will be developed by ourselves, which is a soccer game.\\\\
+Our goal is to build an agent which is able to play the game with certain strategy. And an agent which can beat normal human being would be satisfactory. What's more, by adjusting configuration of the game, we wish to know if our agents could cooperate with their teammates in the multiple players mode(like 2v2 or 5v5).
 
-\subsection{Tensorflow}
+\subsection{TensorFlow}
+TensorFlow is a free and open-source software library for machine learning, which was first realeased in 2017. TensorFlow is commonly used in deep neural networks. And in this project, keras, which works as the interface for TensorFlow, is used to build our nerual network.
 
 \subsection{Pygame}
+Pygame is a set of Python modules for making computer games, which was first realeased in 2020. Though Pygame may not support fantastic 3D game, however, it is simple and easy to learn and use.\\\\
+Additionally, considering the training process of AI, a game platform based on Python would be more suitable than other main stream game development platforms nowadays, like Unity or Unreal Engine 4. That is the reason why we choose Pygame as our game development platform.
 
 
 %----------------------------------------------------------------------------------------
@@ -87,9 +92,6 @@ Instructor: & Prof. Andrej Bogdanov % Instructor/supervisor
 %----------------------------------------------------------------------------------------
 
 \section{Introduction}
-
-\subsection{Game Development Platform}
-Considering the training process of AI, a game platform based on Python would be more suitable than other main stream game development platforms nowadays, like Unity or Unreal Engine 4. Therefore, we choose Pygame as our game development platform.
 
 \subsection{Agents Design}
 \subsubsection{Reinforcement learning}
@@ -208,7 +210,7 @@ The second technique is to use two separate networks. One is called target netwo
 \subsubsection*{\small Implementation detail of DQN}
 
 The pseudo code of DQN provided by DeepMind is shown in Algorithm 3.
-\begin{algorithm}
+\begin{algorithm}[H]
     \caption{Deep $Q$-Network(Mnih et al)}\label{euclid}
     \begin{algorithmic}[1]
     \State Setup replay memory $D$ to capacity $N$
@@ -332,7 +334,7 @@ The Player class inherits from Sprite, which is a pre-defined class of pygame mo
 	In the update, the position of a player would be updated according to its velocity. And boundary check will be executed, in case that the player cross over the boundary. 
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Player_update}
+			\includegraphics[width=0.7\textwidth]{Player_update}
 			\caption{implementation of update in Player}
 		\end{center}
 	\end{figure}
@@ -340,7 +342,7 @@ The Player class inherits from Sprite, which is a pre-defined class of pygame mo
 	In shoot\_update, after player shoot the ball, the timer will tick, for check\_shoot\_cd to check time.
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Player_shoot_update}
+			\includegraphics[width=0.5\textwidth]{Player_shoot_update}
 			\caption{implementation of shoot\_update in Player}
 		\end{center}
 	\end{figure}
@@ -348,7 +350,7 @@ The Player class inherits from Sprite, which is a pre-defined class of pygame mo
 	If a player want to get the ball, the system will check if it just shoot the ball by using the timer, which begins to tick in shoot\_update.
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Player_check_shoot_cd}
+			\includegraphics[width=0.7\textwidth]{Player_check_shoot_cd}
 			\caption{implementation of cehck\_shoot\_cd\_time in Player}
 		\end{center}
 	\end{figure}
@@ -356,7 +358,7 @@ The Player class inherits from Sprite, which is a pre-defined class of pygame mo
 	In render, the update function will be called. Then the player will be rendered through the screen, which is passed to the render method.
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Player_render}
+			\includegraphics[width=0.5\textwidth]{Player_render}
 			\caption{implementation of render in Player}
 		\end{center}
 	\end{figure}
@@ -369,7 +371,7 @@ The Ball class inherits from Sprite, which is a pre-defined class of pygame modu
 	In the \_\_init\_\_ method, we define and initialize the related variavles of the ball, assign initial position to the player, and load the image of players.
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Ball_init}
+			\includegraphics[width=0.7\textwidth]{Ball_init}
 			\caption{implementation of \_\_init\_\_ in Ball}
 		\end{center}
 	\end{figure}
@@ -377,7 +379,7 @@ The Ball class inherits from Sprite, which is a pre-defined class of pygame modu
 	In the belong, an player id is passed into this method, and it will be checked that if the ball belongs to the player with this id. 
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Ball_belong}
+			\includegraphics[width=0.5\textwidth]{Ball_belong}
 			\caption{implementation of belong in Ball}
 		\end{center}
 	\end{figure}
@@ -385,7 +387,7 @@ The Ball class inherits from Sprite, which is a pre-defined class of pygame modu
 	In the caught, the ball is caught by the player with given player id. And the information about tha ball would be updated.
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Ball_caught}
+			\includegraphics[width=0.5\textwidth]{Ball_caught}
 			\caption{implementation of caught in Ball}
 		\end{center}
 	\end{figure}
@@ -393,7 +395,7 @@ The Ball class inherits from Sprite, which is a pre-defined class of pygame modu
 	Position of ball will be updated according to the x and y value passed.
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Ball_copy_pos}
+			\includegraphics[width=0.5\textwidth]{Ball_copy_pos}
 			\caption{implementation of copy\_pos in Ball}
 		\end{center}
 	\end{figure}
@@ -401,7 +403,7 @@ The Ball class inherits from Sprite, which is a pre-defined class of pygame modu
 	In check\_time\_up, the remain time of invincible period will be checked. If the invincible time is up, the method will return True, which means other players can steal the ball from the player catching the ball.
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Ball_check_time}
+			\includegraphics[width=0.7\textwidth]{Ball_check_time}
 			\caption{implementation of check\_time\_up in Ball}
 		\end{center}
 	\end{figure}
@@ -409,11 +411,11 @@ The Ball class inherits from Sprite, which is a pre-defined class of pygame modu
 	Update relative information of the ball, after a player shoot the ball, and update velocity of the ball through dir\_to\_xy.
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Ball_shoot}
+			\includegraphics[width=0.5\textwidth]{Ball_shoot}
 			\caption{implementation of shoot\_ball in Ball}
 		\end{center}
 	\end{figure}
-	\begin{figure}
+	\begin{figure}[H]
 		\begin{center}
 			\includegraphics[width=0.9\textwidth]{dir_to_xy}
 			\caption{implementation of dir\_to\_xy}
@@ -437,7 +439,7 @@ The Ball class inherits from Sprite, which is a pre-defined class of pygame modu
 	In render, update\_pos is called. Then, ball is rendered through the screen passed to this method.
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Ball_render}
+			\includegraphics[width=0.5\textwidth]{Ball_render}
 			\caption{implementation of render in Ball}
 		\end{center}
 	\end{figure}
@@ -506,22 +508,31 @@ The \emph{units of atomic weight} are two-fold, with an identical numerical valu
 \end{enumerate}
 
 %----------------------------------------------------------------------------------------
-%	SECTION 5
+%	SECTION 7
 %----------------------------------------------------------------------------------------
 
 \section{Future Plan}
 
-placeholder
+\subsection{Implementation of DQN}
+So far, we have implementaed Q-learning. However, the performance of Q-learning is not satisfactory. Therefore, we need to implement DQN, to improve the performance of agent.
 
+\subsection{Multiple Agents}
+Up to now, our agents are all trains on the 1v1 mode of the soccer game. In the future, we will also train different kinds of agents on the 2v2, 3v3, 5v5 and 7v7 modes, and compare what is different in strategy and their performance in different modes.
+
+\subsection{Standardization of Interface Between Game and Agent}
+The main part of game is implemented correctly. However, the interfaces between game and agent should be more standard, especially for the implementation of DQN.
 
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
 
-\begin{thebibliography}{99}  
-    \bibitem{ref1}Zoph, Barret, and Quoc V. Le. "Neural architecture search with reinforcement learning." arXiv preprint arXiv:1611.01578 (2016).
-    \bibitem{ref2}Mnih, Volodymyr, et al. "Human-level control through deep reinforcement learning." nature 518.7540 (2015): 529-533.
+\begin{thebibliography}{99}
+	\bibitem{ref1}Silver, David, et al. "Mastering the game of Go with deep neural networks and tree search." nature 529.7587 (2016): 484-489.
+	\bibitem{ref2}Mnih, Volodymyr, et al. "Playing atari with deep reinforcement learning." arXiv preprint arXiv:1312.5602 (2013).
+	\bibitem{ref3}Berner, Christopher, et al. "Dota 2 with large scale deep reinforcement learning." arXiv preprint arXiv:1912.06680 (2019).
+    \bibitem{ref4}Zoph, Barret, and Quoc V. Le. "Neural architecture search with reinforcement learning." arXiv preprint arXiv:1611.01578 (2016).
+    \bibitem{ref5}Mnih, Volodymyr, et al. "Human-level control through deep reinforcement learning." nature 518.7540 (2015): 529-533.
 \end{thebibliography}
 %----------------------------------------------------------------------------------------
 
