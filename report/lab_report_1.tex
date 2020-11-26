@@ -27,10 +27,11 @@
 \usepackage[noend]{algpseudocode}
 \usepackage{siunitx} % Provides the \SI{}{} and \si{} command for typesetting SI units
 \usepackage{graphicx} % Required for the inclusion of images
-\usepackage{natbib} % Required to change bibliography style to APA
 \usepackage{amsmath} % Required for some math elements 
+\usepackage{cite} % For citation
 
-%\setlength\parindent{0pt} % Removes all indentation from paragraphs
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+\setlength{\parskip}{0.5em}
 
 \renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by letter rather than number (e.g. section 6)
 \renewcommand{\baselinestretch}{1.5}
@@ -100,13 +101,6 @@ The mass of an atom of a chemical element expressed in atomic mass units. It is 
 
 \subsection{Pygame}
 
-\begin{tabular}{ll}
-Mass of empty crucible & \SI{7.28}{\gram}\\
-Mass of crucible and magnesium before heating & \SI{8.59}{\gram}\\
-Mass of crucible and magnesium oxide after heating & \SI{9.46}{\gram}\\
-Balance used & \#4\\
-Magnesium from sample bottle & \#1
-\end{tabular}
 
 %----------------------------------------------------------------------------------------
 %	SECTION 3
@@ -117,6 +111,146 @@ Magnesium from sample bottle & \#1
 \subsection{Game Development Platform}
 Considering the training process of AI, a game platform based on Python would be more suitable than other main stream game development platforms nowadays, like Unity or Unreal Engine 4. Therefore, we choose Pygame as our game development platform.
 
+\subsection{Agents Design}
+\subsubsection{Reinforcement learning}
+
+Reinforce learning is an area of machine learning and artificial intelligence, which concerns about how agents will take actions to achieve the best outcome in a environment. Unlike the supervised learning, reinforce learning does not need labelled data, and it focuses on exploration and exploitation. Agents can take randomly actions and receive correspond rewards to explore current environment. Agents can also make decisions by exploiting the current knowledge which comes from the exploration.
+
+A basic reinforcement is modeled as Markov Decision Process, and a MDP consists of 4 parts:
+\begin{itemize}
+    \item [1)] A finite set of environment and agent states, named $S$
+    \item [2)] A finite set of action of agents, named $A$
+    \item [3)] Transition functions $T$
+    \item [4)] Reward function $R$
+\end{itemize}
+Reinforcement learning is widely used in many area, including animal psychology, game theory and create bots for video games. In our project, we will implement at least two kinds of reinforcement learning  model: $Q$-learning and Deep $Q$-Network(DQN), discuss the advantage and disadvantage of each of them, and compare the different of them about their response when we change the rewards function or the configuration of our game.
+
+\subsubsection*{\small Implementation detail of Reinforcement learning}
+
+Most of the reinforcement learning method are model-free, which means the algorithm does not require the prior  known about the transition and reward functions and the agents need to estimate the models by interacting with the black box, environment.
+
+The pseudo code of reinforcement learning is shown in Algorithm 1.
+
+\begin{algorithm}
+    \caption{Reinforcement Learning (Zoph et al, 28) }\label{euclid}
+    \begin{algorithmic}[1]
+    \State Initialize $\tilde{T}, \tilde{R}, \tilde{Q} \ and/or\  \tilde{V}$
+    \For{each episode}
+        \State $s \in S$ is initialized as the starting state
+        \State $t := 0$
+        \Repeat
+            \State choose an action $a \in A(s)$
+            \State perform action $a$
+            \State observe the new state $s'$ and received reward $r$
+            \State update $\tilde{T}, \tilde{R}, \tilde{Q} \ and/or\  \tilde{V}$
+            \State using the experience $\left\langle s,a,r,s'\right\rangle $
+            \State $s := s'$
+            \State $t := t + 1$
+        \Until $s'$ is a goal state or $t$ reaches the limitation
+    \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+In this pseudo code, $\tilde{T}$, $\tilde{R}$, $\tilde{Q}$ and $\tilde{V}$ are the estimates of the agent, and they should be initialized before the training section. For each episode, we reset the environment, and initialize it to the starting state. Then the agents will repeatedly choose an action randomly or based on the knowledge, observe the return of the environment and update the estimates. For some environment, there are some goal states, and the episode will stop when one of the goal state is reached. Notice that goal states are terminal states,not the best or winning states.
+
+\subsubsection{$Q$-learning}
+
+$Q$-learning is one of the most basic and popular temporal difference learning method to estimate Q-value function(Zoph et al, 31). Temporal difference method use estimates of other value to learn their value estimates, and the update rule of TD method is: 
+
+$$V_{k+1}(s) = V_{k}(s) + \alpha(r + \gamma V_k(s') - V_k(s))$$ 
+
+In this equation, $k$ is the times of iteration, $s$ is the state to be updated, $\alpha$ is the learning rate which should be gradually decreased as iterating, $\gamma$ is the discount factor and $r$ is the received reward.
+
+In Q-learning, the basic idea is similar to the temporal difference learning. The difference is that value estimates $V$ becomes $Q$-value function, and the estimates of other values become the previous agent's $Q$-value function. Therefore, the update rule of $Q$-learning is a variation of TD learning:
+
+$$Q_{k+1}(s_t, a_t) = Q_{k}(s_t, a_t) + \alpha(r_t + \gamma max_{a}Q_k(s_{t+1},a) - Q_k(s_t, a_t))$$
+
+The difference between $Q$-value estimate and the value estimate in TD is that in the same state, the $Q$-value for different actions can be different. The transition function is determined, which means for a state $s_t$ and the agent takes an action $a_t$, the agent will walk to a certain state $s_{t+1}$ and receive reward $r_t$. The discount factor $\gamma$ will determine how much the expected future rewards affect the current estimates. The algorithm will focus more on short-term rewards if the $\gamma$ is set lower. 
+
+The advantage of $Q$-learning is that it's exploration-insensitive, which means we can get the optimal policy as long as the $\alpha$ is set properly and every state-action pairs can be visited infinite times(Zoph et al, 31).
+
+However, the drawback of $Q$-learning is also obvious. We need to store every state-action pairs in the $Q$ table, but the numbers of states and actions are huge in many environments because the dimensions of the state are high. For each pair, we need to visit it adequate times, to update the $Q$-value, which is time-consuming, even impossible. In our project, we will show how this disadvantages affect the performance of $Q$-learning.
+
+\subsubsection*{\small Implementation detail of $Q$-learning}
+
+The pseudo code of $Q$-learning is shown as Algorithm 2.
+
+\begin{algorithm}
+    \caption{Reinforcement Learning (Zoph et al, 31) }\label{euclid}
+    \begin{algorithmic}[1]
+    \Require $\gamma$, $\alpha$
+    \State Initialize $Q$ (e.g. $Q(s,a) = 0 \ for \ \forall s \in S, \forall a \in A$)
+    \For{each episode}
+        \State Modify $\alpha$ and $\gamma$
+        \State $s \in S$ is initialized as the starting state
+        \Repeat
+            \State choose a random action or the best action $a \in A(s)$ based on the exploration strategy.
+            \State perform action $a$
+            \State observe the new state $s'$ and received reward $r$
+            \State \small $Q_{k+1}(s, a) = Q_{k}(s, a) + \alpha(r + \gamma \cdot max_{a \in A(s')}Q_k(s,a') - Q_k(s', a))$
+            \State using the experience $\left\langle s,a,r,s'\right\rangle $
+            \State $s := s'$
+        \Until $s'$ is a goal state or $t$ reaches the limitation
+    \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+
+\begin{table}[]
+    \begin{center}
+        \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $Q$-table & a\_1 & a\_2 & ... & a\_n \\ \hline
+        s\_1      & 0    & 1    & ... & 0    \\ \hline
+        s\_2      & 1    & 0    & ... & 0    \\ \hline
+        ...       & ...  & ...  & ... & ...  \\ \hline
+        s\_n      & 0    & 0    & ... & 1    \\ \hline
+        \end{tabular}
+        \caption{$Q$-table}
+    \end{center}
+\end{table}    
+
+
+$Q$-learning is a kind of Reinforcement learning, so the main procedure is similar. However, there are some details to be noticed. 
+
+First, the estimates of $Q$-learning is $Q$-table. A $Q$-table will be initialize before the training section. $Q$-table is a table consists of the states of the environment and the action. For example, one possible $Q$-table is similar to Table 1.
+
+Second, in the start of each episode, we may need to decrease the learning rate - $\alpha$, to ensure the $Q$-table can converge finally. We also need to decrease the probability of random action, and the agent will make decisions more based on the knowledge got from exploration.
+
+\subsubsection{Deep $Q$-Network} 
+
+As the previous part mentioned, the performance of $Q$-learning in high dimensional environment is not satisfied. However, the previous tries at using neutral network to represent the action-value function were failed. The reinforcement learning is unstable or even diverge because of the correlations present in the sequence of observation(Mnih et al). 
+
+This problem was finally solved by DeepMind, and the solution is called DQN. DeepMind introduced two techniques to remove the correlations. One is experience replay, inspired from a biological mechanism. By using this technique, the agent will save amount of experiences(state-action-reward-state) in the dataset, called "memory". Then, the algorithm will randomly choice a small batch of experiences from the memory to apply $Q$-learning. There are some advantage to use this strategy compared the traditional $Q$-learning, and one of them is that this strategy can significantly remove the correlation and make the approximator stable.
+
+The second technique is to use two separate networks. One is called target network $Q$, which is cloned from the original network $Q$ every $C$ updates. The target network is used for updating network $Q$, in the right side of update rule. This method can also decrease the correlation and make the algorithm more stable.
+
+\subsubsection*{\small Implementation detail of DQN}
+
+The pseudo code of DQN provided by DeepMind is shown in Algorithm 3.
+\begin{algorithm}
+    \caption{Deep $Q$-Network(Mnih et al)}\label{euclid}
+    \begin{algorithmic}[1]
+    \State Setup replay memory $D$ to capacity $N$
+    \State Initialize action-value function $Q$ with random weights $\theta$
+    \State Initialize target action-value function $\hat{Q}$ with weights $\theta'$
+    \For{each episode}
+        \State Initialize sequence $s_1 = {x_1}$ and preprocessed sequence $\phi_1 = \phi(s_1)$
+        \State $t := 1$
+        \Repeat
+            \State choose a random action or the best action $a_t \in A(s)$ based on the exploration strategy.
+            \State perform action $a_t$
+            \State observe the new input $x_{t+1}$ and received reward $r_t$
+            \State Set $s_{t+1} = s_t,a_t,x_{t+1}$ and preprocess $\phi_{t+1} = \phi(s_{t+1})$
+            \State store the experience $(\phi_t, a_t, r_t, \phi_{t+1})$ in $D$
+            \State Sample random minibatch of transitions $(\phi_j, a_j, r_j, \phi_{j+1})$ in $D$
+            \State Set $y_j = r_j + \gamma max_{a'} \hat{Q}(\phi_{j+1},a'; \theta')$
+            \State Perform a gradient descent step on $(y_j - Q(\phi_j, a_j; \theta))^2$ with respect to the network parameters $\theta$
+            \State Every C steps reset $\hat{Q} = Q$ 
+        \Until $s'$ is a goal state or $t$ reaches the limitation
+    \EndFor
+    \end{algorithmic}
+\end{algorithm}
 %----------------------------------------------------------------------------------------
 %	SECTION 4
 %----------------------------------------------------------------------------------------
@@ -161,6 +295,22 @@ For each player, it can get the ball when it is free, steal the ball when it is 
 \end{description}
 
 \subsection{AI Design}
+\subsubsection{Objection}
+The objection of our project is %todo
+Therefore we design 2 kinds of agents in this project, the agent using $Q$-learning and the agent using DQN. The former is simpler, and don't need the use of machine learning. The latter is an artificial intelligence and expected to perform better.
+\subsubsection{Structure of Agents}
+
+\begin{description}
+	\item[Sensor]
+    In some researches, agents are created for existing video game, so the sensors of them are image recognizing CNN which are fed by screenshots of the game. For example, the researchers in DeepMind use CNN to read information from the screenshots of Atari games(Mnih et al).
+
+    However, in our project, the environement are designed for training agents from the very beginning. The agents can directly get the information, including the position of every agents and ball, by using some method. In this way, we simplify the sensor part, and the quality of CNN will not effect the training results which are most concerned.
+    
+	\item[Initialization and Reset]
+    When each turn of game begins, every player would be assigned to an initial position, and ball will be placed in the center of the field. And when any of two teams get a score, the positions of players and ball will also be reset to initial positions.
+    
+\end{description}
+
 
 
 %----------------------------------------------------------------------------------------
@@ -383,16 +533,16 @@ The \emph{units of atomic weight} are two-fold, with an identical numerical valu
 
 placeholder
 
-The most obvious source of experimental uncertainty is the limited precision of the balance. Other potential sources of experimental uncertainty are: the reaction might not be complete; if not enough time was allowed for total oxidation, less than complete oxidation of the magnesium might have, in part, reacted with nitrogen in the air (incorrect reaction); the magnesium oxide might have absorbed water from the air, and thus weigh ``too much." Because the result obtained is close to the accepted value it is possible that some of these experimental uncertainties have fortuitously cancelled one another.
+
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
 
-\bibliographystyle{apalike}
-
-\bibliography{sample}
-
+\begin{thebibliography}{99}  
+    \bibitem{ref1}Zoph, Barret, and Quoc V. Le. "Neural architecture search with reinforcement learning." arXiv preprint arXiv:1611.01578 (2016).
+    \bibitem{ref2}Mnih, Volodymyr, et al. "Human-level control through deep reinforcement learning." nature 518.7540 (2015): 529-533.
+\end{thebibliography}
 %----------------------------------------------------------------------------------------
 
 
