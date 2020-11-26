@@ -10,31 +10,26 @@ from tensorflow.keras import models, layers, optimizers
 conf = Config()
 
 class AgentsQT():
-
     def __init__(self, id):
-
         # create Q table
         # The sturcture of Q table:
         #   player's position (9, 9)
-        #   opponent's position (8, 8)
-        #   ball's position (8, 8)
+        #   opponent's relative position (7, 7)
+        #   ball's relative position (7, 7)
         #   moving direction
         #   action 0->nothing 1->kick?
         self.id = id
         self.q_table = np.zeros((9, 9, 7, 7, 7, 7, 9, 2))
         # learning rate
         self.alpha = 1
-        # 
+        # discount factor
         self.gamma = 0.7
-        #
+        # exploration strategy
         self.greedy = 0.9
 
 
     # to simplify the state of current game
     def get_state(self, state):
-        """
-        :param state: state is a dictionary containing the current state
-        """
         return_state = np.zeros((6,), dtype=int);
         player_x = state[0]
         player_y = state[1]

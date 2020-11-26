@@ -283,13 +283,23 @@ Therefore we design 2 kinds of agents in this project, the agent using $Q$-learn
 \subsubsection{Structure of Agents}
 
 \begin{description}
-	\item[Sensor]
+	\item[Sensors]
     In some researches, agents are created for existing video game, so the sensors of them are image recognizing CNN which are fed by screenshots of the game. For example, the researchers in DeepMind use CNN to read information from the screenshots of Atari games(Mnih et al).
 
     However, in our project, the environement are designed for training agents from the very beginning. The agents can directly get the information, including the position of every agents and ball, by using some method. In this way, we simplify the sensor part, and the quality of CNN will not effect the training results which are most concerned.
     
-	\item[Initialization and Reset]
-    When each turn of game begins, every player would be assigned to an initial position, and ball will be placed in the center of the field. And when any of two teams get a score, the positions of players and ball will also be reset to initial positions.
+	\item[Actuators]
+    The output of algorithm will be a list of actions, containing the direction of moving and shotting choice. The actuator need to convert the list to another list with length of 5, to simulate the button pressed by human. 
+
+    \item[$Q$-table for $Q$-learning]
+    The main consider about the $Q$-table design is the size. Data receive from sensor has 6 dimonsions, and the size of each dimonsion is really huge. It's unrealistic to build a $Q$-table containing every details of the game, so we need to simplify the states to keep the size of the table reasonable and also containing adequate information.
+
+    There are two scheme to simplify. One is to divide the court into small pieces, so that we can ignore the trivial position detail. The size of every pieces needs to be carefully considered. If pieces are too small, the size of $Q$-table is still huge, and if pieces are too large, the positions of every instances are too inaccurate.
+    
+    The second scheme is that we still divide the court into pieces, but just store the position of current player. Then we calculate the relative distance of other players and ball, and record the logarithm of the distance in every dimensions. The advantage is that we can save more space and the information stored are more similar to what human feel like. However, the accuracy is a problem too.
+
+    In the project, we use the second scheme currently.
+     
     
 \end{description}
 
@@ -484,28 +494,95 @@ The Ball class inherits from Sprite, which is a pre-defined class of pygame modu
 	\end{figure}
 
 \subsection{AI Implementation}
-	
-	
+\subsection{$Q$-Learning Agents}
+\begin{description}
+    \item[\_\_init\_\_]
+    When we new a new $Q$-learning agent, we will initialize the $Q$-table, learning rate, discount factor and exploration strategy. 
+    \begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{init_qlearn.png}
+			\caption{\_\_init\_\_()}
+		\end{center}
+	\end{figure}
+    \item[Sensor]
+    The sensor of a agent should be able to get position information for all players and ball from game environment. However, the termporary implementation only consider the 1 vs 1 game mode.
+    \begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{get_game_state.png}
+			\caption{get\_game\_state()}
+		\end{center}
+	\end{figure} 
+    \item[States Processor]
+    We use get\_state() method to simplify states. we fisrt divide the court into 9 * 9 pieces, to find current player in which pieces. Then, we calculate the distance of ball and opponent in each directions, using log10() to compress the information.
+    \begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{simplify_state.png}
+			\caption{get\_state()}
+		\end{center}
+	\end{figure} 
+    \item[Update Rule]
+    The update rule is the same as the equation mentioned in introduction. Learning rate and discount factor will be updated before the training section in every episodes.
+    \begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{update_rule.png}
+			\caption{update\_q\_table()}
+		\end{center}
+	\end{figure} 
+    \item[Exploration Strategy] 
+    The exploration strategy will be updated before the training section of every episodes. In the early phase, the agent will be more like to choose random works, but as the training goes, the agents will have higher and higher probability to choose the local best action. 
+    \begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{exploration_strategy.png}
+			\caption{exploration strategy}
+		\end{center}
+	\end{figure} 
+    \item[Actuator]  
+    This method will receive a list with length of 2 and output a list whose size is 5. It will convert the moving direction to the button should be pressed.
+    \begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{actuator.png}
+			\caption{get\_input\_ai()}
+		\end{center}
+	\end{figure}    
+\end{description}	
+    
+\subsection{Deep $Q$-Network Agents}
+The implementation of DQN agents are not finished yet, we need to normalize the environement to the standard can be used by tensorflow.
+\begin{description}
+    \item[\_\_init\_\_]
+    When we new a new Deep $Q$-network agent, we will initialize the memory space and other parameters for machine learning. 
+    \begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{init_dqn.png}
+			\caption{\_\_init\_\_()}
+		\end{center}
+	\end{figure}
+    \item[Network Structure] 
+    The network will have two or more layer(depend on the training result).
+    \begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{network.png}
+			\caption{network}
+		\end{center}
+	\end{figure} 
+    
+    \item[Actuator]  
+    Same as $Q$-learning agents.
+
+    This method will receive a list with length of 2 and output a list whose size is 5. It will convert the moving direction to the button should be pressed.
+    \begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{actuator.png}
+			\caption{get\_input\_ai()}
+		\end{center}
+	\end{figure}    
+\end{description}	
 %----------------------------------------------------------------------------------------
 %	SECTION 6
 %----------------------------------------------------------------------------------------
 
 \section{Current Conclusion}
 
-\begin{enumerate}
-\begin{item}
-The \emph{atomic weight of an element} is the relative weight of one of its atoms compared to C-12 with a weight of 12.0000000$\ldots$, hydrogen with a weight of 1.008, to oxygen with a weight of 16.00. Atomic weight is also the average weight of all the atoms of that element as they occur in nature.
-\end{item}
-\begin{item}
-The \emph{units of atomic weight} are two-fold, with an identical numerical value. They are g/mole of atoms (or just g/mol) or amu/atom.
-\end{item}
-\begin{item}
-\emph{Percentage discrepancy} between an accepted (literature) value and an experimental value is
-\begin{equation*}
-\frac{\mathrm{experimental\;result} - \mathrm{accepted\;result}}{\mathrm{accepted\;result}}
-\end{equation*}
-\end{item}
-\end{enumerate}
 
 %----------------------------------------------------------------------------------------
 %	SECTION 7
