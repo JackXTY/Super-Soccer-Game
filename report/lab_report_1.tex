@@ -133,7 +133,7 @@ In consideration of the cost of game development, basically the time cost, we de
 \subsubsection{Game Rule}
 \begin{description}
 	\item[Team and players]
-	There are two teams in the game. For each team, ther are N players (1 $\leq$ N $\leq$ 7).
+	There are two teams (team-0 and team-1) in the game. For each team, ther are N players (1 $\leq$ N $\leq$ 7).
 	\item[Goal]
 	If a ball pass through the goal of a team, then opposite team would get a score. And in each turn of the game, the team who get most scores will win the game, otherwise it ends in a draw. Therefore, for each team, they should try their best to get more scores and prevent the opposite team to get any score.
 	\item[time]
@@ -148,7 +148,8 @@ For each player, it can get the ball when it is free, steal the ball when it is 
 	\item[Steal]
 	When a ball is catched by a player, other players can steal the ball from player. As long as another player touch the player with ball, the ball would be stolen. However, after a player just get the ball, there will be a short invincible period. Only after the invincible period, can other players steal the ball.
 	\item[shoot]
-	When a player is catching the ball, the player can shoot the ball away. It can shoot the ball along the eight directions, which are left, right, up, down, upper-left, upper-right, lower-left, lower-right.
+	When a player is catching the ball, the player can shoot the ball away. It can shoot the ball along the eight directions, which are left, right, up, down, upper-left, upper-right, lower-left, lower-right.\\
+	And for the player just shoot the ball, it need to wait for a short period to be able to get the ball again.
 \end{description}
 
 \subsubsection{Other Details About Game}
@@ -161,12 +162,6 @@ For each player, it can get the ball when it is free, steal the ball when it is 
 
 \subsection{AI Design}
 
-\begin{figure}
-\begin{center}
-\includegraphics[width=0.65\textwidth]{placeholder} % Include the image placeholder.png
-\caption{Figure caption.}
-\end{center}
-\end{figure}
 
 %----------------------------------------------------------------------------------------
 %	SECTION 5
@@ -179,28 +174,186 @@ For each player, it can get the ball when it is free, steal the ball when it is 
 In our pygame implementation of the soccer game, we build two important classes \textbf{Player} and \textbf{Ball}.
 
 \subsubsection{Player}
-The Player class inherits from Sprite, which is a pre-defined class of pygame module.
+The Player class inherits from Sprite, which is a pre-defined class of pygame module. Below are methods of Player.
 \begin{description}
 	\item[\_\_init\_\_]
-	In the \_\_init\_\_ function, we define the related variavles of a player, assign an id and initial position to the player, and load the image of players.
+	In the \_\_init\_\_ method, we define and initialize the related variavles of a player, assign an id and initial position to the player, and load the image of players.
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=0.9\textwidth]{Player_init} % Include the image placeholder.png
-			\caption{implementation of \_\_init\_\_}
+			\includegraphics[width=0.9\textwidth]{Player_init}
+			\caption{implementation of \_\_init\_\_ in Player}
 		\end{center}
 	\end{figure}
-	\item[inpur\_handler]
-	
+	\item[input\_handler]
+	In the input\_handler, an input array is passed into the method. The input array contains information about user input, including the four moving directions along x and y axes, and if the user want shoot the ball. If no user input on one axis, or two opposite directions (like up and down, or left and right) show up at the same time, the player will not have velocity on that axis. Otherwise, the velocity will be added on the corresponding directions. If the user want to shoot the ball, the related shoot\_dir will be calculated through xy\_to\_dir, and then be dealt with if the ball belongs to this player.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Player_input}
+			\caption{implementation of init\_handler in Player}
+		\end{center}
+	\end{figure}
+	\begin{figure}[H]
+	\begin{center}
+			\includegraphics[width=0.9\textwidth]{xy_to_dir}
+			\caption{implementation of xy\_to\_dir}
+		\end{center}
+	\end{figure}
 	\item[update]
-	
-	\item[check\_shoot\_cd]
-	
+	In the update, the position of a player would be updated according to its velocity. And boundary check will be executed, in case that the player cross over the boundary. 
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Player_update}
+			\caption{implementation of update in Player}
+		\end{center}
+	\end{figure}
 	\item[shoot\_update]
-	
+	In shoot\_update, after player shoot the ball, the timer will tick, for check\_shoot\_cd to check time.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Player_shoot_update}
+			\caption{implementation of shoot\_update in Player}
+		\end{center}
+	\end{figure}
+	\item[check\_shoot\_cd]
+	If a player want to get the ball, the system will check if it just shoot the ball by using the timer, which begins to tick in shoot\_update.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Player_check_shoot_cd}
+			\caption{implementation of cehck\_shoot\_cd\_time in Player}
+		\end{center}
+	\end{figure}
 	\item[render]
-	
+	In render, the update function will be called. Then the player will be rendered through the screen, which is passed to the render method.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Player_render}
+			\caption{implementation of render in Player}
+		\end{center}
+	\end{figure}
 \end{description}
 
+\subsubsection{Ball}
+The Ball class inherits from Sprite, which is a pre-defined class of pygame module. Below are methods of Ball.
+\begin{description}
+	\item[\_\_init\_\_]
+	In the \_\_init\_\_ method, we define and initialize the related variavles of the ball, assign initial position to the player, and load the image of players.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Ball_init}
+			\caption{implementation of \_\_init\_\_ in Ball}
+		\end{center}
+	\end{figure}
+	\item[belong]
+	In the belong, an player id is passed into this method, and it will be checked that if the ball belongs to the player with this id. 
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Ball_belong}
+			\caption{implementation of belong in Ball}
+		\end{center}
+	\end{figure}
+	\item[caught]
+	In the caught, the ball is caught by the player with given player id. And the information about tha ball would be updated.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Ball_caught}
+			\caption{implementation of caught in Ball}
+		\end{center}
+	\end{figure}
+	\item[copy\_pos]
+	Position of ball will be updated according to the x and y value passed.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Ball_copy_pos}
+			\caption{implementation of copy\_pos in Ball}
+		\end{center}
+	\end{figure}
+	\item[check\_time\_up]
+	In check\_time\_up, the remain time of invincible period will be checked. If the invincible time is up, the method will return True, which means other players can steal the ball from the player catching the ball.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Ball_check_time}
+			\caption{implementation of check\_time\_up in Ball}
+		\end{center}
+	\end{figure}
+	\item[shoot\_ball]
+	Update relative information of the ball, after a player shoot the ball, and update velocity of the ball through dir\_to\_xy.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Ball_shoot}
+			\caption{implementation of shoot\_ball in Ball}
+		\end{center}
+	\end{figure}
+	\begin{figure}
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{dir_to_xy}
+			\caption{implementation of dir\_to\_xy}
+		\end{center}
+	\end{figure}
+	\item[update\_pos]
+	In update\_pos, position of ball will be updated according to it velocity, and boundary rebounce will be done. Also, the velocity will also be updated, according to the friction of the ground through update\_v.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Ball_update_pos}
+			\caption{implementation of update\_pos in Ball}
+		\end{center}
+	\end{figure}
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.3\textwidth]{update_v}
+			\caption{implementation of update\_v}
+		\end{center}
+	\end{figure}
+	\item[render]
+	In render, update\_pos is called. Then, ball is rendered through the screen passed to this method.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Ball_render}
+			\caption{implementation of render in Ball}
+		\end{center}
+	\end{figure}
+	\item[in\_door]
+	In this function, it is checked that if any team get a score. If team-0 get a score, return 0, if team-1 get a score, return 1. Otherwise, return -1.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{Ball_in_door}
+			\caption{implementation of in\_door in Ball}
+		\end{center}
+	\end{figure}
+\end{description}
+
+\subsubsection{Main Part}
+	First, information about the game is initialized, and important variables storing information about the game are built. Here a function named initialuze\_game will be called.
+	\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{initialize_game}
+		\caption{implementation of initialize\_game}
+	\end{center}
+	\end{figure}
+	In the main while loop of game execution, first each player will deal with its input passed from AI, through the relative method of Player and Ball.
+	\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{deal_with_input}
+		\caption{implementation of main part about dealing with input}
+	\end{center}
+	\end{figure}
+	Then, the system will detect if there is any collision between player and ball, and judge if any player get or steal the ball according to the state of ball and the player catching the ball (if any). Then position of the ball will be updated, and sysytem will check if any team get a score. 
+	\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{collision}
+		\caption{implementation of main part about collision}
+	\end{center}
+	\end{figure}
+	Finally, iamge of every player and ball will be rendered un the screen.
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{game}
+			\caption{Game}
+		\end{center}
+	\end{figure}
+
+\subsection{AI Implementation}
+	
+	
 %----------------------------------------------------------------------------------------
 %	SECTION 6
 %----------------------------------------------------------------------------------------
