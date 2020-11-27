@@ -287,7 +287,7 @@ Therefore we design 2 kinds of agents in this project, the agent using $Q$-learn
 	\item[Sensors]
     In some researches, agents are created for existing video game, so the sensors of them are image recognizing CNN which are fed by screenshots of the game. For example, the researchers in DeepMind use CNN to read information from the screenshots of Atari games(Mnih et al).
 
-    However, in our project, the environement are designed for training agents from the very beginning. The agents can directly get the information, including the position of every agents and ball, by using some method. In this way, we simplify the sensor part, and the quality of CNN will not effect the training results which are most concerned.
+    However, in our project, the environment are designed for training agents from the very beginning. The agents can directly get the information, including the position of every agents and ball, by using some method. In this way, we simplify the sensor part, and the quality of CNN will not effect the training results which are most concerned.
     
 	\item[Actuators]
     The output of algorithm will be a list of actions, containing the direction of moving and shotting choice. The actuator need to convert the list to another list with length of 5, to simulate the button pressed by human. 
@@ -584,7 +584,7 @@ The implementation of DQN agents are not finished yet, we need to normalize the 
 
 \section{Current Conclusion}
 
-In this term?
+In this term, we have implemented the game environment and the $Q$-learning agent, and start to train $Q$-learning agents. Here is the conclusion of the training attempt.
 
 $Q$-learning may not work well in our game, because the huge size of $Q$-table. if we want to store all the details in the table, the size of the table will be $ (664 \times 465)^3 \times 8 \times 2 = 4.7095\times 10^{17} $, which is incredible huge. Even if we simplify the table, there still are 3,111,696 cells in the table. 
 
