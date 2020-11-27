@@ -65,7 +65,7 @@ Instructor: & Prof. Andrej Bogdanov % Instructor/supervisor
 %----------------------------------------------------------------------------------------
 
 \begin{abstract}
-	In the past few years, the high speed development of artificial intelligence showed the great promise. The algorithm introduced by DeepMind and Google in AlphaGO inspired us that the artificial intelligence has the potential to perform as or even better than human in some complicate game. Our goal of this article is to briefly introduce the principle of reinforcement learning, $Q$-learning and Deep $Q$-network, and report our implementation of our game and agents. Finally, we list out the future plan for the next term.
+	In the past few years, the high speed development of artificial intelligence showed the great promise. The algorithm introduced by DeepMind and Google in AlphaGO inspired us that the artificial intelligence has the potential to perform as or even better than human in some complicate games. Our goal of this article is to briefly introduce the principle of reinforcement learning, $Q$-learning and Deep $Q$-network, and report our implementation of our game and agents. Finally, we list out the future plans for the next term.
 \end{abstract}
  
 %----------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ Instructor: & Prof. Andrej Bogdanov % Instructor/supervisor
 \section{Background}
 
 \subsection{Related Works}
-As the development of science technology, the game also evolves from the ancient chess game to the fantastic AAA video games nowadays. And with the development of artificial intelligence, bulding an agent to play a game is always a popular and interesting topic. Up to now, there are many research on playing game with nerual netwrok, like AlphaGO(Silver et al), playing Atari game(Mnih et al), and playing Dota2(Berner et al).\\\\
+As the development of science technology, the game also evolves from the ancient chess game to the fantastic AAA video games nowadays. And with the development of artificial intelligence, building an agent to play a game is always a popular and interesting topic. Up to now, there are many research on playing game with nerual netwrok, like AlphaGO(Silver et al), playing Atari game(Mnih et al), and playing Dota2(Berner et al).\\\\
 Inspired by previous works, we found that Reinforcement Learning is widely used in game agent training. Therefore, we decide to build reinforcement learning model in our project. Also, the game to be played by AI will be developed by ourselves, which is a soccer game.\\\\
 Our goal is to build an agent which is able to play the game with certain strategy. And an agent which can beat normal human being would be satisfactory. What's more, by adjusting configuration of the game, we wish to know if our agents could cooperate with their teammates in the multiple players mode(like 2v2 or 5v5).
 
@@ -105,7 +105,7 @@ A basic reinforcement is modeled as Markov Decision Process, and a MDP consists 
     \item [3)] Transition functions $T$
     \item [4)] Reward function $R$
 \end{itemize}
-Reinforcement learning is widely used in many area, including animal psychology, game theory and create bots for video games. In our project, we will implement at least two kinds of reinforcement learning  model: $Q$-learning and Deep $Q$-Network(DQN), discuss the advantage and disadvantage of each of them, and compare the different of them about their response when we change the rewards function or the configuration of our game.
+Reinforcement learning is widely used in many area, including animal psychology(Zoph et al, 28), game theory and create bots for video games. In our project, we will implement at least two kinds of reinforcement learning  model: $Q$-learning and Deep $Q$-Network(DQN), discuss the advantage and disadvantage of each of them, and compare the different of them about their response when we change the rewards function or the configuration of our game.
 
 \subsubsection*{\small Implementation detail of Reinforcement learning}
 
@@ -201,7 +201,7 @@ Second, in the start of each episode, we may need to decrease the learning rate 
 
 \subsubsection{Deep $Q$-Network} 
 
-As the previous part mentioned, the performance of $Q$-learning in high dimensional environment is not satisfied. However, the previous tries at using neutral network to represent the action-value function were failed. The reinforcement learning is unstable or even diverge because of the correlations present in the sequence of observation(Mnih et al). 
+As the previous part mentioned, the performance of $Q$-learning in high dimensional environment is not satisfied, so scientists want to use neutral network as a approximator instand of $Q$-table. However, the previous tries at using neutral network to represent the action-value function were failed. The reinforcement learning is unstable or even diverge because of the correlations present in the sequence of observation(Mnih et al). 
 
 This problem was finally solved by DeepMind, and the solution is called DQN. DeepMind introduced two techniques to remove the correlations. One is experience replay, inspired from a biological mechanism. By using this technique, the agent will save amount of experiences(state-action-reward-state) in the dataset, called "memory". Then, the algorithm will randomly choice a small batch of experiences from the memory to apply $Q$-learning. There are some advantage to use this strategy compared the traditional $Q$-learning, and one of them is that this strategy can significantly remove the correlation and make the approximator stable.
 
@@ -220,11 +220,11 @@ The pseudo code of DQN provided by DeepMind is shown in Algorithm 3.
         \State Initialize sequence $s_1 = {x_1}$ and preprocessed sequence $\phi_1 = \phi(s_1)$
         \State $t := 1$
         \Repeat
-            \State choose a random action or the best action $a_t \in A(s)$ based on the exploration strategy.
-            \State perform action $a_t$
-            \State observe the new input $x_{t+1}$ and received reward $r_t$
+            \State Choose a random action or the best action $a_t \in A(s)$ based on the exploration strategy.
+            \State Perform action $a_t$
+            \State Observe the new input $x_{t+1}$ and received reward $r_t$
             \State Set $s_{t+1} = s_t,a_t,x_{t+1}$ and preprocess $\phi_{t+1} = \phi(s_{t+1})$
-            \State store the experience $(\phi_t, a_t, r_t, \phi_{t+1})$ in $D$
+            \State Store the experience $(\phi_t, a_t, r_t, \phi_{t+1})$ in $D$
             \State Sample random minibatch of transitions $(\phi_j, a_j, r_j, \phi_{j+1})$ in $D$
             \State Set $y_j = r_j + \gamma max_{a'} \hat{Q}(\phi_{j+1},a'; \theta')$
             \State Perform a gradient descent step on $(y_j - Q(\phi_j, a_j; \theta))^2$ with respect to the network parameters $\theta$
@@ -293,7 +293,7 @@ Therefore we design 2 kinds of agents in this project, the agent using $Q$-learn
     The output of algorithm will be a list of actions, containing the direction of moving and shotting choice. The actuator need to convert the list to another list with length of 5, to simulate the button pressed by human. 
 
     \item[$Q$-table for $Q$-learning]
-    The main consider about the $Q$-table design is the size. Data receive from sensor has 6 dimonsions, and the size of each dimonsion is really huge. It's unrealistic to build a $Q$-table containing every details of the game, so we need to simplify the states to keep the size of the table reasonable and also containing adequate information.
+    The main consider about the $Q$-table design is the size. Data received from sensor has 6 dimonsions, and the size of each dimonsion is really huge. It's unrealistic to build a $Q$-table containing every details of the game, so we need to simplify the states to keep the size of the table reasonable and also containing adequate information.
 
     There are two scheme to simplify. One is to divide the court into small pieces, so that we can ignore the trivial position detail. The size of every pieces needs to be carefully considered. If pieces are too small, the size of $Q$-table is still huge, and if pieces are too large, the positions of every instances are too inaccurate.
     
@@ -590,7 +590,7 @@ $Q$-learning may not work well in our game, because the huge size of $Q$-table. 
 
 The size of the table make the time and space complexity far beyond our expectation, but it is not the toughest problem. The main issue make this algorithm performing bad is the times of states reached by agents. Because of the scheme we use to simplify tables and the property of random walks, the agents seldom reach some of the states, which make the updating of the table slower. 
 
-Due to these reason, we do not regard the $Q$-learning as a good model in this game, before we find a properly learning rate and reward function.
+Due to these reasons, we do not regard the $Q$-learning as a good model in this game, before we find a properly learning rate and reward function.
 %----------------------------------------------------------------------------------------
 %	SECTION 7
 %----------------------------------------------------------------------------------------
@@ -601,7 +601,7 @@ Due to these reason, we do not regard the $Q$-learning as a good model in this g
 So far, we have implementaed Q-learning. However, the performance of Q-learning is not satisfactory. Therefore, we need to implement DQN, to improve the performance of agent.
 
 \subsection{Multiple Agents}
-Up to now, our agents are all trains on the 1v1 mode of the soccer game. In the future, we will also train different kinds of agents on the 2v2, 3v3, 5v5 and 7v7 modes, and compare what is different in strategy and their performance in different modes.
+Up to now, our agents are all trains on the 1v1 mode of the soccer game. In the future, we will also train different kinds of agents on the 2v2, 3v3 and 5v5 even 7v7 modes, and compare what is different in strategy and their performance in different modes.
 
 \subsection{Standardization of Interface Between Game and Agent}
 The main part of game is implemented correctly. However, the interfaces between game and agent should be more standard, especially for the implementation of DQN.
