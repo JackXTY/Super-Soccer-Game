@@ -6,7 +6,7 @@ import sys
 from player import Player
 from ball import Ball
 from text import Text
-from config import Config
+from config import Config, rewards_func
 import random
 import time
 from dqn import AgentsQT
@@ -105,45 +105,6 @@ def get_input_ai(pid, action):
         ret_array[4] = 1
     return ret_array
 
-def rewards_func(r, p_x, p_y, n_x, n_y):
-    rewards = r
-    prev_pos_x = p_x
-    prev_pos_y = p_y
-    new_pos_x = n_x
-    new_pos_y = n_y
-    
-
-    if abs(prev_pos_x[2] - prev_pos_x[0]) > abs(new_pos_x[2] - new_pos_x[0]):
-         rewards[0] += 200
-    elif abs(prev_pos_x[2] - prev_pos_x[0]) < abs(new_pos_x[2] - new_pos_x[0]):
-         rewards[0] -= 200
-
-    if abs(prev_pos_x[2] - prev_pos_x[1]) > abs(new_pos_x[2] - new_pos_x[1]):
-        rewards[1] += 200
-    elif abs(prev_pos_x[2] - prev_pos_x[1]) < abs(new_pos_x[2] - new_pos_x[1]):
-         rewards[1] -= 200
-
-    if abs(prev_pos_y[2] - prev_pos_y[0]) > abs(new_pos_y[2] - new_pos_y[0]):
-        rewards[0] += 200
-    elif abs(prev_pos_y[2] - prev_pos_y[0]) < abs(new_pos_y[2] - new_pos_y[0]):
-         rewards[0] -= 200
-
-    if abs(prev_pos_y[2] - prev_pos_y[1]) > abs(new_pos_y[2] - new_pos_y[1]):
-        rewards[1] += 200
-    elif abs(prev_pos_y[2] - prev_pos_y[1]) < abs(new_pos_y[2] - new_pos_y[1]):
-         rewards[1] -= 200
-
-    if new_pos_x[2] > prev_pos_x[2]:
-        rewards[0] += 600
-        rewards[1] -= 600
-    elif new_pos_x[2] < prev_pos_x[2]:
-        rewards[0] -= 600
-        rewards[1] += 600  
-
-    print(rewards)
-    return rewards
-
-
 game_on = True
 score = [0, 0]
 p1_id = 1
@@ -152,16 +113,19 @@ game_time = conf.max_time
 game_timer.tick()
 initialize_game()
 info = Text()
-episodes = 1000
+episodes = 100
 
 # While loop for main logic of the game
 for episode in range(episodes):
-    reset()    
+    reset()  
+    game_time = conf.max_time
+    game_on = True  
     state = []
     state.append(agents[0].get_state(getGameState(1, players, ball)))
     state.append(agents[1].get_state(getGameState(2, players, ball)))
     agents[0].update_greedy()
     agents[1].update_greedy()
+    print(agents[0].greedy)
 
     while game_on:
         prev_pos_x = [0, 0, 0]
@@ -195,7 +159,6 @@ for episode in range(episodes):
                     print("p-{} shoot, dir in ({},{}) {}, input={}".format(p.id, ball.v.x, ball.v.y, p.shoot_dir, input_array))
                 p.shoot_dir = 99
             
-
         # deal with collision
         stealer_list = []
         holder = None
@@ -252,8 +215,8 @@ for episode in range(episodes):
             new_pos_y[player.id - 1] = player.rect.centery
 
         rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y)
-        print(prev_pos_x, prev_pos_y)
-        print(new_pos_x, new_pos_y)
+        #print(prev_pos_x, prev_pos_y)
+        #print(new_pos_x, new_pos_y)
         
         ball.render(screen)
         info.render(screen, score, game_time)
@@ -264,6 +227,7 @@ for episode in range(episodes):
             game_on = False
 
 
+
 # wait for game exit
 screen.blit(background, (0, 0))
 for player in players.sprites():
@@ -271,6 +235,9 @@ for player in players.sprites():
 ball.render(screen)
 info.render(screen, score, 0)
 pygame.display.update()
+
+agents[0].save_model()
+agents[1].save_model()
 
 time.sleep(1000)
 pygame.quit()

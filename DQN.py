@@ -1,10 +1,9 @@
 import numpy as np
 import math
 from config import Config
+import os
 
 from collections import deque
-import random
-import numpy as np
 from tensorflow.keras import models, layers, optimizers
 
 conf = Config()
@@ -19,13 +18,21 @@ class AgentsQT():
         #   moving direction
         #   action 0->nothing 1->kick?
         self.id = id
-        self.q_table = np.zeros((9, 9, 7, 7, 7, 7, 9, 2))
+        self.path = "./model/" + str(id) + ".npy"
+        self.has_model = os.path.exists(self.path)
+        if self.has_model:
+            self.greedy = 0.005
+            self.q_table = self.load_model()
+        else:
+            self.q_table = np.zeros((9, 9, 7, 7, 7, 7, 9, 2))
+            # exploration strategy
+            self.greedy = 0.9
+        
         # learning rate
         self.alpha = 1
         # discount factor
         self.gamma = 0.7
-        # exploration strategy
-        self.greedy = 0.9
+        
 
 
     # to simplify the state of current game
@@ -75,13 +82,15 @@ class AgentsQT():
 
         return return_state
 
+
     def update_q_table(self, old_state, current_action, next_state, r):
         next_max_value = np.max(self.q_table[next_state[0], next_state[1], next_state[2],
             next_state[3], next_state[4], next_state[5]])
         self.q_table[old_state[0], old_state[1], old_state[2], next_state[3], next_state[4], 
             next_state[5], current_action] = (1 - self.alpha) * self.q_table[
             old_state[0], old_state[1], old_state[2], next_state[3], next_state[4], 
-            next_state[5], current_action] + self.alpha * (r + next_max_value)
+            next_state[5], current_action] + self.alpha * (r + self.gamma * next_max_value)
+
 
     def make_decision(self, state, random=True):
         act = []
@@ -110,7 +119,13 @@ class AgentsQT():
             if np.random.rand(1) < self.greedy:
                 ret_act = np.random.choice(range(18))
             else:
-                ret_act = act.index(max(act))
+                #ret_act = act.index(max(act))
+                max_val = max(act)
+                ret_acts = []
+                for i in range(18):
+                    if act[i] == max_val:
+                        ret_acts.append(i)
+                ret_act = np.random.choice(ret_acts)
         else:
             ret_act = act.index(max(act))
 
@@ -118,12 +133,19 @@ class AgentsQT():
             return [ret_act - 9, 1]
         else:
             return [ret_act, 0]
-        
+
+
     def update_greedy(self):
         self.greedy *= 0.95
 
+
+    def load_model(self):
+        q_table = np.load(self.path)
+        return q_table
+
+
     def save_model(self):
-        pass
+        np.save(self.path, self.q_table)
 
 # TODO: ENV!    
 class AgentsDQN():

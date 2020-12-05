@@ -10,3 +10,4 @@ report/lab_report_1.aux
 report/lab_report_1.log
 report/lab_report_1.synctex.gz
 report/lab_report_1.pdf
+*.pyc

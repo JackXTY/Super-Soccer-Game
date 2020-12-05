@@ -13,7 +13,7 @@ class Config:
         self.friction = 0.14
         self.shoot_cd_time = 1000
 
-        self.max_time = 400000
+        self.max_time = 40000
         self.total_number = 2
         self.init_pos = [[1.0, 1.0], [0.5, 1.0], [1.5, 1.0]]
 
@@ -88,3 +88,48 @@ def update_v(v, f):
         if v >= 0:
             v = 0
     return v
+
+def rewards_func(r, p_x, p_y, n_x, n_y):
+    rewards = r
+    prev_pos_x = p_x
+    prev_pos_y = p_y
+    new_pos_x = n_x
+    new_pos_y = n_y
+    
+    if abs(prev_pos_x[2] - prev_pos_x[0]) > abs(new_pos_x[2] - new_pos_x[0]):
+        rewards[0] += 200
+    elif abs(prev_pos_x[2] - prev_pos_x[0]) < abs(new_pos_x[2] - new_pos_x[0]):
+        rewards[0] -= 200
+    else:
+        rewards[0] -= 50
+
+    if abs(prev_pos_x[2] - prev_pos_x[1]) > abs(new_pos_x[2] - new_pos_x[1]):
+        rewards[1] += 200
+    elif abs(prev_pos_x[2] - prev_pos_x[1]) < abs(new_pos_x[2] - new_pos_x[1]):
+        rewards[1] -= 200
+    else:
+        rewards[1] -= 50
+
+    if abs(prev_pos_y[2] - prev_pos_y[0]) > abs(new_pos_y[2] - new_pos_y[0]):
+        rewards[0] += 200
+    elif abs(prev_pos_y[2] - prev_pos_y[0]) < abs(new_pos_y[2] - new_pos_y[0]):
+        rewards[0] -= 200
+    else:
+        rewards[0] -= 50
+
+    if abs(prev_pos_y[2] - prev_pos_y[1]) > abs(new_pos_y[2] - new_pos_y[1]):
+        rewards[1] += 200
+    elif abs(prev_pos_y[2] - prev_pos_y[1]) < abs(new_pos_y[2] - new_pos_y[1]):
+        rewards[1] -= 200
+    else:
+        rewards[1] -= 50
+
+    if new_pos_x[2] > prev_pos_x[2]:
+        rewards[0] += 600
+        rewards[1] -= 600
+    elif new_pos_x[2] < prev_pos_x[2]:
+        rewards[0] -= 600
+        rewards[1] += 600  
+
+    #print(rewards)
+    return rewards
