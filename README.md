@@ -20,3 +20,8 @@ After any team get a goal, game will reset.
 After a player just get/steal the ball, other player need to wait for few seconds to steal its ball.
 
 After a player just shoot the ball, the player need to wait for few seconds to be able to get/steal the ball again.
+
+## TODO
+1. remove visualization from pygame
+2. main with param
+3. RL
