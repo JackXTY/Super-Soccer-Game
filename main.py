@@ -9,7 +9,7 @@ from text import Text
 from config import Config, rewards_func
 import random
 import time
-from dqn import AgentsQT
+from DQN import AgentsQT
 
 pygame.init()
 conf = Config()
@@ -35,6 +35,7 @@ def getGameState(pid, players, ball):
     ret_state[4] = ball.rect.centerx
     ret_state[5] = ball.rect.centery
     return ret_state
+
 
 def initialize_game():
     for i in range(1, N + 1):
@@ -148,19 +149,23 @@ def deal_collision():
 
 
 if __name__ == "__main__":
+
+    render_mode = True
+    episodes = 2
+    FPS = 100
+
     game_on = True
     score = [0, 0]
     p1_id = 1
     game_timer = pygame.time.Clock()
     game_time = conf.max_time
-    game_timer.tick()
+    game_timer.tick(FPS)
     initialize_game()
     info = Text()
-    episodes = 100
-    render_mode = True
 
     # While loop for main logic of the game
     for episode in range(episodes):
+        print("episode: ", episode)
         reset()  
         game_time = conf.max_time
         game_on = True  
@@ -206,7 +211,7 @@ if __name__ == "__main__":
             if_ball_free, stealer = deal_collision()
             # calculate reward
             if stealer is not None:  # steal the ball
-                if is_ball_free:  # if ball is free
+                if if_ball_free:  # if ball is free
                     rewards[stealer.id - 1] += 1500
                 else: # if ball is stolen
                     if stealer.id == 1:
@@ -249,7 +254,7 @@ if __name__ == "__main__":
                 info.render(screen, score, game_time)
                 pygame.display.update()
 
-            game_time -= game_timer.tick()
+            game_time -= game_timer.tick(FPS)
             if game_time < 0:
                 game_on = False
 

@@ -14,3 +14,4 @@ report/lab_report_1.bbl
 report/lab_report_1.blg
 *.pyc
 .idea/*
+__pycache__/*.pyc
