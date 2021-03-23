@@ -8,6 +8,12 @@ from tensorflow.keras import models, layers, optimizers
 
 conf = Config()
 
+
+class Agent():
+    def __init__(self, id, model_root_path="./model/"):
+        pass
+
+
 class AgentsQT():
     def __init__(self, id):
         # create Q table
@@ -29,18 +35,18 @@ class AgentsQT():
             self.q_table = np.zeros((9, 9, 7, 7, 7, 7, 9, 2))
             # exploration strategy
             self.greedy = 0.9
-        
+
         # learning rate
         self.alpha = 1
         # discount factor
         self.gamma = 0.7
-        
+
     def set_state(self, state):
         self.state = state
 
     # to simplify the state of current game
     def get_state(self, state):
-        return_state = np.zeros((6,), dtype=int);
+        return_state = np.zeros((6,), dtype=int)
         player_x = state[0]
         player_y = state[1]
         opponent_x = state[2]
@@ -85,16 +91,14 @@ class AgentsQT():
 
         return return_state
 
-
     def update(self, current_action, next_state, r):
         old_state = self.state
         next_max_value = np.max(self.q_table[next_state[0], next_state[1], next_state[2],
-            next_state[3], next_state[4], next_state[5]])
-        self.q_table[old_state[0], old_state[1], old_state[2], next_state[3], next_state[4], 
-            next_state[5], current_action] = (1 - self.alpha) * self.q_table[
-            old_state[0], old_state[1], old_state[2], next_state[3], next_state[4], 
+                                             next_state[3], next_state[4], next_state[5]])
+        self.q_table[old_state[0], old_state[1], old_state[2], next_state[3], next_state[4],
+                     next_state[5], current_action] = (1 - self.alpha) * self.q_table[
+            old_state[0], old_state[1], old_state[2], next_state[3], next_state[4],
             next_state[5], current_action] + self.alpha * (r + self.gamma * next_max_value)
-
 
     def make_decision(self, random=True):
         state = self.state
@@ -119,7 +123,7 @@ class AgentsQT():
         act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 6, 1])
         act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 7, 1])
         act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 8, 1])
-        
+
         if (random):
             if np.random.rand(1) < self.greedy:
                 ret_act = np.random.choice(range(18))
@@ -139,20 +143,19 @@ class AgentsQT():
         else:
             return [ret_act, 0]
 
-
     def update_greedy(self):
         self.greedy *= 0.95
-
 
     def load_model(self):
         q_table = np.load(self.path)
         return q_table
 
-
     def save_model(self):
         np.save(self.path, self.q_table)
 
-# TODO: ENV!    
+# TODO: ENV!
+
+
 class AgentsDQN():
     def __init__(self, action_set):
         self.gamma = 1
@@ -161,7 +164,6 @@ class AgentsDQN():
         self.memory = deque(maxlen=2000000)
         self.greedy = 1
         self.action_set = action_set
-
 
     def get_state(self, state):
         """
@@ -176,9 +178,8 @@ class AgentsDQN():
         return_state[3] = state['opponent_y']
         return_state[4] = state['ball_x']
         return_state[5] = state['ball_y']
-        
-        return return_state
 
+        return return_state
 
     def init_netWork(self):
         """

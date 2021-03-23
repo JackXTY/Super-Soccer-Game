@@ -115,7 +115,8 @@ def deal_player_input(p, ball, input_array):
             p.shoot_update()
             ball.shoot_ball(p.shoot_dir)
             # rewards[p.id - 1] -= 1000
-            print("p-{} shoot, dir in ({},{}) {}, input={}".format(p.id, ball.v.x, ball.v.y, p.shoot_dir, input_array))
+            print("p-{} shoot, dir in ({},{}) {}, input={}".format(p.id,
+                                                                   ball.v.x, ball.v.y, p.shoot_dir, input_array))
             return True
         p.shoot_dir = 99
     return False
@@ -166,9 +167,9 @@ if __name__ == "__main__":
     # While loop for main logic of the game
     for episode in range(episodes):
         print("episode: ", episode)
-        reset()  
+        reset()
         game_time = conf.max_time
-        game_on = True  
+        game_on = True
         for agent in agents:
             state = agent.get_state(getGameState(agent.id, players, ball))
             agent.set_state(state)
@@ -187,7 +188,7 @@ if __name__ == "__main__":
             new_pos_y = [0, 0, 0]
             # next_state = []
             rewards = [0, 0]
-            action = [0,0]
+            action = [0, 0]
 
             # end game with user input
             # for event in pygame.event.get():
@@ -195,7 +196,6 @@ if __name__ == "__main__":
             #         pygame.quit()
             #         sys.exit()
             #         game_on = False
-            
 
             # update position
             prev_pos_x[2] = ball.rect.centerx
@@ -210,21 +210,19 @@ if __name__ == "__main__":
                 if deal_player_input(p, ball, input_array):
                     rewards[p.id - 1] -= 1000
 
-                
             # deal with collision
             if_ball_free, stealer = deal_collision()
             # calculate reward
             if stealer is not None:  # steal the ball
                 if if_ball_free:  # if ball is free
                     rewards[stealer.id - 1] += 1500
-                else: # if ball is stolen
+                else:  # if ball is stolen
                     if stealer.id == 1:
                         rewards[0] += 2000
                         rewards[1] -= 2000
                     else:
                         rewards[1] += 2000
                         rewards[0] -= 2000
-
 
             ball.update_pos()
             new_pos_x[2] = ball.rect.centerx
@@ -235,14 +233,15 @@ if __name__ == "__main__":
                 rewards[shot] += 100000
                 rewards[shot-1] -= 10000
                 reset()
-            
+
             # next_state.append(agents[0].get_state(getGameState(1, players, ball)))
             # next_state.append(agents[1].get_state(getGameState(2, players, ball)))
 
             # agents[0].update_q_table(state[0], action[0], next_state[0], rewards[0])
             # agents[1].update_q_table(state[1], action[1], next_state[1], rewards[1])
             for agent in agents:
-                agent.update(action[agent.id - 1], agent.get_state(getGameState(agent.id, players, ball)), rewards[agent.id - 1])
+                agent.update(
+                    action[agent.id - 1], agent.get_state(getGameState(agent.id, players, ball)), rewards[agent.id - 1])
 
             #state = next_state
             for player in players.sprites():
@@ -263,8 +262,6 @@ if __name__ == "__main__":
             game_time -= game_timer.tick(FPS)
             if game_time < 0:
                 game_on = False
-
-
 
     # wait for game exit
     # screen.blit(background, (0, 0))
