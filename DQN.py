@@ -19,6 +19,8 @@ class AgentsQT():
         #   action 0->nothing 1->kick?
         self.id = id
         self.path = "./model/" + str(id) + ".npy"
+        self.state = []
+        self.next_state = []
         self.has_model = os.path.exists(self.path)
         if self.has_model:
             self.greedy = 0.005
@@ -33,7 +35,8 @@ class AgentsQT():
         # discount factor
         self.gamma = 0.7
         
-
+    def set_state(self, state):
+        self.state = state
 
     # to simplify the state of current game
     def get_state(self, state):
@@ -83,7 +86,8 @@ class AgentsQT():
         return return_state
 
 
-    def update_q_table(self, old_state, current_action, next_state, r):
+    def update(self, current_action, next_state, r):
+        old_state = self.state
         next_max_value = np.max(self.q_table[next_state[0], next_state[1], next_state[2],
             next_state[3], next_state[4], next_state[5]])
         self.q_table[old_state[0], old_state[1], old_state[2], next_state[3], next_state[4], 
@@ -92,7 +96,8 @@ class AgentsQT():
             next_state[5], current_action] + self.alpha * (r + self.gamma * next_max_value)
 
 
-    def make_decision(self, state, random=True):
+    def make_decision(self, random=True):
+        state = self.state
         act = []
         ret_act = 0
         act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 0, 0])

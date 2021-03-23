@@ -9,7 +9,7 @@ from text import Text
 from config import Config, rewards_func
 import random
 import time
-from DQN import AgentsQT
+from dqn import AgentsQT
 
 pygame.init()
 conf = Config()
@@ -169,19 +169,23 @@ if __name__ == "__main__":
         reset()  
         game_time = conf.max_time
         game_on = True  
-        state = []
-        state.append(agents[0].get_state(getGameState(1, players, ball)))
-        state.append(agents[1].get_state(getGameState(2, players, ball)))
-        agents[0].update_greedy()
-        agents[1].update_greedy()
-        print(agents[0].greedy)
+        for agent in agents:
+            state = agent.get_state(getGameState(agent.id, players, ball))
+            agent.set_state(state)
+            agent.update_greedy()
+        # state = []
+        # state.append(agents[0].get_state(getGameState(1, players, ball)))
+        # state.append(agents[1].get_state(getGameState(2, players, ball)))
+        # agents[0].update_greedy()
+        # agents[1].update_greedy()
+        # print(agents[0].greedy)
 
         while game_on:
             prev_pos_x = [0, 0, 0]
             prev_pos_y = [0, 0, 0]
             new_pos_x = [0, 0, 0]
             new_pos_y = [0, 0, 0]
-            next_state = []
+            # next_state = []
             rewards = [0, 0]
             action = [0,0]
 
@@ -200,7 +204,7 @@ if __name__ == "__main__":
                 #input_array = get_input(p.id)
                 prev_pos_x[p.id - 1] = p.rect.centerx
                 prev_pos_y[p.id - 1] = p.rect.centery
-                action[p.id - 1] = agents[p.id - 1].make_decision(state[p.id - 1])
+                action[p.id - 1] = agents[p.id - 1].make_decision()
                 input_array = get_input_ai(p.id, action[p.id - 1])
                 # deal with input & calculate reward
                 if deal_player_input(p, ball, input_array):
@@ -232,13 +236,15 @@ if __name__ == "__main__":
                 rewards[shot-1] -= 10000
                 reset()
             
-            next_state.append(agents[0].get_state(getGameState(1, players, ball)))
-            next_state.append(agents[1].get_state(getGameState(2, players, ball)))
+            # next_state.append(agents[0].get_state(getGameState(1, players, ball)))
+            # next_state.append(agents[1].get_state(getGameState(2, players, ball)))
 
-            agents[0].update_q_table(state[0], action[0], next_state[0], rewards[0])
-            agents[1].update_q_table(state[1], action[1], next_state[1], rewards[1])
+            # agents[0].update_q_table(state[0], action[0], next_state[0], rewards[0])
+            # agents[1].update_q_table(state[1], action[1], next_state[1], rewards[1])
+            for agent in agents:
+                agent.update(action[agent.id - 1], agent.get_state(getGameState(agent.id, players, ball)), rewards[agent.id - 1])
 
-            state = next_state
+            #state = next_state
             for player in players.sprites():
                 new_pos_x[player.id - 1] = player.rect.centerx
                 new_pos_y[player.id - 1] = player.rect.centery
