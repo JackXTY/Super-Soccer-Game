@@ -9,11 +9,12 @@ from text import Text
 from config import Config, rewards_func
 import random
 import time
-from dqn import AgentsQT
+from DQN import AgentsQT
+
 
 pygame.init()
 conf = Config()
-N = conf.total_number
+N = 2 # number of player
 screen = pygame.display.set_mode(conf.size)
 screen_rect = screen.get_rect()
 pygame.display.set_caption('Super Soccer Game')
@@ -38,18 +39,23 @@ def getGameState(pid, players, ball):
 
 
 def initialize_game():
-    for i in range(1, N + 1):
+    for i in range(1, N+1):
         team_now = 0
         image = conf.player_image_blue
         if i > N / 2:
             team_now = 1
             image = conf.player_image_red
-        pos = conf.init_pos[i]
+        pos = conf.init_pos[N][i-1]
+        print(int(screen_rect.centerx * pos[0]),
+                   int(screen_rect.centery * pos[1]))
         p = Player(team_now, int(screen_rect.centerx * pos[0]),
                    int(screen_rect.centery * pos[1]), i, image)
         players.add(p)
         print("player: id={}, team={}".format(p.id, p.team))
-        agent = AgentsQT(p.id)
+    
+def initialize_AI():
+    for p in players.sprites():
+        agent = AgentsQT(p.id, N)
         agents.append(agent)
 
 
@@ -61,8 +67,8 @@ def reset():
     ball.v.x = 0
     ball.v.y = 0
     for p in players.sprites():
-        p.rect.centerx = screen_rect.centerx * conf.init_pos[p.id][0]
-        p.rect.centery = screen_rect.centery * conf.init_pos[p.id][1]
+        p.rect.centerx = screen_rect.centerx * conf.init_pos[N][p.id-1][0]
+        p.rect.centery = screen_rect.centery * conf.init_pos[N][p.id-1][1]
         p.v.x = 0
         p.v.y = 0
 
@@ -149,6 +155,7 @@ def deal_collision():
 
 
 if __name__ == "__main__":
+    assert N in conf.available_player_numbers
 
     render_mode = True
     episodes = 2
@@ -156,11 +163,12 @@ if __name__ == "__main__":
 
     game_on = True
     score = [0, 0]
-    p1_id = 1
+    # p1_id = 1
     game_timer = pygame.time.Clock()
     game_time = conf.max_time
     game_timer.tick(FPS)
     initialize_game()
+    initialize_AI()
     info = Text()
 
     # While loop for main logic of the game
@@ -181,13 +189,13 @@ if __name__ == "__main__":
         # print(agents[0].greedy)
 
         while game_on:
-            prev_pos_x = [0, 0, 0]
-            prev_pos_y = [0, 0, 0]
-            new_pos_x = [0, 0, 0]
-            new_pos_y = [0, 0, 0]
+            prev_pos_x = [0 for _i in range(N+1)]
+            prev_pos_y = [0 for _i in range(N+1)]
+            new_pos_x = [0 for _i in range(N+1)]
+            new_pos_y = [0 for _i in range(N+1)]
             # next_state = []
             rewards = [0, 0]
-            action = [0,0]
+            action = [0 for _i in range(N)]
 
             # end game with user input
             # for event in pygame.event.get():
@@ -198,8 +206,8 @@ if __name__ == "__main__":
             
 
             # update position
-            prev_pos_x[2] = ball.rect.centerx
-            prev_pos_y[2] = ball.rect.centery
+            prev_pos_x[N] = ball.rect.centerx
+            prev_pos_y[N] = ball.rect.centery
             for p in players.sprites():
                 #input_array = get_input(p.id)
                 prev_pos_x[p.id - 1] = p.rect.centerx
@@ -208,7 +216,7 @@ if __name__ == "__main__":
                 input_array = get_input_ai(p.id, action[p.id - 1])
                 # deal with input & calculate reward
                 if deal_player_input(p, ball, input_array):
-                    rewards[p.id - 1] -= 1000
+                    rewards[p.team] -= 1000
 
                 
             # deal with collision
@@ -216,9 +224,9 @@ if __name__ == "__main__":
             # calculate reward
             if stealer is not None:  # steal the ball
                 if if_ball_free:  # if ball is free
-                    rewards[stealer.id - 1] += 1500
+                    rewards[stealer.team] += 1500
                 else: # if ball is stolen
-                    if stealer.id == 1:
+                    if stealer.team == 0:
                         rewards[0] += 2000
                         rewards[1] -= 2000
                     else:
@@ -227,8 +235,8 @@ if __name__ == "__main__":
 
 
             ball.update_pos()
-            new_pos_x[2] = ball.rect.centerx
-            new_pos_y[2] = ball.rect.centery
+            new_pos_x[N] = ball.rect.centerx
+            new_pos_y[N] = ball.rect.centery
             shot = ball.in_door()
             if shot >= 0:
                 score[shot] += 1
@@ -242,7 +250,10 @@ if __name__ == "__main__":
             # agents[0].update_q_table(state[0], action[0], next_state[0], rewards[0])
             # agents[1].update_q_table(state[1], action[1], next_state[1], rewards[1])
             for agent in agents:
-                agent.update(action[agent.id - 1], agent.get_state(getGameState(agent.id, players, ball)), rewards[agent.id - 1])
+                team_now = 0
+                if agent.id > N/2:
+                    team_now = 1
+                agent.update(action[agent.id - 1], agent.get_state(getGameState(agent.id, players, ball)), rewards[team_now])
 
             #state = next_state
             for player in players.sprites():
@@ -274,9 +285,9 @@ if __name__ == "__main__":
     # info.render(screen, score, 0)
     # pygame.display.update()
 
-    agents[0].save_model()
-    agents[1].save_model()
+    for agent in agents:
+        agent.save_model()
 
-    time.sleep(1000)
+    time.sleep(100)
     pygame.quit()
     sys.exit()

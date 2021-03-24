@@ -9,7 +9,7 @@ class Player(Sprite):
     def __init__(self, team, initial_pos_x, initial_pos_y, pid, player_image):
         super(Player, self).__init__()
         self.id = pid
-        self.team = team  # team-0: attack right door / team-1: attack left door
+        self.team = team  # team-0: attack right door, small id / team-1: attack left door, big id
         self.v = Velocity(0.0, 0.0)
         self.player_image = pygame.image.load(player_image)
         self.rect = self.player_image.get_rect()

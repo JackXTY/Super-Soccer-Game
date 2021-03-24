@@ -9,7 +9,7 @@ from tensorflow.keras import models, layers, optimizers
 conf = Config()
 
 class AgentsQT():
-    def __init__(self, id):
+    def __init__(self, id, N):
         # create Q table
         # The sturcture of Q table:
         #   player's position (9, 9)
@@ -18,7 +18,7 @@ class AgentsQT():
         #   moving direction
         #   action 0->nothing 1->kick?
         self.id = id
-        self.path = "./model/" + str(id) + ".npy"
+        self.path = "./model/" + str(N) + "/" + str(id) + ".npy"
         self.state = []
         self.next_state = []
         self.has_model = os.path.exists(self.path)
