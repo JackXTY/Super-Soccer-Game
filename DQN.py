@@ -10,11 +10,40 @@ conf = Config()
 
 
 class Agent():
-    def __init__(self, id, model_root_path="./model/"):
+    def __init__(self, id, game_mode, model_root_path="./model/", train=True):
+        self.id = id
+        self.type = "Agent"
+        self.game_mode = game_mode
+        self.model_path = model_root_path + self.type + \
+            "/" + game_mode + "/" + str(id) + ".model"
+        self.model = self.load_model()
+
+    def set_state(self, state):
+        pass
+
+    def get_state(self, state):
+        pass
+
+    def update(self):
+        pass
+
+    def make_decision(self, random):
+        pass
+
+    def reset(self):
+        pass
+
+    def load_model(self):
+        pass
+
+    def update_greedy(self):
+        pass
+
+    def save_model(self):
         pass
 
 
-class AgentsQT():
+class AgentsQT(Agent):
     def __init__(self, id):
         # create Q table
         # The sturcture of Q table:
@@ -23,6 +52,7 @@ class AgentsQT():
         #   ball's relative position (7, 7)
         #   moving direction
         #   action 0->nothing 1->kick?
+        
         self.id = id
         self.path = "./model/" + str(id) + ".npy"
         self.state = []
@@ -104,25 +134,43 @@ class AgentsQT():
         state = self.state
         act = []
         ret_act = 0
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 0, 0])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 1, 0])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 2, 0])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 3, 0])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 4, 0])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 5, 0])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 6, 0])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 7, 0])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 8, 0])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 0, 0])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 1, 0])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 2, 0])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 3, 0])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 4, 0])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 5, 0])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 6, 0])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 7, 0])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 8, 0])
 
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 0, 1])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 1, 1])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 2, 1])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 3, 1])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 4, 1])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 5, 1])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 6, 1])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 7, 1])
-        act.append(self.q_table[state[0], state[1], state[2], state[3], state[4], state[5], 8, 1])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 0, 1])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 1, 1])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 2, 1])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 3, 1])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 4, 1])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 5, 1])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 6, 1])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 7, 1])
+        act.append(self.q_table[state[0], state[1], state[2],
+                                state[3], state[4], state[5], 8, 1])
 
         if (random):
             if np.random.rand(1) < self.greedy:
@@ -147,8 +195,8 @@ class AgentsQT():
         self.greedy *= 0.95
 
     def load_model(self):
-        q_table = np.load(self.path)
-        return q_table
+        model = np.load(self.path)
+        return model
 
     def save_model(self):
         np.save(self.path, self.q_table)
@@ -156,7 +204,7 @@ class AgentsQT():
 # TODO: ENV!
 
 
-class AgentsDQN():
+class AgentsDDQN(Agent):
     def __init__(self, action_set):
         self.gamma = 1
         self.model = self.init_netWork()
@@ -187,7 +235,8 @@ class AgentsDQN():
         :return:
         """
         model = models.Sequential([
-            layers.Dense(64 * 4, activation="tanh", input_dim=self.observation_space.shape[0]),
+            layers.Dense(64 * 4, activation="tanh",
+                         input_dim=self.observation_space.shape[0]),
             layers.Dense(18, activation="linear")
         ])
 
