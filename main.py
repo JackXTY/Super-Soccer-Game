@@ -14,7 +14,7 @@ from DQN import AgentsQT
 
 pygame.init()
 conf = Config()
-N = 2 # number of player
+N = 4 # number of player
 screen = pygame.display.set_mode(conf.size)
 screen_rect = screen.get_rect()
 pygame.display.set_caption('Super Soccer Game')
@@ -25,18 +25,15 @@ agents = []
 
 
 def getGameState(pid, players, ball):
-    ret_state = [0, 0, 0, 0, 0, 0]
+    team = [[],[]]
+    _ball = [ball.rect.centerx, ball.rect.centery]
     for p in players:
         if p.id == pid:
-            ret_state[0] = p.rect.centerx
-            ret_state[1] = p.rect.centery
+            team[p.team].insert(0, [p.rect.centerx, p.rect.centery])
         else:
-            ret_state[2] = p.rect.centerx
-            ret_state[3] = p.rect.centery
-    ret_state[4] = ball.rect.centerx
-    ret_state[5] = ball.rect.centery
-    return ret_state
-
+            team[p.team].append([p.rect.centerx, p.rect.centery])
+    return team[0], team[1], _ball
+    
 
 def initialize_game():
     for i in range(1, N+1):
@@ -55,7 +52,7 @@ def initialize_game():
     
 def initialize_AI():
     for p in players.sprites():
-        agent = AgentsQT(p.id, N)
+        agent = AgentsQT(p.id, p.team, N)
         agents.append(agent)
 
 
@@ -179,7 +176,8 @@ if __name__ == "__main__":
         game_time = conf.max_time
         game_on = True
         for agent in agents:
-            state = agent.get_state(getGameState(agent.id, players, ball))
+            team0, team1, _ball = getGameState(agent.id, players, ball)
+            state = agent.get_state(team0, team1, _ball)
             agent.set_state(state)
             agent.update_greedy()
         # state = []
@@ -251,7 +249,8 @@ if __name__ == "__main__":
                 team_now = 0
                 if agent.id > N/2:
                     team_now = 1
-                agent.update(action[agent.id - 1], agent.get_state(getGameState(agent.id, players, ball)), rewards[team_now])
+                team0, team1, _ball = getGameState(agent.id, players, ball)
+                agent.update(action[agent.id - 1], agent.get_state(team0, team1, _ball), rewards[team_now])
 
             #state = next_state
             for player in players.sprites():

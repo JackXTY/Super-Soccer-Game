@@ -10,18 +10,22 @@ conf = Config()
 
 
 class Agent():
-    def __init__(self, id, game_mode, model_root_path="./model/", train=True):
+    def __init__(self, id, team, game_mode, model_root_path="./model/", train=True):
         self.id = id
+        self.team = team
         self.type = "Agent"
         self.game_mode = game_mode
         self.model_path = model_root_path + self.type + \
-            "/" + game_mode + "/" + str(id) + ".model"
-        self.model = self.load_model()
+            "/" + str(game_mode) + "/" + str(id) + ".model"
+        self.has_model = os.path.exists(self.model_path)
+        self.model = []
+        if (not train) and self.has_model:
+            self.model = self.load_model()
 
     def set_state(self, state):
         pass
 
-    def get_state(self, state):
+    def get_state(self, team0, team1 ,ball):
         pass
 
     def update(self):
@@ -44,7 +48,7 @@ class Agent():
 
 
 class AgentsQT(Agent):
-    def __init__(self, id, N):
+    def __init__(self, id, team, game_mode, model_root_path="./model/", train=True):
         # create Q table
         # The sturcture of Q table:
         #   player's position (9, 9)
@@ -52,12 +56,10 @@ class AgentsQT(Agent):
         #   ball's relative position (7, 7)
         #   moving direction
         #   action 0->nothing 1->kick?
-        
-        self.id = id
-        self.path = "./model/" + str(N) + "/" + str(id) + ".npy"
+        super().__init__(id, team, game_mode, model_root_path="./model/", train=True)
         self.state = []
         self.next_state = []
-        self.has_model = os.path.exists(self.path)
+        
         if self.has_model:
             self.greedy = 0.005
             self.q_table = self.load_model()
@@ -75,14 +77,15 @@ class AgentsQT(Agent):
         self.state = state
 
     # to simplify the state of current game
-    def get_state(self, state):
+    # Just for 2v2
+    def get_state(self, team0, team1, ball):
         return_state = np.zeros((6,), dtype=int)
-        player_x = state[0]
-        player_y = state[1]
-        opponent_x = state[2]
-        opponent_y = state[3]
-        ball_x = state[4]
-        ball_y = state[5]
+        player_x = team0[0][0]
+        player_y = team0[0][1]
+        opponent_x = team1[0][0]
+        opponent_y = team1[0][1]
+        ball_x = ball[0]
+        ball_y = ball[1]
 
         interval_x = 1/12 * conf.width
         return_state[0] = (player_x - (0.125 * conf.width)) // interval_x
@@ -195,7 +198,7 @@ class AgentsQT(Agent):
         self.greedy *= 0.95
 
     def load_model(self):
-        model = np.load(self.path)
+        model = np.load(self.model_path)
         return model
 
     def save_model(self):
