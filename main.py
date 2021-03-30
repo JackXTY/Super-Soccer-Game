@@ -160,7 +160,7 @@ if __name__ == "__main__":
     assert N in conf.available_player_numbers
 
     render_mode = True
-    episodes = 1
+    episodes = 2
     FPS = 100
 
     game_on = True
@@ -177,7 +177,7 @@ if __name__ == "__main__":
     for episode in range(episodes):
         print("episode: ", episode)
         reset()
-        game_time = 100 #conf.max_time
+        game_time = conf.max_time
         game_on = True
         for agent in agents:
             state = agent.get_state(getGameState(agent.id, players, ball))
@@ -274,7 +274,6 @@ if __name__ == "__main__":
             if game_time < 0:
                 game_on = False
 
-
     # wait for game exit
     # screen.blit(background, (0, 0))
     # for player in players.sprites():
@@ -286,6 +285,6 @@ if __name__ == "__main__":
     for agent in agents:
         agent.save_model()
 
-    time.sleep(100)
+    time.sleep(10)
     pygame.quit()
     sys.exit()

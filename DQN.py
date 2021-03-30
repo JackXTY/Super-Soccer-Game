@@ -240,6 +240,7 @@ class AgentsDQN(Agent):
         self.batch_size = 16
         # tf.summary.FileWriter("logs/", self.sess.graph)
         print(self.id, self.sess)
+        self.saver = train.Saver()
 
         if not(os.path.exists(self.path)):
             self.sess.run(global_variables_initializer())
@@ -423,12 +424,14 @@ class AgentsDQN(Agent):
         self.greedy *= 0.95
 
     def load_model(self):
-        train.Saver.restore(self.sess, self.path)
+        self.saver.restore(self.sess, self.path)
 
     def save_model(self):
-        print('try to save')
-        print(self.sess)
-        train.Saver(self.sess, self.path)
+        try:
+            self.saver.save(self.sess, self.path)
+            print(self.path + 'saved successfully')
+        except:
+            print('ERROR: can not save the model')
 
 
 class AgentsDDQN(Agent):
