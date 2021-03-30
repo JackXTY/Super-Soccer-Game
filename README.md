@@ -22,6 +22,5 @@ After a player just get/steal the ball, other player need to wait for few second
 After a player just shoot the ball, the player need to wait for few seconds to be able to get/steal the ball again.
 
 ## TODO
-1. remove visualization from pygame
-2. main with param
-3. RL
+1. RL
+2. add args to decide (if-train, player-number, FPS)

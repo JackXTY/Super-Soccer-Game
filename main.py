@@ -9,7 +9,7 @@ from text import Text
 from config import Config, rewards_func
 import random
 import time
-from DQN import AgentsQT
+from DQN import AgentsQT, AgentsDQN
 
 
 pygame.init()
@@ -23,7 +23,7 @@ players = Group()
 ball = Ball(screen_rect.centerx, screen_rect.centery)
 agents = []
 
-
+# TODO: change into multiple players mode
 def getGameState(pid, players, ball):
     ret_state = [0, 0, 0, 0, 0, 0]
     for p in players:
@@ -55,7 +55,8 @@ def initialize_game():
     
 def initialize_AI():
     for p in players.sprites():
-        agent = AgentsQT(p.id, N)
+        #agent = AgentsQT(p.id, N)
+        agent = AgentsDQN(p.id, N)
         agents.append(agent)
 
 
@@ -159,7 +160,7 @@ if __name__ == "__main__":
     assert N in conf.available_player_numbers
 
     render_mode = True
-    episodes = 2
+    episodes = 1
     FPS = 100
 
     game_on = True
@@ -176,7 +177,7 @@ if __name__ == "__main__":
     for episode in range(episodes):
         print("episode: ", episode)
         reset()
-        game_time = conf.max_time
+        game_time = 100 #conf.max_time
         game_on = True
         for agent in agents:
             state = agent.get_state(getGameState(agent.id, players, ball))
@@ -257,7 +258,7 @@ if __name__ == "__main__":
             for player in players.sprites():
                 new_pos_x[player.id - 1] = player.rect.centerx
                 new_pos_y[player.id - 1] = player.rect.centery
-            rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y)
+            rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
             #print(prev_pos_x, prev_pos_y)
             #print(new_pos_x, new_pos_y)
 
@@ -272,6 +273,7 @@ if __name__ == "__main__":
             game_time -= game_timer.tick(FPS)
             if game_time < 0:
                 game_on = False
+
 
     # wait for game exit
     # screen.blit(background, (0, 0))

@@ -92,45 +92,38 @@ def update_v(v, f):
             v = 0
     return v
 
-def rewards_func(r, p_x, p_y, n_x, n_y):
+def rewards_func(r, p_x, p_y, n_x, n_y, N):
     rewards = r
-    prev_pos_x = p_x
-    prev_pos_y = p_y
-    new_pos_x = n_x
-    new_pos_y = n_y
-    
-    if abs(prev_pos_x[2] - prev_pos_x[0]) > abs(new_pos_x[2] - new_pos_x[0]):
-        rewards[0] += 200
-    elif abs(prev_pos_x[2] - prev_pos_x[0]) < abs(new_pos_x[2] - new_pos_x[0]):
-        rewards[0] -= 200
-    else:
-        rewards[0] -= 50
+    prev_pos = {}
+    prev_pos["x"] = p_x
+    prev_pos["y"] = p_y
+    new_pos = {}
+    new_pos["x"] = n_x
+    new_pos["y"] = n_y
 
-    if abs(prev_pos_x[2] - prev_pos_x[1]) > abs(new_pos_x[2] - new_pos_x[1]):
-        rewards[1] += 200
-    elif abs(prev_pos_x[2] - prev_pos_x[1]) < abs(new_pos_x[2] - new_pos_x[1]):
-        rewards[1] -= 200
-    else:
-        rewards[1] -= 50
+    for i in range(int(N/2)):
+        for axis in ["x", "y"]:
+            if abs(prev_pos[axis][N] - prev_pos[axis][i]) > abs(new_pos[axis][N] - new_pos[axis][i]):
+                rewards[0] += 200
+            elif abs(prev_pos[axis][N] - prev_pos[axis][i]) < abs(new_pos[axis][N] - new_pos[axis][i]):
+                rewards[0] -= 200
+            else:
+                rewards[0] -= 50
 
-    if abs(prev_pos_y[2] - prev_pos_y[0]) > abs(new_pos_y[2] - new_pos_y[0]):
-        rewards[0] += 200
-    elif abs(prev_pos_y[2] - prev_pos_y[0]) < abs(new_pos_y[2] - new_pos_y[0]):
-        rewards[0] -= 200
-    else:
-        rewards[0] -= 50
 
-    if abs(prev_pos_y[2] - prev_pos_y[1]) > abs(new_pos_y[2] - new_pos_y[1]):
-        rewards[1] += 200
-    elif abs(prev_pos_y[2] - prev_pos_y[1]) < abs(new_pos_y[2] - new_pos_y[1]):
-        rewards[1] -= 200
-    else:
-        rewards[1] -= 50
+    for i in range(int(N/2), N):
+        for axis in ["x", "y"]:
+            if abs(prev_pos[axis][N] - prev_pos[axis][i]) > abs(new_pos[axis][N] - new_pos[axis][i]):
+                rewards[1] += 200
+            elif abs(prev_pos[axis][N] - prev_pos[axis][i]) < abs(new_pos[axis][N] - new_pos[axis][i]):
+                rewards[1] -= 200
+            else:
+                rewards[1] -= 50
 
-    if new_pos_x[2] > prev_pos_x[2]:
+    if new_pos["x"][N] > prev_pos["x"][N]:
         rewards[0] += 600
         rewards[1] -= 600
-    elif new_pos_x[2] < prev_pos_x[2]:
+    elif new_pos["x"][N] < prev_pos["x"][N]:
         rewards[0] -= 600
         rewards[1] += 600  
 
