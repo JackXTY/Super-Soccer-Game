@@ -238,7 +238,7 @@ class AgentsDQN(Agent):
         self.build_network()
 
         self.sess = Session()
-        self.batch_size = 16
+        self.batch_size = 1
         # tf.summary.FileWriter("logs/", self.sess.graph)
         print(self.id, self.sess)
         self.saver = train.Saver()
@@ -261,9 +261,9 @@ class AgentsDQN(Agent):
         with variable_scope('eval_net' + str(self.id)) as scope:
             #scope.reuse_variables()
             c_names = ['eval_net_params' + str(self.id), GraphKeys.GLOBAL_VARIABLES]
-            n_l1 = 10
-            w_init = tf.random_normal_initializer(0.1)
-            b_init = tf.constant_initializer(0.1)
+            n_l1 = 50
+            w_init = tf.random_normal_initializer(0.01)
+            b_init = tf.constant_initializer(0.01)
             # first layer. collections is used later when assign to target net
             with variable_scope('l1'):
                 w1 = get_variable('w1', [self.features, n_l1], initializer=w_init, collections=c_names)
@@ -313,6 +313,7 @@ class AgentsDQN(Agent):
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
             action_0 = np.argmax(actions_value[0][:8])
             action_1 = np.argmax(actions_value[0][8:])
+            #print(actions_value, [action_0, action_1])
         else:
             action_0 = np.random.randint(0, self.actions-2)
             action_1 = np.random.randint(0, 2)
@@ -330,8 +331,8 @@ class AgentsDQN(Agent):
         # check to replace target parameters
         if self.step_counter % self.replace_target_iter == 0:
             self.replace_target_params()
-            print(reward)
             print('\ntarget_params_replaced\n')
+            print(action)
 
         # sample batch memory from all memory
         if self.memory_counter > self.memory_size:

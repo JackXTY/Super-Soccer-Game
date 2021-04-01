@@ -158,12 +158,12 @@ def new_rewards_func(r, p_x, p_y, n_x, n_y, N):
     for i in range(half, N):
         rewards[1] += (600 - dis[i])
 
-    if sum_0 > sum_1:
-        rewards[0] += 300
-        rewards[1] -= 300
-    elif sum_1 > sum_0:
-        rewards[0] -= 300
-        rewards[1] += 300  
+    # if sum_0 > sum_1:
+    #     rewards[0] += 300
+    #     rewards[1] -= 300
+    # elif sum_1 > sum_0:
+    #     rewards[0] -= 300
+    #     rewards[1] += 300  
 
     #print(rewards)
     return rewards
