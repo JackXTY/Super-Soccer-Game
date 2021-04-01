@@ -75,7 +75,7 @@ class AgentsQT(Agent):
         self.gamma = 0.7
 
     def set_state(self, state):
-        self.state = state
+        self.state = self.get_state(state)
 
     # to simplify the state of current game
     def get_state(self, state):
@@ -124,7 +124,8 @@ class AgentsQT(Agent):
 
         return return_state
 
-    def update(self, current_action, next_state, r):
+    def update(self, current_action, game_state, r):
+        next_state = self.get_state(game_state)
         old_state = self.state
         next_max_value = np.max(self.q_table[next_state[0], next_state[1], next_state[2],
                                              next_state[3], next_state[4], next_state[5]])
@@ -218,9 +219,9 @@ class AgentsDQN(Agent):
             self.greedy = 0.005
         else:
             # exploration strategy
-            self.greedy = 0.9
+            self.greedy = 0.5
         # learning rate
-        self.alpha = 1
+        self.alpha = 0.01
         # discount factor
         self.gamma = 0.7
         # number of features
@@ -250,54 +251,10 @@ class AgentsDQN(Agent):
     
     def set_state(self, state):
         self.state = state
-    
-    def get_state(self, state):
-        return_state = np.zeros((6,), dtype=int)
-        player_x = state[0]
-        player_y = state[1]
-        opponent_x = state[2]
-        opponent_y = state[3]
-        ball_x = state[4]
-        ball_y = state[5]
-
-        interval_x = 1/12 * conf.width
-        return_state[0] = (player_x - (0.125 * conf.width)) // interval_x
-        interval_y = 1/12 * conf.height
-        return_state[1] = (player_y - (0.125 * conf.height)) // interval_y
-
-        diff_x = opponent_x - player_x
-        diff_y = opponent_y - player_y
-        if diff_x > 0:
-            return_state[2] = math.ceil(math.log10(abs(diff_x) + 1)) + 3
-        elif diff_x == 0:
-            return_state[2] = 3
-        else:
-            return_state[2] = 3 - math.ceil(math.log10(abs(diff_x) + 1))
-        if diff_y > 0:
-            return_state[3] = math.ceil(math.log10(abs(diff_x) + 1)) + 3
-        elif diff_y == 0:
-            return_state[3] = 3
-        else:
-            return_state[3] = 3 - math.ceil(math.log10(abs(diff_x) + 1))
-
-        diff_ball_x = ball_x - player_x
-        diff_ball_y = ball_y - player_y
-        if diff_ball_x > 0:
-            return_state[4] = math.ceil(math.log10(abs(diff_x) + 1)) + 3
-        elif diff_ball_x == 0:
-            return_state[4] = 3
-        else:
-            return_state[4] = 3 - math.ceil(math.log10(abs(diff_x) + 1))
-        if diff_ball_y > 0:
-            return_state[5] = math.ceil(math.log10(abs(diff_x) + 1)) + 3
-        elif diff_ball_y == 0:
-            return_state[5] = 3
-        else:
-            return_state[5] = 3 - math.ceil(math.log10(abs(diff_x) + 1))
-
-        return return_state
+        # try to give up get_state in DQN, just use original state
     
     def build_network(self):
+        tf.compat.v1.disable_eager_execution()
         # evaluate network
         self.s = placeholder(tf.float32, [None, self.features], name='s')
         self.q_target = placeholder(tf.float32, [None, self.actions], name='Q_target')
@@ -373,6 +330,7 @@ class AgentsDQN(Agent):
         # check to replace target parameters
         if self.step_counter % self.replace_target_iter == 0:
             self.replace_target_params()
+            print(reward)
             print('\ntarget_params_replaced\n')
 
         # sample batch memory from all memory
@@ -415,7 +373,7 @@ class AgentsDQN(Agent):
     
     def plot_cost(self):
         import matplotlib.pyplot as plt
-        plt.plot(np.arange(len(self.cost_his)), self.cost_his)
+        plt.plot(np.arange(len(self.cost_history)), self.cost_history)
         plt.ylabel('Cost')
         plt.xlabel('training steps')
         plt.show()

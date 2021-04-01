@@ -6,7 +6,7 @@ import sys
 from player import Player
 from ball import Ball
 from text import Text
-from config import Config, rewards_func
+from config import Config, rewards_func, new_rewards_func
 import random
 import time
 from DQN import AgentsQT, AgentsDQN
@@ -180,8 +180,7 @@ if __name__ == "__main__":
         game_time = conf.max_time
         game_on = True
         for agent in agents:
-            state = agent.get_state(getGameState(agent.id, players, ball))
-            agent.set_state(state)
+            agent.set_state(getGameState(agent.id, players, ball))
             agent.update_greedy()
         # state = []
         # state.append(agents[0].get_state(getGameState(1, players, ball)))
@@ -248,17 +247,21 @@ if __name__ == "__main__":
 
             # agents[0].update_q_table(state[0], action[0], next_state[0], rewards[0])
             # agents[1].update_q_table(state[1], action[1], next_state[1], rewards[1])
+            for player in players.sprites():
+                new_pos_x[player.id - 1] = player.rect.centerx
+                new_pos_y[player.id - 1] = player.rect.centery
+            # rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            rewards = new_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            print(rewards)
+
             for agent in agents:
                 team_now = 0
                 if agent.id > N/2:
                     team_now = 1
-                agent.update(action[agent.id - 1], agent.get_state(getGameState(agent.id, players, ball)), rewards[team_now])
+                agent.update(action[agent.id - 1], getGameState(agent.id, players, ball), rewards[team_now])
 
             #state = next_state
-            for player in players.sprites():
-                new_pos_x[player.id - 1] = player.rect.centerx
-                new_pos_y[player.id - 1] = player.rect.centery
-            rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            
             #print(prev_pos_x, prev_pos_y)
             #print(new_pos_x, new_pos_y)
 
@@ -284,6 +287,7 @@ if __name__ == "__main__":
 
     for agent in agents:
         agent.save_model()
+        agent.plot_cost()
 
     time.sleep(10)
     pygame.quit()

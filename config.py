@@ -103,9 +103,9 @@ def rewards_func(r, p_x, p_y, n_x, n_y, N):
 
     for i in range(int(N/2)):
         for axis in ["x", "y"]:
-            if abs(prev_pos[axis][N] - prev_pos[axis][i]) > abs(new_pos[axis][N] - new_pos[axis][i]):
+            if abs(prev_pos[axis][N+int(N/2)] - prev_pos[axis][i]) > abs(new_pos[axis][N] - new_pos[axis][i]):
                 rewards[0] += 200
-            elif abs(prev_pos[axis][N] - prev_pos[axis][i]) < abs(new_pos[axis][N] - new_pos[axis][i]):
+            elif abs(prev_pos[axis][N+int(N/2)] - prev_pos[axis][i]) < abs(new_pos[axis][N] - new_pos[axis][i]):
                 rewards[0] -= 200
             else:
                 rewards[0] -= 50
@@ -113,9 +113,9 @@ def rewards_func(r, p_x, p_y, n_x, n_y, N):
 
     for i in range(int(N/2), N):
         for axis in ["x", "y"]:
-            if abs(prev_pos[axis][N] - prev_pos[axis][i]) > abs(new_pos[axis][N] - new_pos[axis][i]):
+            if abs(prev_pos[axis][N-int(N/2)] - prev_pos[axis][i]) > abs(new_pos[axis][N] - new_pos[axis][i]):
                 rewards[1] += 200
-            elif abs(prev_pos[axis][N] - prev_pos[axis][i]) < abs(new_pos[axis][N] - new_pos[axis][i]):
+            elif abs(prev_pos[axis][N-int(N/2)] - prev_pos[axis][i]) < abs(new_pos[axis][N] - new_pos[axis][i]):
                 rewards[1] -= 200
             else:
                 rewards[1] -= 50
@@ -126,6 +126,44 @@ def rewards_func(r, p_x, p_y, n_x, n_y, N):
     elif new_pos["x"][N] < prev_pos["x"][N]:
         rewards[0] -= 600
         rewards[1] += 600  
+
+    #print(rewards)
+    return rewards
+
+def new_rewards_func(r, p_x, p_y, n_x, n_y, N):
+    rewards = r
+    prev_pos = {}
+    prev_pos["x"] = p_x
+    prev_pos["y"] = p_y
+    new_pos = {}
+    new_pos["x"] = n_x
+    new_pos["y"] = n_y
+
+    sum_0 = 0
+    sum_1 = 0
+    half = int(N/2)
+    dis = []
+    for i in range(half):
+        dis.append((abs(prev_pos["x"][N] - prev_pos["x"][i])**2 + abs(prev_pos["y"][N] - prev_pos["y"][i])**2)**0.5)
+        sum_0 += dis[i]
+    for i in range(half, N):
+        dis.append((abs(prev_pos["x"][N] - prev_pos["x"][i])**2 + abs(prev_pos["y"][N] - prev_pos["y"][i])**2)**0.5)
+        sum_1 += dis[i]
+
+    sum_0 /= half
+    sum_1 /= half
+
+    for i in range(half):
+        rewards[0] += (600 - dis[i])
+    for i in range(half, N):
+        rewards[1] += (600 - dis[i])
+
+    if sum_0 > sum_1:
+        rewards[0] += 300
+        rewards[1] -= 300
+    elif sum_1 > sum_0:
+        rewards[0] -= 300
+        rewards[1] += 300  
 
     #print(rewards)
     return rewards
