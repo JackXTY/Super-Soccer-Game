@@ -100,22 +100,23 @@ def rewards_func(r, p_x, p_y, n_x, n_y, N):
     new_pos = {}
     new_pos["x"] = n_x
     new_pos["y"] = n_y
+    half = int(N/2)
 
-    for i in range(int(N/2)):
+    for i in range(half):
         for axis in ["x", "y"]:
-            if abs(prev_pos[axis][N+int(N/2)] - prev_pos[axis][i]) > abs(new_pos[axis][N] - new_pos[axis][i]):
+            if abs(prev_pos[axis][N] - prev_pos[axis][i+half]) > abs(new_pos[axis][N] - new_pos[axis][i+half]):
                 rewards[0] += 200
-            elif abs(prev_pos[axis][N+int(N/2)] - prev_pos[axis][i]) < abs(new_pos[axis][N] - new_pos[axis][i]):
+            elif abs(prev_pos[axis][N] - prev_pos[axis][i+half]) < abs(new_pos[axis][N] - new_pos[axis][i+half]):
                 rewards[0] -= 200
             else:
                 rewards[0] -= 50
 
 
-    for i in range(int(N/2), N):
+    for i in range(half, N):
         for axis in ["x", "y"]:
-            if abs(prev_pos[axis][N-int(N/2)] - prev_pos[axis][i]) > abs(new_pos[axis][N] - new_pos[axis][i]):
+            if abs(prev_pos[axis][N] - prev_pos[axis][i-half]) > abs(new_pos[axis][N] - new_pos[axis][i]):
                 rewards[1] += 200
-            elif abs(prev_pos[axis][N-int(N/2)] - prev_pos[axis][i]) < abs(new_pos[axis][N] - new_pos[axis][i]):
+            elif abs(prev_pos[axis][N] - prev_pos[axis][i-half]) < abs(new_pos[axis][N] - new_pos[axis][i]):
                 rewards[1] -= 200
             else:
                 rewards[1] -= 50
@@ -154,9 +155,9 @@ def new_rewards_func(r, p_x, p_y, n_x, n_y, N):
     sum_1 /= half
 
     for i in range(half):
-        rewards[0] += (600 - dis[i])
+        rewards[0] += (200 - dis[i])/200
     for i in range(half, N):
-        rewards[1] += (600 - dis[i])
+        rewards[1] += (200 - dis[i])/200
 
     # if sum_0 > sum_1:
     #     rewards[0] += 300

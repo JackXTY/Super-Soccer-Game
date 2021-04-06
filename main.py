@@ -9,7 +9,8 @@ from text import Text
 from config import Config, rewards_func, new_rewards_func
 import random
 import time
-from DQN import AgentsQT, AgentsDQN
+from DQN import AgentsDQN
+from Qlearning import AgentsQT
 
 
 pygame.init()
@@ -55,8 +56,8 @@ def initialize_game():
     
 def initialize_AI():
     for p in players.sprites():
-        #agent = AgentsQT(p.id, N)
-        agent = AgentsDQN(p.id, N)
+        agent = AgentsQT(p.id, N)
+        #agent = AgentsDQN(p.id, N)
         agents.append(agent)
 
 
@@ -250,15 +251,18 @@ if __name__ == "__main__":
             for player in players.sprites():
                 new_pos_x[player.id - 1] = player.rect.centerx
                 new_pos_y[player.id - 1] = player.rect.centery
-            # rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
-            rewards = new_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
-            #print(rewards)
+            rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            # rewards = new_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            # rewards = [0, 0]
+            # print(rewards)
 
             for agent in agents:
                 team_now = 0
                 if agent.id > N/2:
                     team_now = 1
-                agent.update(action[agent.id - 1], getGameState(agent.id, players, ball), rewards[team_now])
+                agent_state = getGameState(agent.id, players, ball)
+                # agent_state = [0, 0, 0, 0, 0 ,0]
+                agent.update(action[agent.id - 1], agent_state, rewards[team_now])
 
             #state = next_state
             
@@ -287,7 +291,7 @@ if __name__ == "__main__":
 
     for agent in agents:
         agent.save_model()
-        agent.plot_cost()
+        #agent.plot_cost()
 
     time.sleep(10)
     pygame.quit()
