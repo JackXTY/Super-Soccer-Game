@@ -34,7 +34,7 @@ class AgentsDQN(Agent):
         # number of features
         self.features = 6
         # number of actions
-        self.actions = 10
+        self.actions = 16
         self.replace_target_iter = 300
         self.memory_size = 500
         self.epsilon = 0.6
@@ -42,7 +42,7 @@ class AgentsDQN(Agent):
         self.epsilon_increment = 0.001
 
         self.step_counter = 0
-        self.memory = np.zeros((self.memory_size, self.features*2+3))
+        self.memory = np.zeros((self.memory_size, self.features*2+2))
         self.build_network()
 
         self.sess = Session()
@@ -120,13 +120,14 @@ class AgentsDQN(Agent):
         observation = np.array(self.state).reshape([1, self.features])
         if np.random.uniform() < self.epsilon:
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s_eval: observation})
-            action_0 = np.argmax(actions_value[0][:8])
-            action_1 = np.argmax(actions_value[0][8:])
-            #print(actions_value, [action_0, action_1])
+            action = np.argmax(actions_value[0][:])
+            action_0 = action % 8
+            action_1 = Math.ceil(action / 8)
+            return [action_0, action_1]
         else:
-            action_0 = np.random.randint(0, self.actions-2)
+            action_0 = np.random.randint(0, 8)
             action_1 = np.random.randint(0, 2)
-        return [action_0, action_1]
+            return [action_0, action_1]
     
     def replace_target_params(self):
         t_params = get_collection('target_net_params' + str(self.id))
