@@ -93,7 +93,6 @@ class AgentsQT(Agent):
     def update(self, current_action, game_state, r):
         next_state = self.get_state(game_state)
         old_state = self.state
-        print(old_state, next_state)
         next_max_value = np.max(self.q_table[next_state[0], next_state[1], next_state[2],
                                              next_state[3], next_state[4], next_state[5]])
         self.q_table[old_state[0], old_state[1], old_state[2], next_state[3], next_state[4],

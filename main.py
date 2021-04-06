@@ -56,8 +56,8 @@ def initialize_game():
     
 def initialize_AI():
     for p in players.sprites():
-        agent = AgentsQT(p.id, N)
-        #agent = AgentsDQN(p.id, N)
+        #agent = AgentsQT(p.id, N)
+        agent = AgentsDQN(p.id, N)
         agents.append(agent)
 
 
@@ -183,6 +183,7 @@ if __name__ == "__main__":
         for agent in agents:
             agent.set_state(getGameState(agent.id, players, ball))
             agent.update_greedy()
+        step = 0
         # state = []
         # state.append(agents[0].get_state(getGameState(1, players, ball)))
         # state.append(agents[1].get_state(getGameState(2, players, ball)))
@@ -256,18 +257,27 @@ if __name__ == "__main__":
             # rewards = [0, 0]
             # print(rewards)
 
+
+            # Q-learning version
+            # for agent in agents:
+            #     team_now = 0
+            #     if agent.id > N/2:
+            #         team_now = 1
+            #     agent_state = getGameState(agent.id, players, ball)
+            #     # agent_state = [0, 0, 0, 0, 0 ,0]
+            #     agent.update(action[agent.id - 1], agent_state, rewards[team_now])
+
+            # DQN version
             for agent in agents:
                 team_now = 0
                 if agent.id > N/2:
                     team_now = 1
                 agent_state = getGameState(agent.id, players, ball)
+                agent.store_transition(action[agent.id - 1], rewards[team_now], agent_state)
                 # agent_state = [0, 0, 0, 0, 0 ,0]
-                agent.update(action[agent.id - 1], agent_state, rewards[team_now])
-
-            #state = next_state
-            
-            #print(prev_pos_x, prev_pos_y)
-            #print(new_pos_x, new_pos_y)
+                if (step > 200) and (step % 5 == 0):
+                    print("update when step=", step)
+                    agent.update(action[agent.id - 1], agent_state)
 
             if render_mode:
                 screen.blit(background, (0, 0))
@@ -280,6 +290,7 @@ if __name__ == "__main__":
             game_time -= game_timer.tick(FPS)
             if game_time < 0:
                 game_on = False
+            step += 1
 
     # wait for game exit
     # screen.blit(background, (0, 0))

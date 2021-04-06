@@ -38,14 +38,15 @@ class AgentsDQN(Agent):
         self.replace_target_iter = 300
         self.memory_size = 500
         self.epsilon = 0.9
-        self.epsilon_max = self.greedy
+        self.epsilon_max = 1
+        self.epsilon_increment = 0.001
 
         self.step_counter = 0
         self.memory = np.zeros((self.memory_size, self.features*2+3))
         self.build_network()
 
         self.sess = Session()
-        self.batch_size = 1
+        self.batch_size = 16
         # tf.summary.FileWriter("logs/", self.sess.graph)
         print(self.id, self.sess)
         self.saver = train.Saver()
@@ -63,7 +64,7 @@ class AgentsDQN(Agent):
     def build_network(self):
         tf.compat.v1.disable_eager_execution()
         # evaluate network
-        self.s = placeholder(tf.float32, [None, self.features], name='s')
+        self.s_eval = placeholder(tf.float32, [None, self.features], name='s')
         self.q_target = placeholder(tf.float32, [None, self.actions], name='Q_target')
         with variable_scope('eval_net' + str(self.id)) as scope:
             #scope.reuse_variables()
@@ -75,7 +76,7 @@ class AgentsDQN(Agent):
             with variable_scope('l1'):
                 w1 = get_variable('w1', [self.features, n_l1], initializer=w_init, collections=c_names)
                 b1 = get_variable('b1', [1, n_l1], initializer=b_init, collections=c_names)
-                l1 = tf.nn.relu(tf.matmul(self.s, w1) + b1)
+                l1 = tf.nn.relu(tf.matmul(self.s_eval, w1) + b1)
             # second layer. collections is used later when assign to target net
             with variable_scope('l2'):
                 w2 = get_variable('w2', [n_l1, self.actions], initializer=w_init, collections=c_names)
@@ -88,7 +89,7 @@ class AgentsDQN(Agent):
             self._train_op = tf.compat.v1.train.AdagradOptimizer(self.alpha).minimize(self.loss)
         
         # target network
-        self.s_ = placeholder(tf.float32, [None, self.features], name='s_')    # input
+        self.s_target = placeholder(tf.float32, [None, self.features], name='s_')    # input
         with variable_scope('target_net' + str(self.id)):
             # c_names(collections_names) are the collections to store variables
             c_names = ['target_net_params' + str(self.id), GraphKeys.GLOBAL_VARIABLES]
@@ -97,7 +98,7 @@ class AgentsDQN(Agent):
             with variable_scope('l1'):
                 w1 = get_variable('w1', [self.features, n_l1], initializer=w_init, collections=c_names)
                 b1 = get_variable('b1', [1, n_l1], initializer=b_init, collections=c_names)
-                l1 = tf.nn.relu(tf.matmul(self.s_, w1) + b1)
+                l1 = tf.nn.relu(tf.matmul(self.s_target, w1) + b1)
 
             # second layer. collections is used later when assign to target net
             with variable_scope('l2'):
@@ -105,10 +106,10 @@ class AgentsDQN(Agent):
                 b2 = get_variable('b2', [1, self.actions], initializer=b_init, collections=c_names)
                 self.q_next = tf.matmul(l1, w2) + b2
 
-    def store_transition(self, state, action, reward, state_new):
+    def store_transition(self, action, reward, state_new):
         if not hasattr(self, 'memory_counter'):
             self.memory_counter = 0
-        transition = np.hstack((state, action, [reward], state_new))
+        transition = np.hstack((self.state, action, [reward], state_new))
         index = self.memory_counter % self.memory_size
         self.memory[index, :] = transition
         self.memory_counter += 1
@@ -118,7 +119,7 @@ class AgentsDQN(Agent):
         # observation = observation[np.newaxis, :]
         observation = np.array(self.state).reshape([1, self.features])
         if np.random.uniform() < self.epsilon:
-            actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
+            actions_value = self.sess.run(self.q_eval, feed_dict={self.s_eval: observation})
             action_0 = np.argmax(actions_value[0][:8])
             action_1 = np.argmax(actions_value[0][8:])
             #print(actions_value, [action_0, action_1])
@@ -132,15 +133,12 @@ class AgentsDQN(Agent):
         e_params = get_collection('eval_net_params' + str(self.id))
         self.sess.run([assign(t, e) for t, e in zip(t_params, e_params)])
     
-    def update(self, action, state, reward):
-
-        self.store_transition(self.state, action, reward, state)
+    def update(self, action, state):
 
         # check to replace target parameters
         if self.step_counter % self.replace_target_iter == 0:
             self.replace_target_params()
             print('\ntarget_params_replaced\n')
-            print(action)
 
         # sample batch memory from all memory
         if self.memory_counter > self.memory_size:
@@ -157,8 +155,8 @@ class AgentsDQN(Agent):
         q_next, q_eval = self.sess.run(
             [self.q_next, self.q_eval],
             feed_dict={
-                self.s_: batch_memory[:, -self.features:],  # fixed params
-                self.s: batch_memory[:, :self.features]  # newest params
+                self.s_target: batch_memory[:, -self.features:],  # fixed params
+                self.s_eval: batch_memory[:, :self.features]  # newest params
             })
 
         # change q_target w.r.t q_eval's action
@@ -172,7 +170,7 @@ class AgentsDQN(Agent):
 
         # train eval network
         _, self.cost = self.sess.run([self._train_op, self.loss],
-                                     feed_dict={self.s: batch_memory[:, :self.features],
+                                     feed_dict={self.s_eval: batch_memory[:, :self.features],
                                                 self.q_target: q_target})
         self.cost_history.append(self.cost)
 
