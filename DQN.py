@@ -107,9 +107,10 @@ class AgentsDQN(Agent):
                 self.q_next = tf.matmul(l1, w2) + b2
 
     def store_transition(self, action, reward, state_new):
+
         if not hasattr(self, 'memory_counter'):
             self.memory_counter = 0
-        action_number = action[0] - 1 + action[1]*8
+        action_number = action[0] - 1 + action[1] * 8
         transition = np.hstack((self.state, [action_number, reward], state_new))
         index = self.memory_counter % self.memory_size
         self.memory[index, :] = transition
@@ -123,7 +124,7 @@ class AgentsDQN(Agent):
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s_eval: observation})
             action = np.argmax(actions_value[0][:])
             action_0 = action % 8 + 1
-            action_1 = math.ceil(action / 8)
+            action_1 = math.floor(action / 8)
             return [action_0, action_1]
         else:
             action_0 = np.random.randint(1, 9)
