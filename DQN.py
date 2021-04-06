@@ -109,7 +109,8 @@ class AgentsDQN(Agent):
     def store_transition(self, action, reward, state_new):
         if not hasattr(self, 'memory_counter'):
             self.memory_counter = 0
-        transition = np.hstack((self.state, action, [reward], state_new))
+        action_number = action[0] - 1 + action[1]*8
+        transition = np.hstack((self.state, [action_number, reward], state_new))
         index = self.memory_counter % self.memory_size
         self.memory[index, :] = transition
         self.memory_counter += 1
@@ -121,11 +122,11 @@ class AgentsDQN(Agent):
         if np.random.uniform() < self.epsilon:
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s_eval: observation})
             action = np.argmax(actions_value[0][:])
-            action_0 = action % 8
-            action_1 = Math.ceil(action / 8)
+            action_0 = action % 8 + 1
+            action_1 = math.ceil(action / 8)
             return [action_0, action_1]
         else:
-            action_0 = np.random.randint(0, 8)
+            action_0 = np.random.randint(1, 9)
             action_1 = np.random.randint(0, 2)
             return [action_0, action_1]
     
@@ -134,7 +135,7 @@ class AgentsDQN(Agent):
         e_params = get_collection('eval_net_params' + str(self.id))
         self.sess.run([assign(t, e) for t, e in zip(t_params, e_params)])
     
-    def update(self, action, state):
+    def update(self):
 
         # check to replace target parameters
         if self.step_counter % self.replace_target_iter == 0:

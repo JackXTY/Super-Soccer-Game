@@ -277,7 +277,7 @@ if __name__ == "__main__":
                 # agent_state = [0, 0, 0, 0, 0 ,0]
                 if (step > 200) and (step % 5 == 0):
                     print("update when step=", step)
-                    agent.update(action[agent.id - 1], agent_state)
+                    agent.update()
 
             if render_mode:
                 screen.blit(background, (0, 0))
