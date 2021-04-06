@@ -161,7 +161,7 @@ if __name__ == "__main__":
     assert N in conf.available_player_numbers
 
     render_mode = True
-    episodes = 2
+    episodes = 40
     FPS = 100
 
     game_on = True
@@ -275,8 +275,7 @@ if __name__ == "__main__":
                 agent_state = getGameState(agent.id, players, ball)
                 agent.store_transition(action[agent.id - 1], rewards[team_now], agent_state)
                 # agent_state = [0, 0, 0, 0, 0 ,0]
-                if (step > 200) and (step % 5 == 0):
-                    print("update when step=", step)
+                if (step > 200) and (step % 10 == 0):
                     agent.update()
 
             if render_mode:

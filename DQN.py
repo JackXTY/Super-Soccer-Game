@@ -22,13 +22,12 @@ class AgentsDQN(Agent):
         self.state = []
         self.next_state = []
         self.has_model = os.path.exists(self.path)
+        # learning rate
         if self.has_model:
-            self.greedy = 0.0005
+            self.greedy = 0.05
         else:
             # exploration strategy
             self.greedy = 0.1
-        # learning rate
-        self.alpha = 0.01
         # discount factor
         self.gamma = 0.3
         # number of features
@@ -86,7 +85,7 @@ class AgentsDQN(Agent):
             self.loss = tf.reduce_mean(tf.math.squared_difference(self.q_target, self.q_eval))
         with variable_scope('train'):
             #self._train_op = tf.compat.v1.train.RMSPropOptimizer(self.alpha).minimize(self.loss)
-            self._train_op = tf.compat.v1.train.AdagradOptimizer(self.alpha).minimize(self.loss)
+            self._train_op = tf.compat.v1.train.AdagradOptimizer(self.greedy).minimize(self.loss)
         
         # target network
         self.s_target = placeholder(tf.float32, [None, self.features], name='s_')    # input
@@ -107,7 +106,6 @@ class AgentsDQN(Agent):
                 self.q_next = tf.matmul(l1, w2) + b2
 
     def store_transition(self, action, reward, state_new):
-
         if not hasattr(self, 'memory_counter'):
             self.memory_counter = 0
         action_number = action[0] - 1 + action[1] * 8
