@@ -37,7 +37,7 @@ class AgentsDQN(Agent):
         self.actions = 10
         self.replace_target_iter = 300
         self.memory_size = 500
-        self.epsilon = 0.9
+        self.epsilon = 0.6
         self.epsilon_max = 1
         self.epsilon_increment = 0.001
 
