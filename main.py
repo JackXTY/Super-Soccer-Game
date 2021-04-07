@@ -165,7 +165,6 @@ if __name__ == "__main__":
     FPS = 100
 
     game_on = True
-    score = [0, 0]
     # p1_id = 1
     game_timer = pygame.time.Clock()
     game_time = conf.max_time
@@ -173,6 +172,8 @@ if __name__ == "__main__":
     initialize_game()
     initialize_AI()
     info = Text()
+    step = 0
+    test_mode = False
 
     # While loop for main logic of the game
     for episode in range(episodes):
@@ -183,7 +184,7 @@ if __name__ == "__main__":
         for agent in agents:
             agent.set_state(getGameState(agent.id, players, ball))
             agent.update_greedy()
-        step = 0
+        score = [0, 0]
         # state = []
         # state.append(agents[0].get_state(getGameState(1, players, ball)))
         # state.append(agents[1].get_state(getGameState(2, players, ball)))
@@ -214,7 +215,12 @@ if __name__ == "__main__":
                 #input_array = get_input(p.id)
                 prev_pos_x[p.id - 1] = p.rect.centerx
                 prev_pos_y[p.id - 1] = p.rect.centery
-                action[p.id - 1] = agents[p.id - 1].make_decision()
+                if test_mode:
+                    action[p.id - 1] = agents[p.id - 1].make_decision(no_random = True)
+                elif step < 300:
+                    action[p.id - 1] = agents[p.id - 1].make_random_decision()
+                else:
+                    action[p.id - 1] = agents[p.id - 1].make_decision()
                 input_array = get_input_ai(p.id, action[p.id - 1])
                 # deal with input & calculate reward
                 if deal_player_input(p, ball, input_array):
@@ -244,19 +250,13 @@ if __name__ == "__main__":
                 rewards[shot-1] -= 10000
                 reset()
 
-            # next_state.append(agents[0].get_state(getGameState(1, players, ball)))
-            # next_state.append(agents[1].get_state(getGameState(2, players, ball)))
-
-            # agents[0].update_q_table(state[0], action[0], next_state[0], rewards[0])
-            # agents[1].update_q_table(state[1], action[1], next_state[1], rewards[1])
             for player in players.sprites():
                 new_pos_x[player.id - 1] = player.rect.centerx
                 new_pos_y[player.id - 1] = player.rect.centery
-            rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
-            # rewards = new_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            # rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            rewards = new_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
             # rewards = [0, 0]
             # print(rewards)
-
 
             # Q-learning version
             # for agent in agents:
@@ -274,8 +274,7 @@ if __name__ == "__main__":
                     team_now = 1
                 agent_state = getGameState(agent.id, players, ball)
                 agent.store_transition(action[agent.id - 1], rewards[team_now], agent_state)
-                # agent_state = [0, 0, 0, 0, 0 ,0]
-                if (step > 200) and (step % 10 == 0):
+                if (step > 300) and (step % 10 == 0) and not(test_mode):
                     agent.update()
 
             if render_mode:
@@ -291,17 +290,13 @@ if __name__ == "__main__":
                 game_on = False
             step += 1
 
-    # wait for game exit
-    # screen.blit(background, (0, 0))
-    # for player in players.sprites():
-    #     player.render(screen)
-    # ball.render(screen)
-    # info.render(screen, score, 0)
-    # pygame.display.update()
+        if not(test_mode):
+            for agent in agents:
+                agent.save_model(if_plot = False)
 
-    for agent in agents:
-        agent.save_model()
-        #agent.plot_cost()
+    if not(test_mode):
+        for agent in agents:
+            agent.plot_cost()
 
     time.sleep(10)
     pygame.quit()

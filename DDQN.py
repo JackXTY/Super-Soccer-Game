@@ -15,7 +15,7 @@ conf = Config()
 # TODO: ENV!
 
 # refernce from https://github.com/MorvanZhou
-class AgentsDQN(Agent):
+class AgentsDDQN(Agent):
     def __init__(self, id, N):
         self.id = id
         self.path = "./model/DQN/" + str(N) + "/" + str(id)
