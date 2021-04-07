@@ -36,9 +36,10 @@ class AgentsDQN(Agent):
         self.features = 6
         # number of actions
         self.actions = 16
-        self.replace_target_iter = 500
-        self.memory_size = 50000
-        self.epsilon_max = 1
+        self.replace_target_iter = 300
+        self.memory_size = 100000
+        self.epsilon = 0.2
+        self.epsilon_max = 0.9
         self.epsilon_increment = 0.001
 
         self.step_counter = 0
@@ -119,16 +120,22 @@ class AgentsDQN(Agent):
     def make_decision(self, no_random = False):
         # observation = observation[np.newaxis, :]
         observation = np.array(self.state).reshape([1, self.features])
-        if np.random.uniform() < self.epsilon or no_random:
-            actions_value = self.sess.run(self.q_eval, feed_dict={self.s_eval: observation})
-            action = np.argmax(actions_value[0][:])
-            action_0 = action % 8 + 1
-            action_1 = math.floor(action / 8)
-            return [action_0, action_1]
-        else:
+        actions_value = self.sess.run(self.q_eval, feed_dict={self.s_eval: observation})
+        action = np.argmax(actions_value[0][:])
+        action_0 = action % 8 + 1
+        action_1 = math.floor(action / 8)
+
+        if not hasattr(self, 'q'):  # 记录选的 Qmax 值
+            self.q = []
+            self.running_q = 0
+        self.running_q = self.running_q*0.99 + 0.01 * np.max(actions_value)
+        self.q.append(self.running_q)
+        
+        if np.random.uniform() > self.epsilon and not(no_random):
             return self.make_random_decision()
+        return [action_0, action_1]
     
-    def make_random_decision(self):
+    def make_random_decision():
         action_0 = np.random.randint(1, 9)
         action_1 = np.random.randint(0, 2)
         return [action_0, action_1]
@@ -183,6 +190,14 @@ class AgentsDQN(Agent):
         plt.plot(np.arange(len(self.cost_history)), self.cost_history)
         plt.ylabel('Cost')
         plt.xlabel('training steps')
+        plt.show()
+
+    def plot_qvalue(self):
+        import matplotlib.pyplot as plt
+        plt.plot(np.array(self.q), label=self.id)
+        plt.ylabel('Q eval')
+        plt.xlabel('training steps')
+        plt.grid()
         plt.show()
 
     def update_greedy(self):

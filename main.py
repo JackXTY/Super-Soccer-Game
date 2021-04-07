@@ -165,6 +165,7 @@ if __name__ == "__main__":
     FPS = 100
 
     game_on = True
+    
     # p1_id = 1
     game_timer = pygame.time.Clock()
     game_time = conf.max_time
@@ -178,6 +179,7 @@ if __name__ == "__main__":
     # While loop for main logic of the game
     for episode in range(episodes):
         print("episode: ", episode)
+        score = [0, 0]
         reset()
         game_time = conf.max_time
         game_on = True
@@ -296,7 +298,7 @@ if __name__ == "__main__":
 
     if not(test_mode):
         for agent in agents:
-            agent.plot_cost()
+            agent.plot_qvalue()
 
     time.sleep(10)
     pygame.quit()
