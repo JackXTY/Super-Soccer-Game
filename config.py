@@ -155,9 +155,9 @@ def new_rewards_func(r, p_x, p_y, n_x, n_y, N):
     sum_1 /= half
 
     for i in range(half):
-        rewards[0] += (200 - dis[i])
+        rewards[0] += (150 - dis[i])
     for i in range(half, N):
-        rewards[1] += (200 - dis[i])
+        rewards[1] += (150 - dis[i])
 
     # if sum_0 > sum_1:
     #     rewards[0] += 300

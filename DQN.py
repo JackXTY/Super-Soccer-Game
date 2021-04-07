@@ -135,7 +135,7 @@ class AgentsDQN(Agent):
             return self.make_random_decision()
         return [action_0, action_1]
     
-    def make_random_decision():
+    def make_random_decision(self):
         action_0 = np.random.randint(1, 9)
         action_1 = np.random.randint(0, 2)
         return [action_0, action_1]

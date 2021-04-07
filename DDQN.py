@@ -12,23 +12,21 @@ from agent import Agent
 
 conf = Config()
 
-# TODO: ENV!
-
 # refernce from https://github.com/MorvanZhou
 class AgentsDDQN(Agent):
     def __init__(self, id, N):
         self.id = id
-        self.path = "./model/DQN/" + str(N) + "/" + str(id)
+        self.path = "./model/DDQN/" + str(N) + "/" + str(id)
         self.state = []
         self.next_state = []
         self.has_model = os.path.exists(self.path)
         # learning rate
         if self.has_model:
-            self.greedy = 0.001
+            self.greedy = 0.0001
             self.epsilon = 0.8
         else:
             # exploration strategy
-            self.greedy = 0.01
+            self.greedy = 0.001
             self.epsilon = 0.5
         # discount factor
         self.gamma = 0.9
@@ -36,9 +34,9 @@ class AgentsDDQN(Agent):
         self.features = 6
         # number of actions
         self.actions = 16
-        self.replace_target_iter = 500
+        self.replace_target_iter = 1000
         self.memory_size = 50000
-        self.epsilon_max = 1
+        self.epsilon_max = 0.9
         self.epsilon_increment = 0.001
 
         self.step_counter = 0
@@ -119,14 +117,20 @@ class AgentsDDQN(Agent):
     def make_decision(self, no_random = False):
         # observation = observation[np.newaxis, :]
         observation = np.array(self.state).reshape([1, self.features])
-        if np.random.uniform() < self.epsilon or no_random:
-            actions_value = self.sess.run(self.q_eval, feed_dict={self.s_eval: observation})
-            action = np.argmax(actions_value[0][:])
-            action_0 = action % 8 + 1
-            action_1 = math.floor(action / 8)
-            return [action_0, action_1]
-        else:
+        actions_value = self.sess.run(self.q_eval, feed_dict={self.s_eval: observation})
+        action = np.argmax(actions_value[0][:])
+        action_0 = action % 8 + 1
+        action_1 = math.floor(action / 8)
+
+        if not hasattr(self, 'q'):  # 记录选的 Qmax 值
+            self.q = []
+            self.running_q = 0
+        self.running_q = self.running_q*0.99 + 0.01 * np.max(actions_value)
+        self.q.append(self.running_q)
+        
+        if np.random.uniform() > self.epsilon and not(no_random):
             return self.make_random_decision()
+        return [action_0, action_1]
     
     def make_random_decision(self):
         action_0 = np.random.randint(1, 9)
@@ -151,13 +155,14 @@ class AgentsDDQN(Agent):
             sample_index = np.random.choice(self.memory_counter, size=self.batch_size)
         batch_memory = self.memory[sample_index, :]
 
-        q_next, q_eval = self.sess.run(
+        q_next, q_eval_for_next = self.sess.run(
             [self.q_next, self.q_eval],
             feed_dict={
-                self.s_target: batch_memory[:, -self.features:],  # fixed params
-                self.s_eval: batch_memory[:, :self.features]  # newest params
+                self.s_target: batch_memory[:, -self.features:],  # next observation
+                self.s_eval: batch_memory[:, -self.features:]  # next observation
             })
 
+        q_eval = self.sess.run(self.q_eval, {self.s_eval: batch_memory[:, :self.features]})
         # change q_target w.r.t q_eval's action
         q_target = q_eval.copy()
 
@@ -166,6 +171,11 @@ class AgentsDDQN(Agent):
         reward = batch_memory[:, self.features + 1]
 
         q_target[batch_index, eval_act_index] = reward + self.gamma * np.max(q_next, axis=1)
+
+        max_act_for_next = np.argmax(q_eval_for_next, axis=1)        # q_eval 得出的最高奖励动作
+        selected_q_next = q_next[batch_index, max_act_for_next]  # Double DQN 选择 q_next 依据 q_eval 选出的动作
+
+        q_target[batch_index, eval_act_index] = reward + self.gamma * selected_q_next
 
         # train eval network
         _, self.cost = self.sess.run([self._train_op, self.loss],
@@ -190,6 +200,14 @@ class AgentsDDQN(Agent):
 
     def load_model(self):
         self.saver.restore(self.sess, self.path)
+    
+    def plot_qvalue(self):
+        import matplotlib.pyplot as plt
+        plt.plot(np.array(self.q), label=self.id)
+        plt.ylabel('Q eval')
+        plt.xlabel('training steps')
+        plt.grid()
+        plt.show()
 
     def save_model(self, if_plot = False):
         try:

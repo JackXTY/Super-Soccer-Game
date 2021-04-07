@@ -3,6 +3,7 @@ from pygame.event import get
 from pygame.locals import *
 from pygame.sprite import Group
 import sys
+from sys import argv
 from player import Player
 from ball import Ball
 from text import Text
@@ -11,6 +12,7 @@ import random
 import time
 from DQN import AgentsDQN
 from Qlearning import AgentsQT
+from DDQN import AgentsDDQN
 
 
 pygame.init()
@@ -54,12 +56,19 @@ def initialize_game():
         players.add(p)
         print("player: id={}, team={}".format(p.id, p.team))
     
-def initialize_AI():
-    for p in players.sprites():
-        #agent = AgentsQT(p.id, N)
-        agent = AgentsDQN(p.id, N)
-        agents.append(agent)
-
+def initialize_AI(agent_mode):
+    if agent_mode == "QT":
+        for p in players.sprites():
+            agent = AgentsDDQN(p.id, N)
+            agents.append(agent)
+    elif agent_mode == "DDQN":
+        for p in players.sprites():
+            agent = AgentsDDQN(p.id, N)
+            agents.append(agent)
+    else:
+        for p in players.sprites():
+            agent = AgentsDQN(p.id, N)
+            agents.append(agent)
 
 def reset():
     ball.rect.centerx = screen_rect.centerx
@@ -161,7 +170,7 @@ if __name__ == "__main__":
     assert N in conf.available_player_numbers
 
     render_mode = True
-    episodes = 40
+    episodes = 10
     FPS = 100
 
     game_on = True
@@ -170,8 +179,11 @@ if __name__ == "__main__":
     game_timer = pygame.time.Clock()
     game_time = conf.max_time
     game_timer.tick(FPS)
+    agent_mode = 'DQN'
+    if len(argv) > 0:
+        agent_mode = argv[0]
     initialize_game()
-    initialize_AI()
+    initialize_AI(agent_mode)
     info = Text()
     step = 0
     test_mode = False
@@ -276,7 +288,7 @@ if __name__ == "__main__":
                     team_now = 1
                 agent_state = getGameState(agent.id, players, ball)
                 agent.store_transition(action[agent.id - 1], rewards[team_now], agent_state)
-                if (step > 300) and (step % 10 == 0) and not(test_mode):
+                if (step > 1000) and (step % 10 == 0) and not(test_mode):
                     agent.update()
 
             if render_mode:
