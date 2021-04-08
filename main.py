@@ -59,7 +59,7 @@ def initialize_game():
 def initialize_AI(agent_mode):
     if agent_mode == "QT":
         for p in players.sprites():
-            agent = AgentsDDQN(p.id, N)
+            agent = AgentsQT(p.id, N)
             agents.append(agent)
     elif agent_mode == "DDQN":
         for p in players.sprites():
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     assert N in conf.available_player_numbers
 
     render_mode = True
-    episodes = 10
+    episodes = 40
     FPS = 100
 
     game_on = True
@@ -213,7 +213,7 @@ if __name__ == "__main__":
             new_pos_y = [0 for _i in range(N+1)]
             # next_state = []
             rewards = [0, 0]
-            action = [0 for _i in range(N)]
+            action = [[-1, -1] for _i in range(N)]
 
             # end game with user input
             # for event in pygame.event.get():

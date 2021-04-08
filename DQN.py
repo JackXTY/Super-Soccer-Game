@@ -16,7 +16,7 @@ conf = Config()
 
 # refernce from https://github.com/MorvanZhou
 class AgentsDQN(Agent):
-    def __init__(self, id, N):
+    def __init__(self, id, N, features=6):
         self.id = id
         self.path = "./model/DQN/" + str(N) + "/" + str(id)
         self.state = []
@@ -28,12 +28,12 @@ class AgentsDQN(Agent):
             self.epsilon = 0.8
         else:
             # exploration strategy
-            self.greedy = 0.01
+            self.greedy = 0.1
             self.epsilon = 0.5
         # discount factor
         self.gamma = 0.9
         # number of features
-        self.features = 6
+        self.features = features
         # number of actions
         self.actions = 16
         self.replace_target_iter = 300
