@@ -176,12 +176,16 @@ def single_rewards_func(p_x, p_y, n_x, n_y, team):
     n_dis = (abs(n_x[1] - n_x[0])**2 + abs(n_y[1] - n_y[0])**2)**0.5
     if p_dis > n_dis:
         reward += 100
-    if p_dis < n_dis:
+    elif p_dis < n_dis:
         reward -= 100
-    if (team == 0 and n_x[1] > p_x[1]) or (team == 1 and n_x[1] < p_x[1]):
-        reward += 300
-    elif (team == 0 and n_x[1] < p_x[1]) or (team == 1 and n_x[1] > p_x[1]):
-        reward -= 300
+    elif abs(n_x[0] - n_x[1]) < 1e-5 and abs(n_y[0] - n_y[1]) < 1e-5:
+        reward += 100
+    # if (team == 0 and n_x[1] > p_x[1]) or (team == 1 and n_x[1] < p_x[1]):
+    #     print('good ball')
+    #     reward += 300
+    # elif (team == 0 and n_x[1] < p_x[1]) or (team == 1 and n_x[1] > p_x[1]):
+    #     reward -= 300
+    #     print('bad ball')
     #print(reward)
 
     return reward
