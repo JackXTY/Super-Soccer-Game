@@ -16,7 +16,7 @@ conf = Config()
 
 # refernce from https://github.com/MorvanZhou
 class AgentsDQN(Agent):
-    def __init__(self, id, N):
+    def __init__(self, id, N, features=6):
         self.id = id
         self.path = "./model/DQN/" + str(N) + "/" + str(id)
         self.state = []
@@ -28,12 +28,12 @@ class AgentsDQN(Agent):
             self.epsilon = 0.8
         else:
             # exploration strategy
-            self.greedy = 0.01
+            self.greedy = 0.1
             self.epsilon = 0.5
         # discount factor
         self.gamma = 0.9
         # number of features
-        self.features = 6
+        self.features = features
         # number of actions
         self.actions = 16
         self.replace_target_iter = 300
@@ -52,9 +52,11 @@ class AgentsDQN(Agent):
         print(self.id, self.sess)
         self.saver = train.Saver()
 
-        if not(os.path.exists(self.path)):
+        if not(os.path.exists(self.path+".meta")):
+            print("no training history")
             self.sess.run(global_variables_initializer())
         else:
+            print("trained continously")
             self.load_model()
         self.cost_history = []
     
@@ -112,6 +114,9 @@ class AgentsDQN(Agent):
             self.memory_counter = 0
         action_number = action[0] - 1 + action[1] * 8
         transition = np.hstack((self.state, [action_number, reward], state_new))
+        if not hasattr(self, 'r'):  # 记录选的 Qmax 值
+            self.r = []
+        self.r.append(reward)
         index = self.memory_counter % self.memory_size
         self.memory[index, :] = transition
         self.memory_counter += 1
@@ -198,6 +203,19 @@ class AgentsDQN(Agent):
         plt.ylabel('Q eval')
         plt.xlabel('training steps')
         plt.grid()
+        plt.savefig(self.path+"qvalue.jpg")
+        plt.show()
+    
+    def plot_reward(self):
+        avg_r = []
+        for i in range(math.floor(len(self.r)/100)):
+            avg_r.append(sum(self.r[i : i+100]))
+        import matplotlib.pyplot as plt
+        plt.plot(np.array(avg_r), label=self.id)
+        plt.ylabel('reward')
+        plt.xlabel('training steps')
+        plt.grid()
+        plt.savefig(self.path+"reward.jpg")
         plt.show()
 
     def update_greedy(self):
@@ -205,11 +223,14 @@ class AgentsDQN(Agent):
 
     def load_model(self):
         self.saver.restore(self.sess, self.path)
+        self.memory = np.load(self.path+".npy")
+        print(self.memory)
 
-    def save_model(self, if_plot = False):
+    def save_model(self, if_plot = False, postfix = ''):
         try:
-            self.saver.save(self.sess, self.path)
-            print(self.path + 'saved successfully')
+            self.saver.save(self.sess, self.path+postfix)
+            print(self.path + ' saved successfully')
+            np.save(self.path+".npy", self.memory)
             if if_plot:
                 self.plot_cost()
         except:
