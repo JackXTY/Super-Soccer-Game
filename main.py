@@ -10,7 +10,7 @@ from text import Text
 from config import Config, rewards_func, new_rewards_func, newest_rewards_func
 import random
 import time
-from DQN import AgentsDQN
+from DQN import AgentsDQN, AgentsDQNk
 from Qlearning import AgentsQT
 from DDQN import AgentsDDQN
 
