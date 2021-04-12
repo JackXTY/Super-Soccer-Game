@@ -10,7 +10,7 @@ from text import Text
 from config import Config, rewards_func, new_rewards_func, newest_rewards_func
 import random
 import time
-from DQN import AgentsDQN
+from DQN import AgentsDQN, AgentsDQNk
 from Qlearning import AgentsQT
 from DDQN import AgentsDDQN
 
@@ -69,7 +69,7 @@ def initialize_AI(agent_mode):
             agents.append(agent)
     else:
         for p in players.sprites():
-            agent = AgentsDQN(p.id, N, features=7)
+            agent = AgentsDQNk(p.id, N, features=7)
             agents.append(agent)
 
 def reset():
