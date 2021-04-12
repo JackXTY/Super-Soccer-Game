@@ -151,14 +151,14 @@ if __name__ == "__main__":
 
     render_mode = True
     episodes = 100
-    FPS = 700
+    FPS = 500
     game_on = True
     score = 0
     score_history = []
 
     game_timer = pygame.time.Clock()
     game_timer.tick(FPS)
-    agent_mode = 'DQN'
+    agent_mode = 'QT'
     player = initialize_player()
     agent = initialize_agent(player.id, agent_mode)
     info = Text()
@@ -191,7 +191,7 @@ if __name__ == "__main__":
 
             if test_mode:
                 action = agent.make_decision(no_random = True)
-            elif step < 300 and not(agent.has_model):
+            elif step < 300 and not(agent.has_model) and agent_mode != 'QT':
                 action = agent.make_random_decision()
             else:
                 action = agent.make_decision()
@@ -244,16 +244,16 @@ if __name__ == "__main__":
             # rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
             reward += single_rewards_func(prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, player.team)
             #print(reward)
-            # Q-learning version
-            # agent_state = getGameState_single(player, ball)
-            #     # agent_state = [0, 0, 0, 0, 0 ,0]
-            # agent.update(action, agent_state, reward)
 
-            # DQN version
             agent_state = getGameState_single(player, ball)
-            agent.store_transition(action, reward, agent_state)
-            if (step > 1000) and (step % 10 == 0) and not(test_mode):
-                agent.update()
+            if agent_mode == "QT":
+                # Q-learning version
+                agent.update(action, agent_state, reward)
+            else:
+                # DQN version
+                agent.store_transition(action, reward, agent_state)
+                if (step > 1000) and (step % 10 == 0) and not(test_mode):
+                    agent.update()
 
             game_time -= game_timer.tick(FPS)
             if game_time < 0:
@@ -264,20 +264,20 @@ if __name__ == "__main__":
             prev_pos_y = new_pos_y
 
         # if not(test_mode) and episode % 100 == 0:
-        #     agent.save_model(if_plot = False, postfix="-"+str(episode))
+        #     agent.save_model(postfix="-"+str(episode))
 
     # if not(test_mode):
-        # agent.save_model(if_plot = False, postfix = "-after_test")
-        # agent.plot_qvalue()
-        # agent.plot_reward()
-    # print(score_history)
-    # import matplotlib.pyplot as plt
-    # plt.plot(np.array(score_history), label=self.id)
-    # plt.ylabel('score_history')
-    # plt.xlabel('training episode')
-    # plt.grid()
-    # plt.savefig(agent.path+"score_history.jpg")
-    # plt.show()
+    #     agent.save_model(postfix = "-after_test")
+    #     agent.plot_qvalue()
+    #     agent.plot_reward()
+
+    import matplotlib.pyplot as plt
+    plt.plot(np.array(score_history))
+    plt.ylabel('score_history')
+    plt.xlabel('training episode')
+    plt.grid()
+    plt.savefig(agent.path+"score_history.jpg")
+    plt.show()
 
     time.sleep(10)
     pygame.quit()
