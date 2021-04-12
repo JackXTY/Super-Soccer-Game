@@ -239,13 +239,13 @@ class AgentsDQN(Agent):
     def load_model(self):
         self.saver.restore(self.sess, self.path)
         self.memory = np.load(self.path+".npy")
-        print(self.memory)
+        # print(self.memory)
 
     def save_model(self, if_plot=False, postfix=''):
         try:
             self.saver.save(self.sess, self.path+postfix)
-            print(self.path + ' saved successfully')
-            np.save(self.path+".npy", self.memory)
+            print(self.path+postfix + ' saved successfully')
+            np.save(self.path + postfix +".npy", self.memory)
             if if_plot:
                 self.plot_cost()
         except:

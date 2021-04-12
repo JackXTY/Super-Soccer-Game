@@ -7,7 +7,7 @@ from sys import argv
 from player import Player
 from ball import Ball
 from text import Text
-from config import Config, rewards_func, new_rewards_func
+from config import Config, rewards_func, new_rewards_func, newest_rewards_func
 import random
 import time
 from DQN import AgentsDQN
@@ -28,16 +28,18 @@ agents = []
 
 # TODO: change into multiple players mode
 def getGameState(pid, players, ball):
-    ret_state = [0, 0, 0, 0, 0, 0]
+    ret_state = [0, 0, 0, 0, 0, 0, 0]
+    if ball.belong(pid):
+        ret_state[0] = 1
     for p in players:
         if p.id == pid:
-            ret_state[0] = p.rect.centerx
-            ret_state[1] = p.rect.centery
+            ret_state[1] = p.rect.centerx
+            ret_state[2] = p.rect.centery
         else:
-            ret_state[2] = p.rect.centerx
-            ret_state[3] = p.rect.centery
-    ret_state[4] = ball.rect.centerx
-    ret_state[5] = ball.rect.centery
+            ret_state[3] = p.rect.centerx
+            ret_state[4] = p.rect.centery
+    ret_state[5] = ball.rect.centerx
+    ret_state[6] = ball.rect.centery
     return ret_state
 
 
@@ -67,7 +69,7 @@ def initialize_AI(agent_mode):
             agents.append(agent)
     else:
         for p in players.sprites():
-            agent = AgentsDQN(p.id, N)
+            agent = AgentsDQN(p.id, N, features=7)
             agents.append(agent)
 
 def reset():
@@ -170,12 +172,13 @@ if __name__ == "__main__":
     assert N in conf.available_player_numbers
 
     render_mode = True
-    episodes = 40
-    FPS = 100
+    episodes = 5000
+    FPS = 500
 
     game_on = True
     
     # p1_id = 1
+    score = [0, 0]
     game_timer = pygame.time.Clock()
     game_time = conf.max_time
     game_timer.tick(FPS)
@@ -191,24 +194,28 @@ if __name__ == "__main__":
     # While loop for main logic of the game
     for episode in range(episodes):
         print("episode: ", episode)
-        score = [0, 0]
         reset()
-        game_time = conf.max_time
+        game_time = 10000 #conf.max_time
         game_on = True
         for agent in agents:
             agent.set_state(getGameState(agent.id, players, ball))
             agent.update_greedy()
-        score = [0, 0]
         # state = []
         # state.append(agents[0].get_state(getGameState(1, players, ball)))
         # state.append(agents[1].get_state(getGameState(2, players, ball)))
         # agents[0].update_greedy()
         # agents[1].update_greedy()
         # print(agents[0].greedy)
+        prev_pos_x = [0 for _i in range(N+1)]
+        prev_pos_y = [0 for _i in range(N+1)]
+        prev_pos_x[N] = ball.rect.centerx
+        prev_pos_y[N] = ball.rect.centery
+        for player in players.sprites():
+            prev_pos_x[player.id - 1] = player.rect.centerx
+            prev_pos_y[player.id - 1] = player.rect.centery
 
         while game_on:
-            prev_pos_x = [0 for _i in range(N+1)]
-            prev_pos_y = [0 for _i in range(N+1)]
+            
             new_pos_x = [0 for _i in range(N+1)]
             new_pos_y = [0 for _i in range(N+1)]
             # next_state = []
@@ -223,12 +230,8 @@ if __name__ == "__main__":
             #         game_on = False
 
             # update position
-            prev_pos_x[N] = ball.rect.centerx
-            prev_pos_y[N] = ball.rect.centery
             for p in players.sprites():
                 #input_array = get_input(p.id)
-                prev_pos_x[p.id - 1] = p.rect.centerx
-                prev_pos_y[p.id - 1] = p.rect.centery
                 if test_mode:
                     action[p.id - 1] = agents[p.id - 1].make_decision(no_random = True)
                 elif step < 300:
@@ -253,17 +256,27 @@ if __name__ == "__main__":
                     else:
                         rewards[1] += 2000
                         rewards[0] -= 2000
+                # print(stealer.id, " get ball")
 
             ball.update_pos()
-            new_pos_x[N] = ball.rect.centerx
-            new_pos_y[N] = ball.rect.centery
             shot = ball.in_door()
             if shot >= 0:
                 score[shot] += 1
                 rewards[shot] += 100000
                 rewards[shot-1] -= 10000
+                print("team-", shot, " get score!!!!!")
                 reset()
+            
+            if render_mode:
+                screen.blit(background, (0, 0))
+                for player in players.sprites():
+                    player.render(screen)
+                ball.render(screen)
+                info.render(screen, score, game_time)
+                pygame.display.update()
 
+            new_pos_x[N] = ball.rect.centerx
+            new_pos_y[N] = ball.rect.centery
             for player in players.sprites():
                 new_pos_x[player.id - 1] = player.rect.centerx
                 new_pos_y[player.id - 1] = player.rect.centery
@@ -291,27 +304,23 @@ if __name__ == "__main__":
                 if (step > 1000) and (step % 10 == 0) and not(test_mode):
                     agent.update()
 
-            if render_mode:
-                screen.blit(background, (0, 0))
-                for player in players.sprites():
-                    player.render(screen)
-                ball.render(screen)
-                info.render(screen, score, game_time)
-                pygame.display.update()
-
             game_time -= game_timer.tick(FPS)
             if game_time < 0:
                 game_on = False
             step += 1
+            prev_pos_x = new_pos_x
+            prev_pos_y = new_pos_y
 
-        if not(test_mode):
+        if not(test_mode) and episode % 1000 == 0:
             for agent in agents:
-                agent.save_model(if_plot = False)
+                agent.save_model(if_plot = False, postfix = "-" + str(episode))
 
     if not(test_mode):
         for agent in agents:
+            agent.save_model(if_plot = False)
             agent.plot_qvalue()
+            agent.plot_reward()
 
-    time.sleep(10)
+    time.sleep(5)
     pygame.quit()
     sys.exit()

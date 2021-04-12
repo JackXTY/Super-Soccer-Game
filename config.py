@@ -169,6 +169,25 @@ def new_rewards_func(r, p_x, p_y, n_x, n_y, N):
     #print(rewards)
     return rewards
 
+def newest_rewards_func(r, p_x, p_y, n_x, n_y, N):
+    reward = r
+    for i in range(N):
+        team = 0
+        if i >= int(N/2):
+            team = 1
+        p_dis = (abs(p_x[N] - p_x[i])**2 + abs(p_y[N] - p_y[i])**2)**0.5
+        n_dis = (abs(n_x[N] - n_x[i])**2 + abs(n_y[N] - n_y[i])**2)**0.5
+        if p_dis > n_dis:
+            reward[team] += 100
+        elif p_dis < n_dis:
+            reward[team] -= 100
+        elif abs(n_x[0] - n_x[1]) < 1e-5 and abs(n_y[0] - n_y[1]) < 1e-5:
+            reward[team] += 100
+    if n_x[N] > p_x[N]:
+        reward[0] += 100
+    elif n_x[N] < p_x[N]:
+        reward[1] += 100
+    return team
 
 def single_rewards_func(p_x, p_y, n_x, n_y, team):
     reward = 0
