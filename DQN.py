@@ -238,7 +238,7 @@ class AgentsDQN(Agent):
 
     def load_model(self):
         self.saver.restore(self.sess, self.path)
-        self.memory = np.load(self.path+".npy")
+        # self.memory = np.load(self.path+".npy")
         # print(self.memory)
 
     def save_model(self, if_plot=False, postfix=''):
@@ -270,7 +270,7 @@ class AgentsDQNk(Agent):
         # discount factor
         self.gamma = 0.9
         # number of features
-        self.features = 6
+        self.features = features
         # number of actions
         self.actions = 16
         self.replace_target_iter = 300
@@ -281,6 +281,7 @@ class AgentsDQNk(Agent):
 
         self.step_counter = 0
         self.memory = np.zeros((self.memory_size, self.features*2+2))
+        print("features=", features, "shape of memory=", np.shape(self.memory))
         self.memory_counter = 0
         self.batch_size = 16
 
@@ -297,6 +298,8 @@ class AgentsDQNk(Agent):
         self.q = []
         self.running_q = 0
         
+    def set_state(self, state):
+        self.state = state
 
     def create_model(self):
         n_l1 = 50
@@ -344,12 +347,14 @@ class AgentsDQNk(Agent):
     def store_transition(self, action, reward, state_new):
         action_number = action[0] - 1 + action[1] * 8
         transition = np.hstack((self.state, [action_number, reward], state_new))
-
+        # print(np.shape(self.state),np.shape(state_new))
         if not hasattr(self, 'r'):
             self.r = []
         self.r.append(reward)
 
         index = self.memory_counter % self.memory_size
+        # print(np.shape(transition))
+        # print(np.shape(self.memory[0]))
         self.memory[index, :] = transition
         self.memory_counter += 1
         self.state = state_new
@@ -388,7 +393,7 @@ class AgentsDQNk(Agent):
             self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
 
         self.step_counter += 1
-
+        tf.Graph.finalize()
 
     def replace_target_params(self):
         self.target_model.set_weights(self.model.get_weights())
