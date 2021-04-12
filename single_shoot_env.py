@@ -4,6 +4,7 @@ from pygame.locals import *
 from pygame.sprite import Group
 import sys
 from sys import argv
+import numpy as np
 from numpy import random as np_random
 from player import Player
 from ball import Ball
@@ -149,10 +150,11 @@ def deal_collision_single(p):
 if __name__ == "__main__":
 
     render_mode = True
-    episodes = 3000
-    FPS = 500
+    episodes = 100
+    FPS = 700
     game_on = True
     score = 0
+    score_history = []
 
     game_timer = pygame.time.Clock()
     game_timer.tick(FPS)
@@ -220,10 +222,12 @@ if __name__ == "__main__":
                 score += 1
                 reward += 100000
                 print('get a score!!!!')
+                score_history.append(score)
                 game_on = False
             elif shot >= 0:
                 reward -= 5000
                 print('in the wrong door!!!')
+                score_history.append(score)
                 game_on = False
             
             if render_mode:
@@ -254,17 +258,26 @@ if __name__ == "__main__":
             game_time -= game_timer.tick(FPS)
             if game_time < 0:
                 game_on = False
+                score_history.append(score)
             step += 1
             prev_pos_x = new_pos_x
             prev_pos_y = new_pos_y
 
-        if not(test_mode) and episode % 100 == 0:
-            agent.save_model(if_plot = False, postfix="-"+str(episode))
+        # if not(test_mode) and episode % 100 == 0:
+        #     agent.save_model(if_plot = False, postfix="-"+str(episode))
 
-    if not(test_mode):
-        agent.save_model(if_plot = False)
-        agent.plot_qvalue()
-        agent.plot_reward()
+    # if not(test_mode):
+        # agent.save_model(if_plot = False, postfix = "-after_test")
+        # agent.plot_qvalue()
+        # agent.plot_reward()
+    # print(score_history)
+    # import matplotlib.pyplot as plt
+    # plt.plot(np.array(score_history), label=self.id)
+    # plt.ylabel('score_history')
+    # plt.xlabel('training episode')
+    # plt.grid()
+    # plt.savefig(agent.path+"score_history.jpg")
+    # plt.show()
 
     time.sleep(10)
     pygame.quit()
