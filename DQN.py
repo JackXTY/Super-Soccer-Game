@@ -235,3 +235,53 @@ class AgentsDQN(Agent):
                 self.plot_cost()
         except:
             print('ERROR: can not save the model')
+
+class AgentsDQNk(Agent):
+    def __init__(self, id, game_mode, model_root_path='./model/', train=True):
+        self.id = id
+        self.path = "./model/DQN/" + str(N) + "/" + str(id)
+        self.state = []
+        self.next_state = []
+        self.has_model = os.path.exists(self.path)
+        # learning rate
+        if self.has_model:
+            self.greedy = 0.001
+            self.epsilon = 0.8
+        else:
+            # exploration strategy
+            self.greedy = 0.01
+            self.epsilon = 0.5
+        # discount factor
+        self.gamma = 0.9
+        # number of features
+        self.features = 6
+        # number of actions
+        self.actions = 16
+        self.replace_target_iter = 300
+        self.memory_size = 100000
+        self.epsilon = 0.2
+        self.epsilon_max = 0.9
+        self.epsilon_increment = 0.001
+
+        self.step_counter = 0
+        self.memory = np.zeros((self.memory_size, self.features*2+2))
+        self.batch_size = 16
+
+
+    def create_model(self):
+        pass
+
+    def save_model(self, if_plot = False):
+        pass
+
+    def load_model(self):
+        self.model = tf.keras.models.load_model(self.path)
+
+    def make_decision(self):
+        pass
+
+    def store_transition(self):
+        pass
+
+    def train(self):
+        pass
