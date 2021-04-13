@@ -69,7 +69,7 @@ def initialize_AI(agent_mode):
             agents.append(agent)
     else:
         for p in players.sprites():
-            agent = AgentsDQNk(p.id, N, features=7)
+            agent = AgentsDQN(p.id, N, features=7)
             agents.append(agent)
 
 def reset():
