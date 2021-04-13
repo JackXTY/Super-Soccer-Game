@@ -12,11 +12,11 @@ from agent import Agent
 
 conf = Config()
 
-# TODO: ENV!
-
-# refernce from https://github.com/MorvanZhou
 
 
+# This implementation of DQN is from https://github.com/MorvanZhou, modified by us to suit our project.
+# author: MorvanZhou, Luo Lu, Xiao Tianyi
+# There is another version of DQN of keras below, whose structure of neural network is implemented by us.
 class AgentsDQN(Agent):
     def __init__(self, id, N, features=6):
         self.id = id
@@ -61,6 +61,9 @@ class AgentsDQN(Agent):
             print("trained continously")
             self.load_model()
         self.cost_history = []
+        self.q = []
+        self.running_q = 0
+        self.r = []
 
     def set_state(self, state):
         self.state = state
@@ -127,8 +130,6 @@ class AgentsDQN(Agent):
             self.memory_counter = 0
         action_number = action[0] - 1 + action[1] * 8
         transition = np.hstack((self.state, [action_number, reward], state_new))
-        if not hasattr(self, 'r'):
-            self.r = []
         self.r.append(reward)
         index = self.memory_counter % self.memory_size
         self.memory[index, :] = transition
@@ -143,9 +144,6 @@ class AgentsDQN(Agent):
         action_0 = action % 8 + 1
         action_1 = math.floor(action / 8)
 
-        if not hasattr(self, 'q'):  # 记录选的 Qmax 值
-            self.q = []
-            self.running_q = 0
         self.running_q = self.running_q*0.99 + 0.01 * np.max(actions_value)
         self.q.append(self.running_q)
 
@@ -289,6 +287,7 @@ class AgentsDQNk(Agent):
 
         self.cost_history = []
         self.q = []
+        self.r = []
         self.running_q = 0
 
         print("finish initialization")
@@ -344,8 +343,6 @@ class AgentsDQNk(Agent):
         action_number = action[0] - 1 + action[1] * 8
         transition = np.hstack((self.state, [action_number, reward], state_new))
         # print(np.shape(self.state),np.shape(state_new))
-        if not hasattr(self, 'r'):
-            self.r = []
         self.r.append(reward)
 
         index = self.memory_counter % self.memory_size
