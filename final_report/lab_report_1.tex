@@ -19,8 +19,8 @@
 %	PACKAGES AND DOCUMENT CONFIGURATIONS
 %----------------------------------------------------------------------------------------
 
-%\documentclass[12pt]{article}
-\documentclass[14pt]{extarticle}
+\documentclass[12pt]{article}
+%\documentclass[14pt]{extarticle}
 
 \usepackage{setspace} % For set space
 \usepackage{algorithm} % For pseudo code
@@ -34,7 +34,7 @@
 \setlength{\parskip}{0.5em}
 
 \renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by letter rather than number (e.g. section 6)
-\renewcommand{\baselinestretch}{1.5}
+\renewcommand{\baselinestretch}{1.2}
 %\usepackage{times} % Uncomment to use the Times New Roman font
 
 %----------------------------------------------------------------------------------------
@@ -70,13 +70,27 @@ Instructor: & Prof. Andrej Bogdanov % Instructor/supervisor
  
 %----------------------------------------------------------------------------------------
 %	SECTION 2
-%----------------------------------------------------------------------------------------
-
+%---------------------------------------------------------------------------------------
 \section{Background}
 
 \subsection{Previous Progress}
-Write something.\\\\
-2\\\\
+In the last semester, we have implemented the preliminary version of the game environment and $Q$-Learning agent. In this section, we will briefly reiterate our previous progress before introducing new progress and our opinions.
+\subsubsection{Environment}
+When we started to draft our proposal, original considerations for designing our environment included complexity, scalability and implemental difficulty. We hoped to design an environment which is easy to implement, complex enough to distinguish the power of different algorithms and can be reused for different game modes, including 1 player, 1 versus 1, and multi-players against multi-players.
+
+Therefore, we designed a game similar to football, and the graph user interface for 1 versus 1 version can be found in figure 1. In this environment, each agent controls one player which is represented as a blue(team 0) or an orange(team 1) rounded rectangle. And the purpose of players is to shoot the ball, which is represented as a white ball, to goal of opponent team, which is represent as white rectangle in the left border(for team 0) and right border(for team 1).
+
+The environment can output a list to represent the game state. For 1 versus 1 mode, the list will contain the position of the current player, the position of the opponent player and the position of the ball.
+
+The environment can receive a list with size equal 2 from a player as input, the first element represents the direction and the second element represents the action, shoot or not. 
+
+After receiving an action, we can call the reward function to calculate the reward of the given action, and return the reward as a scalar number to that agent.
+
+\subsubsection{Agent}
+
+In the last semester, we have finished the design of Q-Learning agent by following the algorithm provided in the background theory section. Moreover, our conclusion of the last term is that our game is too complicated to be trained by Q-Learning even for 1 vs 1 mode, even if we simplified input states.
+
+The reason to simplify states is that the number of raw game states is an enormous figure even without considering the action space. The simplify function will replace the positions of opponent player and ball by logarithms of relative positions(distances) with base 10, which will compress the range of these 4 parameters from several hundred to 7. This will significantly reduce the size of Q-Table and make some simpler situations trainable, and we will discuss this later.
 
 
 %----------------------------------------------------------------------------------------
