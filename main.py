@@ -67,7 +67,13 @@ def initialize_AI(agent_mode):
         for p in players.sprites():
             agent = AgentsDDQN(p.id, N)
             agents.append(agent)
+    elif agent_mode == "DQN":
+        print("DQN mode")
+        for p in players.sprites():
+            agent = AgentsDQN(p.id, N, features=7)
+            agents.append(agent)
     else:
+        print("DQN-K mode")
         for p in players.sprites():
             agent = AgentsDQNk(p.id, N, features=7)
             agents.append(agent)
@@ -172,7 +178,7 @@ if __name__ == "__main__":
     assert N in conf.available_player_numbers
 
     render_mode = True
-    episodes = 5000
+    episodes = 2000
     FPS = 500
 
     game_on = True
@@ -182,9 +188,9 @@ if __name__ == "__main__":
     game_timer = pygame.time.Clock()
     game_time = conf.max_time
     game_timer.tick(FPS)
-    agent_mode = 'DQN'
-    if len(argv) > 0:
-        agent_mode = argv[0]
+    agent_mode = "DQN"
+    if len(argv) > 1:
+        agent_mode = argv[1]
     initialize_game()
     initialize_AI(agent_mode)
     info = Text()
@@ -311,7 +317,7 @@ if __name__ == "__main__":
             prev_pos_x = new_pos_x
             prev_pos_y = new_pos_y
 
-        if not(test_mode) and episode % 1000 == 0:
+        if not(test_mode) and episode % 200 == 0:
             for agent in agents:
                 agent.save_model(if_plot = False, postfix = "-" + str(episode))
 

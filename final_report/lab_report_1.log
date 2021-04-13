@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/W32TeX) (preloaded format=pdflatex 2020.2.28)  13 APR 2021 11:00
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/W32TeX) (preloaded format=pdflatex 2020.2.28)  13 APR 2021 16:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -233,30 +233,23 @@ LaTeX Info: Redefining \] on input line 2860.
 LaTeX Info: Redefining \cite on input line 302.
 LaTeX Info: Redefining \nocite on input line 332.
 Package: cite 2015/02/27  v 5.5
-) (./lab_report_1.aux
-
-LaTeX Warning: Label `euclid' multiply defined.
-
-
-LaTeX Warning: Label `euclid' multiply defined.
-
-)
+) (./lab_report_1.aux)
 \openout1 = `lab_report_1.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 48.
-LaTeX Font Info:    ... okay on input line 48.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
 
 (d:/TexLive/2019/texmf-dist/tex/latex/translator/translator-basic-dictionary-En
 glish.dict
@@ -293,40 +286,74 @@ LaTeX Warning: No \author given.
 [1
 
 {d:/TexLive/2019/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 78--80
+Underfull \hbox (badness 10000) in paragraph at lines 79--81
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 78--80
+Underfull \hbox (badness 10000) in paragraph at lines 79--81
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 78--80
+Underfull \hbox (badness 10000) in paragraph at lines 79--81
 
  []
 
-[2] [3] [4] (./lab_report_1.aux)
+<reset_random.png, id=8, 723.45282pt x 210.03468pt>
+File: reset_random.png Graphic file (type png)
+<use reset_random.png>
+Package pdftex.def Info: reset_random.png  used on input line 94.
+(pdftex.def)             Requested size: 386.99738pt x 112.35301pt.
 
-LaTeX Warning: There were multiply-defined labels.
+Underfull \hbox (badness 10000) in paragraph at lines 90--97
 
- ) 
+ []
+
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 101--102
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 101--102
+
+ []
+
+[3 <./reset_random.png>]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[4]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[5]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[6]
+Overfull \vbox (258.99924pt too high) has occurred while \output is active []
+
+
+[7] [8] (./lab_report_1.aux) ) 
 Here is how much of TeX's memory you used:
- 5316 strings out of 480997
- 115569 string characters out of 5916084
- 337892 words of memory out of 5000000
- 20789 multiletter control sequences out of 15000+600000
+ 5342 strings out of 480997
+ 115989 string characters out of 5916084
+ 346844 words of memory out of 5000000
+ 20814 multiletter control sequences out of 15000+600000
  540171 words of font info for 53 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 35i,6n,40p,344b,382s stack positions out of 5000i,500n,10000p,200000b,80000s
-<d:/TexLive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><d:/Tex
-Live/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><d:/TexLive/2019/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb>
-Output written on lab_report_1.pdf (4 pages, 46806 bytes).
+ 35i,6n,40p,511b,527s stack positions out of 5000i,500n,10000p,200000b,80000s
+<d:/TexLive/2019/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmbx12.pfb><d:/TexLive/2019/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmmi12.pfb><d:/TexLive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pf
+b><d:/TexLive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb><d:/TexL
+ive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+Output written on lab_report_1.pdf (8 pages, 201950 bytes).
 PDF statistics:
- 29 PDF objects out of 1000 (max. 8388607)
- 19 compressed objects within 1 object stream
+ 54 PDF objects out of 1000 (max. 8388607)
+ 36 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
