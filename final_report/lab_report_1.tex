@@ -74,6 +74,8 @@ Instructor: & Prof. Andrej Bogdanov % Instructor/supervisor
 %---------------------------------------------------------------------------------------
 \section{Background}
 
+\subsection{Basic Theory}
+
 \subsection{Previous Progress}
 In the last semester, we have implemented the preliminary version of the game environment and $Q$-Learning agent. In this section, we will briefly reiterate our previous progress before introducing new progress and our opinions.
 \subsubsection{Environment}
@@ -101,7 +103,8 @@ The reason to simplify states is that the number of raw game states is an enormo
 \section{Implementation}
 
 \subsection{Single Player Mode}
-In the beginning stage of our project in this term, we found that it's hard to train AI to play our game with DQN. So to simplify the issue and solve our prolem better, we first implement a single player mode. Then with the experience from single player mode, we are finally able to train DQN AI that could play 1v1 mode with logic.\\\\
+In the beginning stage of our project in this term, we found that it's hard to train AI to play our game with DQN. So to simplify the issue and solve our prolem better, we first implement a single player mode. Then with the experience from single player mode, we are finally able to train DQN AI that could play 1v1 mode with logic.
+
 In this mode, we randomize the initialization of our player and ball. They will be put on the soccer field randomly when each episode begins.
 \begin{figure}[H]
 	\begin{center}
@@ -112,7 +115,7 @@ In this mode, we randomize the initialization of our player and ball. They will 
 
 
 \subsection{Agent State}
-The state of agent represent the features sent to neural network. We add one more item into the agent state, which shows if the player is catching the ball or not. In the soccer game, there is cool down time for each player to prevent it to get the ball back as soon as it just shoots the ball. Therefore the coincidence of positions of player and ball doesn't mean that player could catch and shoot the ball. So one more item in agent state could help AI better understand its situation.\\\\
+The state of agent represent the features sent to neural network. We add one more item into the agent state, which shows if the player is catching the ball or not. In the soccer game, there is cool down time for each player to prevent it to get the ball back as soon as it just shoots the ball. Therefore the coincidence of positions of player and ball doesn't mean that player could catch and shoot the ball. So one more item in agent state could help AI better understand its situation.
 
 
 \subsection{Reward Function}
