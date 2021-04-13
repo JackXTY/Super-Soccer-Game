@@ -127,7 +127,7 @@ class AgentsDQN(Agent):
             self.memory_counter = 0
         action_number = action[0] - 1 + action[1] * 8
         transition = np.hstack((self.state, [action_number, reward], state_new))
-        if not hasattr(self, 'r'):  # 记录选的 Qmax 值
+        if not hasattr(self, 'r'):
             self.r = []
         self.r.append(reward)
         index = self.memory_counter % self.memory_size
