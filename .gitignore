@@ -12,6 +12,12 @@ report/lab_report_1.synctex.gz
 report/lab_report_1.pdf
 report/lab_report_1.bbl
 report/lab_report_1.blg
+final_report/lab_report_1.aux
+final_report/lab_report_1.log
+final_report/lab_report_1.synctex.gz
+final_report/lab_report_1.pdf
+final_report/lab_report_1.bbl
+final_report/lab_report_1.blg
 *.pyc
 .idea/*
 __pycache__/*.pyc

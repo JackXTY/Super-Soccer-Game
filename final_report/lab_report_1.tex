@@ -176,8 +176,9 @@ With Single Player Mode, we need a new reward function. This one is simple. If t
 \end{algorithm}
 
 \subsubsection{New Reward Function}
+
 Then, with experience from single player mode, we modify our original reward function. We cancel the comparison of distance to ball between two agents, instead we only care if the agent is closer to the ball. Also, we cancel some punishment to avoid agent playing to negatively. And we adjust the amount of reward during our test.
-\begin{algorithm}[!h]
+\begin{algorithm}[H]
 	\caption{Original Reward$(Agent1,Agent2,Ball)$}
 	\begin{algorithmic}
 		\If {Closer(Agent1, Ball)}
@@ -211,8 +212,28 @@ Then, with experience from single player mode, we modify our original reward fun
 \end{algorithm}
 
 \subsection{Neural Network}
+In the implementation of our DQN, we look through a good tutorial of MorvanZhou(Zhou), which help us a lot. And we use two DQN implementation in our project, one offered in the tutorial, and another one implemented by us with keras, inspired by previous version, referenced from tutorial. Below we will use the second implementation, to briefly introduce our neural network.
+
+\subsubsection{Structrue of Nerual Network}
+There are two layers in our nerual network. In the first layer, we add a relu activation layer in the end. All variables are initialized with random normal initializers.
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{network}
+		\caption{structure of nerual network}
+	\end{center}
+\end{figure}
+
+\subsubsection{Update}
+We randomly pick batch of memory, and calculate their actions from previous state to target network, and after state to eval network. Then we calculate relative q values of target model, and update the parameters in eval network. Also, the parameters in target network will be updated every R rounds of update.(R=300 in our project).
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{update}
+		\caption{update}
+	\end{center}
+\end{figure}
 
 \subsection{Measurement of Performance}
+In the reference tutorial of reinforcement learning, the cost was used to measure the performance of DQN, which is quite a bad measurement in fact. Therefore, in our project, we use the q-values and average reward as measurements of our performances. We record the value of action we choose to form the history of q-values. And for every 100 steps, we sum up the rewards of 100 steps and calculate the average reward.
 
 
 %----------------------------------------------------------------------------------------
@@ -244,6 +265,7 @@ Then, with experience from single player mode, we modify our original reward fun
 	\bibitem{ref3}Berner, Christopher, et al. "Dota 2 with large scale deep reinforcement learning." arXiv preprint arXiv:1912.06680 (2019).
     \bibitem{ref4}Zoph, Barret, and Quoc V. Le. "Neural architecture search with reinforcement learning." arXiv preprint arXiv:1611.01578 (2016).
     \bibitem{ref5}Mnih, Volodymyr, et al. "Human-level control through deep reinforcement learning." nature 518.7540 (2015): 529-533.
+    \bibitem{ref6}Zhou. "Reinforcement Learning Methods and Tutorials" https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
 \end{thebibliography}
 %----------------------------------------------------------------------------------------
 
