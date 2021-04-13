@@ -75,7 +75,7 @@ def initialize_AI(agent_mode):
     else:
         print("DQN-K mode")
         for p in players.sprites():
-            agent = AgentsDQNk(p.id, N, features=7)
+            agent = AgentsDQN(p.id, N, features=7)
             agents.append(agent)
 
 def reset():
@@ -273,12 +273,14 @@ if __name__ == "__main__":
                 print("team-", shot, " get score!!!!!")
                 reset()
             
+            
+            screen.blit(background, (0, 0))
+            for player in players.sprites():
+                player.render(screen)
+            ball.render(screen)
+            info.render(screen, score, game_time)
+
             if render_mode:
-                screen.blit(background, (0, 0))
-                for player in players.sprites():
-                    player.render(screen)
-                ball.render(screen)
-                info.render(screen, score, game_time)
                 pygame.display.update()
 
             new_pos_x[N] = ball.rect.centerx

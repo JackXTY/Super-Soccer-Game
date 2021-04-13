@@ -282,20 +282,16 @@ class AgentsDQNk(Agent):
         self.memory = np.zeros((self.memory_size, self.features*2+2))
         print("features=", features, "shape of memory=", np.shape(self.memory))
         self.memory_counter = 0
-        self.batch_size = 16
+        self.batch_size = 64
 
         self.model = self.create_model()
         self.target_model = self.create_model()
 
-        # if not(os.path.exists(self.path+".meta")):
-        #     print("no training history")
-        #     self.sess.run(global_variables_initializer())
-        # else:
-        #     print("trained continously")
-
         self.cost_history = []
         self.q = []
         self.running_q = 0
+
+        print("finish initialization")
         
     def set_state(self, state):
         self.state = state
@@ -365,9 +361,10 @@ class AgentsDQNk(Agent):
         return [action_0, action_1]
 
     def update(self, lr=1):
+        print("train {}", self.step_counter)
         if self.step_counter % self.replace_target_iter == 0:
             self.replace_target_params()
-            print('\ntarget_params_replaced\n')
+            print('target_params_replaced\n')
 
         if self.step_counter > self.memory_size:
             sample_index = np.random.choice(self.memory_size, size=self.batch_size)
@@ -393,7 +390,6 @@ class AgentsDQNk(Agent):
             self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
 
         self.step_counter += 1
-        tf.Graph.finalize()
 
     def replace_target_params(self):
         self.target_model.set_weights(self.model.get_weights())
