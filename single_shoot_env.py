@@ -11,7 +11,7 @@ from ball import Ball
 from text import Text
 from config import Config, single_rewards_func
 import time
-from DQN import AgentsDQN
+from DQN import AgentsDQN, AgentsDQNk
 from Qlearning import AgentsQT
 from DDQN import AgentsDDQN
 
@@ -55,6 +55,8 @@ def initialize_agent(pid, agent_mode):
         agent = AgentsQT(pid, 1, 5)
     elif agent_mode == "DDQN":
         agent = AgentsDDQN(pid, 1, 5)
+    elif agent_mode == "DQNK":
+        agent = AgentsDQNk(pid, 1, 5)
     else:
         agent = AgentsDQN(pid, 1, 5)
     return agent
@@ -150,7 +152,7 @@ def deal_collision_single(p):
 if __name__ == "__main__":
 
     render_mode = True
-    episodes = 100
+    episodes = 1000
     FPS = 500
     game_on = True
     score = 0
@@ -158,7 +160,7 @@ if __name__ == "__main__":
 
     game_timer = pygame.time.Clock()
     game_timer.tick(FPS)
-    agent_mode = 'QT'
+    agent_mode = 'DQNK'
     player = initialize_player()
     agent = initialize_agent(player.id, agent_mode)
     info = Text()
@@ -263,22 +265,22 @@ if __name__ == "__main__":
             prev_pos_x = new_pos_x
             prev_pos_y = new_pos_y
 
-        # if not(test_mode) and episode % 100 == 0:
-        #     agent.save_model(postfix="-"+str(episode))
+        if not(test_mode) and episode % 100 == 0:
+            agent.save_model(postfix="-"+str(episode))
 
-    # if not(test_mode):
-    #     agent.save_model(postfix = "-after_test")
-    #     agent.plot_qvalue()
-    #     agent.plot_reward()
+    if not(test_mode):
+        agent.save_model(postfix = "-after_test")
+        agent.plot_qvalue()
+        agent.plot_reward()
 
-    import matplotlib.pyplot as plt
-    plt.plot(np.array(score_history))
-    plt.ylabel('score_history')
-    plt.xlabel('training episode')
-    plt.grid()
-    plt.savefig(agent.path+"score_history.jpg")
-    plt.show()
+    # import matplotlib.pyplot as plt
+    # plt.plot(np.array(score_history))
+    # plt.ylabel('score_history')
+    # plt.xlabel('training episode')
+    # plt.grid()
+    # plt.savefig(agent.path+"score_history.jpg")
+    # plt.show()
 
-    time.sleep(10)
+    time.sleep(5)
     pygame.quit()
     sys.exit()

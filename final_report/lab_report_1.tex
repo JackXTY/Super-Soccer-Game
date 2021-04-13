@@ -29,6 +29,7 @@
 \usepackage{graphicx} % Required for the inclusion of images
 \usepackage{amsmath} % Required for some math elements 
 \usepackage{cite} % For citation
+\usepackage{algpseudocode}  
 
 \setlength\parindent{0pt} % Removes all indentation from paragraphs
 \setlength{\parskip}{0.5em}
@@ -99,8 +100,116 @@ The reason to simplify states is that the number of raw game states is an enormo
 
 \section{Implementation}
 
-\subsection{Agents Design}
-\subsubsection{Reinforcement learning}
+\subsection{Single Player Mode}
+In the beginning stage of our project in this term, we found that it's hard to train AI to play our game with DQN. So to simplify the issue and solve our prolem better, we first implement a single player mode. Then with the experience from single player mode, we are finally able to train DQN AI that could play 1v1 mode with logic.\\\\
+In this mode, we randomize the initialization of our player and ball. They will be put on the soccer field randomly when each episode begins.
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.9\textwidth]{reset_random}
+		\caption{implementation of reset\_random}
+	\end{center}
+\end{figure}
+
+
+\subsection{Agent State}
+The state of agent represent the features sent to neural network. We add one more item into the agent state, which shows if the player is catching the ball or not. In the soccer game, there is cool down time for each player to prevent it to get the ball back as soon as it just shoots the ball. Therefore the coincidence of positions of player and ball doesn't mean that player could catch and shoot the ball. So one more item in agent state could help AI better understand its situation.\\\\
+
+
+\subsection{Reward Function}
+Reward function is crucial in reinforcement learning. As a soccer game, when a team get a goal, it will get huge reward. Besides, when a player catch a ball, it will also recive reward. Besides, to encourage player to keep the ball longer, once the player shoot the ball, it will get punishment.\\
+However, only these basic rewards are not enough for training. Below are our modification for other part of reward function.
+
+\subsubsection{Original Reward Function}
+ In our original reward function, we give reward to the agent if it's closer to the ball than other player. Otherwise, the agent would get punishment. Besides, if the ball get closer to one door, the team attacking this door would get reward, and other team would get punishment.
+
+\begin{algorithm}[!h]
+	\caption{Original Reward$(Agent1,Agent2,Ball)$}
+	\begin{algorithmic}
+		\State Closer\_Agent(Agent1, Agent2, Ball).reward $+=$ 200
+		\State Further\_Agent(Agent1, Agent2, Ball).reward $-=$ 200
+		\If {Ball Moves right}
+		\State Agent1.reward $+=$ 600
+		\State Agent2.reward $-=$ 600
+		\EndIf
+		\If {Ball Moves left}
+		\State Agent2.reward $+=$ 600
+		\State Agent1.reward $-=$ 600
+		\EndIf
+		\If {Ball goes into right door}
+		\State Agent1.reward $+=$ 100000
+		\State Agent2.reward $-=$ 10000
+		\EndIf
+		\If {Ball goes into left door}
+		\State Agent2.reward $+=$ 100000
+		\State Agent1.reward $-=$ 10000
+		\EndIf
+		\If {Agent shoot the ball}
+		\State Agent-shoot-ball.reward $-=$ 1000
+		\EndIf
+	\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Reward Function For Single Mode}
+With Single Player Mode, we need a new reward function. This one is simple. If the player is moving closer to the ball, it will get reward, otherwise it will get punishment. Also, if the player shoot the ball to the direction to the right door, it will get reward. But if it shoots to wrong direction, it will get punishment. Then to encourage the player to keep the ball, it will also have reward when it keeps the ball.
+
+\begin{algorithm}[!h]
+	\caption{Single Mode Reward$(Agent,Ball)$}
+	\begin{algorithmic}
+		\If {Closer(Agent, Ball) or Keep(Agent, Ball)}
+		\State Agent.reward $+=$ 200
+		\Else
+		\State Agent.reward $-=$ 200
+		\EndIf
+		\If {Ball goes into right door}
+		\State Agent.reward $+=$ 100000
+		\EndIf
+		\If {Ball goes into left door}
+		\State Agent.reward $-=$ 10000
+		\EndIf
+		\If {Agent shoot the ball}
+		\State team-of-the-agent.reward $-=$ 1000
+		\EndIf
+	\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{New Reward Function}
+Then, with experience from single player mode, we modify our original reward function. We cancel the comparison of distance to ball between two agents, instead we only care if the agent is closer to the ball. Also, we cancel some punishment to avoid agent playing to negatively. And we adjust the amount of reward during our test.
+\begin{algorithm}[!h]
+	\caption{Original Reward$(Agent1,Agent2,Ball)$}
+	\begin{algorithmic}
+		\If {Closer(Agent1, Ball)}
+		\State Agent1.reward $+=$ 100
+		\Else
+		\State Agent1.reward $-=$ 100
+		\EndIf
+		\If {Closer(Agent2, Ball)}
+		\State Agent2.reward $+=$ 100
+		\Else
+		\State Agent2.reward $-=$ 100
+		\EndIf
+		\If {Ball Moves right}
+		\State Agent1.reward $+=$ 100
+		\EndIf
+		\If {Ball Moves left}
+		\State Agent2.reward $+=$ 100
+		\EndIf
+		\If {Ball goes into right door}
+		\State Agent1.reward $+=$ 100000
+		\State Agent2.reward $-=$ 10000
+		\EndIf
+		\If {Ball goes into left door}
+		\State Agent2.reward $+=$ 100000
+		\State Agent1.reward $-=$ 10000
+		\EndIf
+		\If {Agent shoot the ball}
+		\State Agent-shoot-ball.reward $-=$ 1000
+		\EndIf
+	\end{algorithmic}
+\end{algorithm}
+
+\subsection{Neural Network}
+
+\subsection{Measurement of Performance}
 
 
 %----------------------------------------------------------------------------------------
@@ -109,8 +218,9 @@ The reason to simplify states is that the number of raw game states is an enormo
 
 \section{Result}
 
+\subsection{Single Player Mode}
 
-
+\subsection{1v1 Mode}
 
 
 %----------------------------------------------------------------------------------------
