@@ -238,8 +238,7 @@ class AgentsDQN(Agent):
 
     def load_model(self):
         self.saver.restore(self.sess, self.path)
-        # self.memory = np.load(self.path+".npy")
-        # print(self.memory)
+        self.memory = np.load(self.path+".npy")
 
     def save_model(self, if_plot=False, postfix=''):
         try:
@@ -255,7 +254,7 @@ class AgentsDQN(Agent):
 class AgentsDQNk(Agent):
     def __init__(self, id, N, features=6):
         self.id = id
-        self.path = "./model/DQN/" + str(N) + "/" + str(id)
+        self.path = "./model/DQN-K/" + str(N) + "/" + str(id)
         self.state = []
         self.next_state = []
         self.has_model = os.path.exists(self.path)
@@ -288,11 +287,11 @@ class AgentsDQNk(Agent):
         self.model = self.create_model()
         self.target_model = self.create_model()
 
-        if not(os.path.exists(self.path+".meta")):
-            print("no training history")
-            self.sess.run(global_variables_initializer())
-        else:
-            print("trained continously")
+        # if not(os.path.exists(self.path+".meta")):
+        #     print("no training history")
+        #     self.sess.run(global_variables_initializer())
+        # else:
+        #     print("trained continously")
 
         self.cost_history = []
         self.q = []
@@ -320,7 +319,7 @@ class AgentsDQNk(Agent):
         try:
             self.model.save(self.path+postfix)
             print(self.path + ' saved successfully')
-            np.save(self.path+".npy", self.memory)
+            np.save(self.path+postfix+".npy", self.memory)
             if if_plot:
                 self.plot_cost()
         except:
@@ -328,6 +327,7 @@ class AgentsDQNk(Agent):
 
     def load_model(self):
         self.model = tf.keras.models.load_model(self.path)
+        self.memory = np.load(self.path+".npy")
 
     def make_decision(self, no_random=False):
         observation = np.array(self.state).reshape([1, self.features])
