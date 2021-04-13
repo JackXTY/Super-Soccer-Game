@@ -171,9 +171,9 @@ def deal_collision():
 if __name__ == "__main__":
     assert N in conf.available_player_numbers
 
-    render_mode = True
-    episodes = 5000
-    FPS = 500
+    render_mode = False
+    episodes = 2000
+    FPS = 2000
 
     game_on = True
     
@@ -267,12 +267,14 @@ if __name__ == "__main__":
                 print("team-", shot, " get score!!!!!")
                 reset()
             
+            
+            screen.blit(background, (0, 0))
+            for player in players.sprites():
+                player.render(screen)
+            ball.render(screen)
+            info.render(screen, score, game_time)
+
             if render_mode:
-                screen.blit(background, (0, 0))
-                for player in players.sprites():
-                    player.render(screen)
-                ball.render(screen)
-                info.render(screen, score, game_time)
                 pygame.display.update()
 
             new_pos_x[N] = ball.rect.centerx

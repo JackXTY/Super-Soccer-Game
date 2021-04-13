@@ -288,15 +288,11 @@ class AgentsDQNk(Agent):
         self.model = self.create_model()
         self.target_model = self.create_model()
 
-        if not(os.path.exists(self.path+".meta")):
-            print("no training history")
-            self.sess.run(global_variables_initializer())
-        else:
-            print("trained continously")
-
         self.cost_history = []
         self.q = []
         self.running_q = 0
+
+        print("finish initialization")
         
     def set_state(self, state):
         self.state = state
@@ -365,6 +361,7 @@ class AgentsDQNk(Agent):
         return [action_0, action_1]
 
     def update(self, lr=1):
+        print("train {}", self.step_counter)
         if self.step_counter % self.replace_target_iter == 0:
             self.replace_target_params()
             print('target_params_replaced\n')
