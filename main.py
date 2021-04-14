@@ -140,8 +140,8 @@ def deal_player_input(p, ball, input_array):
             p.shoot_update()
             ball.shoot_ball(p.shoot_dir)
             # rewards[p.id - 1] -= 1000
-            print("p-{} shoot, dir in ({},{}) {}, input={}".format(p.id,
-                                                                   ball.v.x, ball.v.y, p.shoot_dir, input_array))
+            # print("p-{} shoot, dir in ({},{}) {}, input={}".format(p.id,
+            #                                                        ball.v.x, ball.v.y, p.shoot_dir, input_array))
             return True
         p.shoot_dir = 99
     return False
@@ -195,7 +195,6 @@ if __name__ == "__main__":
     initialize_AI(agent_mode)
     info = Text()
     step = 0
-    test_mode = False
 
     # While loop for main logic of the game
     for episode in range(episodes):
@@ -206,12 +205,7 @@ if __name__ == "__main__":
         for agent in agents:
             agent.set_state(getGameState(agent.id, players, ball))
             agent.update_greedy()
-        # state = []
-        # state.append(agents[0].get_state(getGameState(1, players, ball)))
-        # state.append(agents[1].get_state(getGameState(2, players, ball)))
-        # agents[0].update_greedy()
-        # agents[1].update_greedy()
-        # print(agents[0].greedy)
+
         prev_pos_x = [0 for _i in range(N+1)]
         prev_pos_y = [0 for _i in range(N+1)]
         prev_pos_x[N] = ball.rect.centerx
@@ -237,10 +231,7 @@ if __name__ == "__main__":
 
             # update position
             for p in players.sprites():
-                #input_array = get_input(p.id)
-                if test_mode:
-                    action[p.id - 1] = agents[p.id - 1].make_decision(no_random = True)
-                elif step < 300:
+                if step < 300:
                     action[p.id - 1] = agents[p.id - 1].make_random_decision()
                 else:
                     action[p.id - 1] = agents[p.id - 1].make_decision()
@@ -248,6 +239,8 @@ if __name__ == "__main__":
                 # deal with input & calculate reward
                 if deal_player_input(p, ball, input_array):
                     rewards[p.team] -= 1000
+                if ball.belong(p.id):
+                    rewards[p.team] += 100
 
             # deal with collision
             if_ball_free, stealer = deal_collision()
@@ -309,7 +302,7 @@ if __name__ == "__main__":
                     team_now = 1
                 agent_state = getGameState(agent.id, players, ball)
                 agent.store_transition(action[agent.id - 1], rewards[team_now], agent_state)
-                if (step > 1000) and (step % 10 == 0) and not(test_mode):
+                if (step > 1000) and (step % 10 == 0):
                     agent.update()
 
             game_time -= game_timer.tick(FPS)
@@ -319,15 +312,14 @@ if __name__ == "__main__":
             prev_pos_x = new_pos_x
             prev_pos_y = new_pos_y
 
-        if not(test_mode) and episode % 200 == 0:
+        if episode % 500 == 0:
             for agent in agents:
                 agent.save_model(if_plot = False, postfix = "-" + str(episode))
 
-    if not(test_mode):
-        for agent in agents:
-            agent.save_model(if_plot = False)
-            agent.plot_qvalue()
-            agent.plot_reward()
+    for agent in agents:
+        agent.save_model(if_plot = False)
+        agent.plot_qvalue()
+        agent.plot_reward()
 
     time.sleep(5)
     pygame.quit()

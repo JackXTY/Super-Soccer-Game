@@ -181,8 +181,6 @@ def newest_rewards_func(r, p_x, p_y, n_x, n_y, N):
             reward[team] += 100
         elif p_dis < n_dis:
             reward[team] -= 100
-        elif abs(n_x[0] - n_x[1]) < 1e-5 and abs(n_y[0] - n_y[1]) < 1e-5:
-            reward[team] += 100
     if n_x[N] > p_x[N]:
         reward[0] += 100
     elif n_x[N] < p_x[N]:
