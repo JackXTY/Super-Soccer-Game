@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2020.4.30)  13 APR 2021 21:30
+This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2020.4.30)  14 APR 2021 22:03
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -203,7 +203,11 @@ LaTeX Info: Redefining \] on input line 2860.
 LaTeX Info: Redefining \cite on input line 302.
 LaTeX Info: Redefining \nocite on input line 332.
 Package: cite 2015/02/27  v 5.5
-) (./lab_report_1.aux)
+) (./lab_report_1.aux
+
+LaTeX Warning: Label `euclid' multiply defined.
+
+)
 \openout1 = `lab_report_1.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 49.
@@ -236,33 +240,41 @@ LaTeX Warning: No \author given.
 
 [1
 
-] [2] [3]
+] [2] [3] [4] [5]
 File: reset_random.png Graphic file (type bmp)
 <reset_random.png>
- [4] [5] [6]
+ [6] [7]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[8] [9]
 File: network.png Graphic file (type bmp)
 <network.png>
- [7]
+ [10]
 File: update.png Graphic file (type bmp)
 <update.png>
- [8] [9]
-Underfull \hbox (badness 10000) in paragraph at lines 268--269
+ [11] [12]
+Underfull \hbox (badness 10000) in paragraph at lines 330--331
 []\TU/lmr/m/n/12 Zhou. ”Reinforcement Learning Methods and Tutorials”
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 268--269
+Underfull \hbox (badness 10000) in paragraph at lines 330--331
 \TU/lmr/m/n/12 https://github.com/MorvanZhou/Reinforcement-learning-with-
  []
 
-[10] (./lab_report_1.aux) ) 
-Here is how much of TeX's memory you used:
- 5042 strings out of 479418
- 111190 string characters out of 5888105
- 346427 words of memory out of 5000000
- 22517 multiletter control sequences out of 15000+600000
- 540013 words of font info for 62 fonts, out of 8000000 for 9000
- 1348 hyphenation exceptions out of 8191
- 36i,6n,46p,503b,527s stack positions out of 5000i,500n,10000p,200000b,80000s
+[13] (./lab_report_1.aux)
 
-Output written on lab_report_1.pdf (10 pages).
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 5063 strings out of 479418
+ 111530 string characters out of 5888105
+ 350477 words of memory out of 5000000
+ 22537 multiletter control sequences out of 15000+600000
+ 541634 words of font info for 69 fonts, out of 8000000 for 9000
+ 1348 hyphenation exceptions out of 8191
+ 36i,6n,46p,668b,527s stack positions out of 5000i,500n,10000p,200000b,80000s
+
+Output written on lab_report_1.pdf (13 pages).

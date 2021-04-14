@@ -75,6 +75,63 @@ Instructor: & Prof. Andrej Bogdanov % Instructor/supervisor
 \section{Background}
 
 \subsection{Basic Theory}
+In our last report, we have provided theories of reinforcement learning, $Q$-learning and Deep $Q$-learning and pseudo codes for them. In this part, in order to make the report easier to understand, we will provide pseudo codes and intuitive descriptions for these algorithms, and the advantages and disadvantages will not be discussed this time.
+\subsubsection{$Q$-Learning}
+The pseudo code of $Q$-learning is shown as Algorithm 1:
+\begin{algorithm}
+    \caption{Reinforcement Learning (Zoph et al, 31) }\label{euclid}
+    \begin{algorithmic}[1]
+    \Require $\gamma$, $\alpha$
+    \State Initialize $Q$ (e.g. $Q(s,a) = 0 \ for \ \forall s \in S, \forall a \in A$)
+    \For{each episode}
+        \State Modify $\alpha$ and $\gamma$
+        \State $s \in S$ is initialized as the starting state
+        \Repeat
+            \State choose a random action or the best action $a \in A(s)$ based on the exploration strategy.
+            \State perform action $a$
+            \State observe the new state $s'$ and received reward $r$
+            \State \small $Q_{k+1}(s, a) = Q_{k}(s, a) + \alpha(r + \gamma \cdot max_{a' \in A(s')}Q_k(s,a') - Q_k(s, a))$
+            \State using the experience $\left\langle s,a,r,s'\right\rangle $
+            \State $s := s'$
+        \Until $s'$ is a goal state or $t$ reaches the limitation
+    \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+The core of $Q$-learning is that we use a table, $Q$-table, as the memory to identify states of environment and remember the performance of every action in every state. The procedure of training the agent is the procedure to adjust its memory.
+
+The performance of an action is the expected reward if we choose this action. Therefore, the term $max_{a'\in A(s')}Q_k(s,a')$ is the optimal expected reward of the next state, which represents the future reward. $\gamma$, as the discount factor, represents the magnitude of the 'future'. Larger $\gamma$ will make an agent consider in longer-range because the importance of the future will be higher. $\alpha$ is the learning rate, an agent will change the memory faster with higher learning rate, but it may not be great if the learning rate is too high or too low, because we may 'discard' too much previous memory or cannot learning almost anything.
+
+\subsubsection{Deep $Q$-Learning}
+
+The algorithm of DQN is:
+\begin{algorithm}[H]
+    \caption{Deep $Q$-Network(Mnih et al)}\label{euclid}
+    \begin{algorithmic}[1]
+    \State Setup replay memory $D$ to capacity $N$
+    \State Initialize action-value function $Q$ with random weights $\theta$
+    \State Initialize target action-value function $\hat{Q}$ with weights $\theta'$
+    \For{each episode}
+        \State Initialize sequence $s_1 = {x_1}$ and preprocessed sequence $\phi_1 = \phi(s_1)$
+        \State $t := 1$
+        \Repeat
+            \State Choose a random action or the best action $a_t \in A(s)$ based on the exploration strategy.
+            \State Perform action $a_t$
+            \State Observe the new input $x_{t+1}$ and received reward $r_t$
+            \State Set $s_{t+1} = s_t,a_t,x_{t+1}$ and preprocess $\phi_{t+1} = \phi(s_{t+1})$
+            \State Store the experience $(\phi_t, a_t, r_t, \phi_{t+1})$ in $D$
+            \State Sample random minibatch of transitions $(\phi_j, a_j, r_j, \phi_{j+1})$ in $D$
+            \State Set $y_j = r_j + \gamma max_{a'} \hat{Q}(\phi_{j+1},a'; \theta')$
+            \State Perform a gradient descent step on $(y_j - Q(\phi_j, a_j; \theta))^2$ with respect to the network parameters $\theta$
+            \State Every C steps reset $\hat{Q} = Q$ 
+        \Until $s'$ is a goal state or $t$ reaches the limitation
+    \EndFor
+    \end{algorithmic}
+\end{algorithm}
+
+The core of D$Q$N is similar to $Q$-learning, which is to train a estimator to judge the performance of actions. The difference is that the estimator in $Q$-learning is a memory table but the estimator in D$Q$N is a function with game states as input.
+
+According to previous research, a neural net can approximate any computable function(Wang, 2003), so we can use neural network to approximate the estimate function. In this way, we can train the model in deep learning algorithm to obtain the function without any knowledge about the function itself.
 
 \subsection{Previous Progress}
 In the last semester, we have implemented the preliminary version of the game environment and $Q$-Learning agent. In this section, we will briefly reiterate our previous progress before introducing new progress and our opinions.
@@ -261,11 +318,18 @@ In the reference tutorial of reinforcement learning, the cost was used to measur
 
 \begin{thebibliography}{99}
 	\bibitem{ref1}Silver, David, et al. "Mastering the game of Go with deep neural networks and tree search." nature 529.7587 (2016): 484-489.
+
 	\bibitem{ref2}Mnih, Volodymyr, et al. "Playing atari with deep reinforcement learning." arXiv preprint arXiv:1312.5602 (2013).
+
 	\bibitem{ref3}Berner, Christopher, et al. "Dota 2 with large scale deep reinforcement learning." arXiv preprint arXiv:1912.06680 (2019).
+
     \bibitem{ref4}Zoph, Barret, and Quoc V. Le. "Neural architecture search with reinforcement learning." arXiv preprint arXiv:1611.01578 (2016).
+
     \bibitem{ref5}Mnih, Volodymyr, et al. "Human-level control through deep reinforcement learning." nature 518.7540 (2015): 529-533.
-    \bibitem{ref6}Zhou. "Reinforcement Learning Methods and Tutorials" https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
+
+    \bibitem{ref6}Zhou. "Reinforcement Learning Methods and Tutorials" https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow.
+
+    \bibitem{ref7}Wang SC. (2003) Artificial Neural Network. In: Interdisciplinary Computing in Java Programming. The Springer International Series in Engineering and Computer Science, vol 743. Springer, Boston, MA.
 \end{thebibliography}
 %----------------------------------------------------------------------------------------
 
