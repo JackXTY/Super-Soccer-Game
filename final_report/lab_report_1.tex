@@ -29,7 +29,9 @@
 \usepackage{graphicx} % Required for the inclusion of images
 \usepackage{amsmath} % Required for some math elements 
 \usepackage{cite} % For citation
-\usepackage{algpseudocode}  
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{subfigure}
 
 \setlength\parindent{0pt} % Removes all indentation from paragraphs
 \setlength{\parskip}{0.5em}
@@ -162,7 +164,7 @@ The reason to simplify states is that the number of raw game states is an enormo
 \subsection{Single Player Mode}
 In the beginning stage of our project in this term, we found that it's hard to train AI to play our game with DQN. So to simplify the issue and solve our prolem better, we first implement a single player mode. Then with the experience from single player mode, we are finally able to train DQN AI that could play 1v1 mode with logic.
 
-In this mode, we randomize the initialization of our player and ball. They will be put on the soccer field randomly when each episode begins.
+In this mode, we randomize the initialization of our player and ball. They will be put on the soccer field randomly when each episode begins. And once the player shoot the ball in a door, no matter right door or not, the current episode would end and a new episode of game would start.
 \begin{figure}[H]
 	\begin{center}
 		\includegraphics[width=0.9\textwidth]{reset_random}
@@ -299,10 +301,56 @@ In the reference tutorial of reinforcement learning, the cost was used to measur
 
 \section{Result}
 
+In this section, we will show our result in two different modes.
+
 \subsection{Single Player Mode}
+
+In the single player mode, we use both Q-learning and DQN to train our agent. Although according to our previous conclusion, Q-learning can not play very complicated game, however with one less player, the relative complexity of Q-table also reduce a lot. Therefore we decide to also use Q-learning in the single player mode.
+
+\begin{figure}[htbp]
+	\centering
+	\subfigure[DQN]{
+		\includegraphics[width=6cm]{qvalue-1-DQN.jpg}
+	}
+	\subfigure[Q-learning]{
+		\includegraphics[width=6cm]{qvalue-1-QL.jpg}
+	}
+	\caption{Q-values in single mode}
+\end{figure}
+\begin{figure}[htbp]
+	\centering
+	\subfigure[DQN]{
+		\includegraphics[width=6cm]{reward-1-DQN.jpg}
+	}
+	\subfigure[Q-learning]{
+		\includegraphics[width=6cm]{reward-1-QL.jpg}
+	}
+	\caption{rewards in single mode}
+\end{figure}
+
+Comparing two Q-values figures, we can find thay there is an appearent decline in DQN, but for Q-learning, the distribution of Q-values seems more random. And for average rewards, the waves in DQN is much more significant compared with Q-learning.
+
+However, these 2 measurement are not that accurate for measuring performance. So, we use make a test on the DQN and Q-learning agent. We test how many how many score they can get in 100 episodes of game.
+
+\begin{figure}[htbp]
+	\centering
+	\subfigure[DQN-73/100]{
+		\includegraphics[width=6cm]{score-1-DQN-73.jpg}
+	}
+	\subfigure[Q-learning-51/100]{
+		\includegraphics[width=6cm]{score-1-QL-51.jpg}
+	}
+	\caption{total score for 100 round}
+\end{figure}
+
+ The result shows that both DQN and Q-learning can play the game with logic, since the score they get are appearntly higher than a random player. And the performance of DQN (73 in 100 scores) is higher than Q-learning(51 in 100 scores), which could prove that DQN is more powerful than Q-learning.
+
 
 \subsection{1v1 Mode}
 
+With the success and experience from single mode, we could better adjust the configure of DQN for the 1v1 mode. And below is our result of 1v1 mode with DQN.
+
+compare 0-0/1000-1000/2000-2000/4000-4000/0-1000/1000-2000/2000-4000
 
 %----------------------------------------------------------------------------------------
 %	SECTION 5
