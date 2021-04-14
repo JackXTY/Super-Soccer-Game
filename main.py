@@ -13,6 +13,7 @@ import time
 from DQN import AgentsDQN, AgentsDQNk
 from Qlearning import AgentsQT
 from DDQN import AgentsDDQN
+import numpy as np
 
 
 pygame.init()
@@ -25,6 +26,7 @@ background = pygame.image.load(conf.background_image).convert()
 players = Group()
 ball = Ball(screen_rect.centerx, screen_rect.centery)
 agents = []
+just_shoot_team = -1
 
 # TODO: change into multiple players mode
 def getGameState(pid, players, ball):
@@ -90,6 +92,7 @@ def reset():
         p.rect.centery = screen_rect.centery * conf.init_pos[N][p.id-1][1]
         p.v.x = 0
         p.v.y = 0
+    just_shoot_team = -1
 
 
 # ai interact with game from here
@@ -142,9 +145,9 @@ def deal_player_input(p, ball, input_array):
             # rewards[p.id - 1] -= 1000
             print("p-{} shoot, dir in ({},{}) {}, input={}".format(p.id,
                                                                    ball.v.x, ball.v.y, p.shoot_dir, input_array))
-            return True
+            return p.team
         p.shoot_dir = 99
-    return False
+    return -1
 
 
 def deal_collision():
@@ -196,6 +199,8 @@ if __name__ == "__main__":
     info = Text()
     step = 0
     test_mode = False
+    score_history = [[], []]
+    wrong_shoot = [0, 0]
 
     # While loop for main logic of the game
     for episode in range(episodes):
@@ -246,8 +251,12 @@ if __name__ == "__main__":
                     action[p.id - 1] = agents[p.id - 1].make_decision()
                 input_array = get_input_ai(p.id, action[p.id - 1])
                 # deal with input & calculate reward
-                if deal_player_input(p, ball, input_array):
+                team_shoot = deal_player_input(p, ball, input_array)
+                if team_shoot != -1:
                     rewards[p.team] -= 1000
+                    just_shoot_team = team_shoot
+                elif ball.belong(p.id):
+                    rewards[p.team] += 100
 
             # deal with collision
             if_ball_free, stealer = deal_collision()
@@ -271,7 +280,13 @@ if __name__ == "__main__":
                 rewards[shot] += 100000
                 rewards[shot-1] -= 10000
                 print("team-", shot, " get score!!!!!")
-                reset()
+                # reset()
+                score_history[0].append(score[0])
+                score_history[1].append(score[1])
+                game_on = False
+                if shot != just_shoot_team:
+                    print("wrong shoot by team-", just_shoot_team)
+                    wrong_shoot[shot] += 1
             
             
             screen.blit(background, (0, 0))
@@ -314,12 +329,14 @@ if __name__ == "__main__":
 
             game_time -= game_timer.tick(FPS)
             if game_time < 0:
+                score_history[0].append(score[0])
+                score_history[1].append(score[1])
                 game_on = False
             step += 1
             prev_pos_x = new_pos_x
             prev_pos_y = new_pos_y
 
-        if not(test_mode) and episode % 200 == 0:
+        if episode % 500 == 0 and episode > 1 and not(test_mode):
             for agent in agents:
                 agent.save_model(if_plot = False, postfix = "-" + str(episode))
 
@@ -328,6 +345,18 @@ if __name__ == "__main__":
             agent.save_model(if_plot = False)
             agent.plot_qvalue()
             agent.plot_reward()
+
+    # print(wrong_shoot)
+    # print(score)
+    # print(score_history)
+    # import matplotlib.pyplot as plt
+    # plt.plot(np.array(score_history[0]))
+    # plt.plot(np.array(score_history[1]), color = "red")
+    # plt.ylabel('score_history')
+    # plt.xlabel('training episode')
+    # plt.grid()
+    # plt.savefig(agent.path+"score_history.jpg")
+    # plt.show()
 
     time.sleep(5)
     pygame.quit()
