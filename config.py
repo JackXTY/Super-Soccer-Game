@@ -185,7 +185,7 @@ def newest_rewards_func(r, p_x, p_y, n_x, n_y, N):
         reward[0] += 100
     elif n_x[N] < p_x[N]:
         reward[1] += 100
-    return team
+    return reward
 
 def single_rewards_func(p_x, p_y, n_x, n_y, team):
     reward = 0
