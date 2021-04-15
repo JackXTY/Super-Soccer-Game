@@ -169,6 +169,7 @@ def new_rewards_func(r, p_x, p_y, n_x, n_y, N):
     #print(rewards)
     return rewards
 
+
 def newest_rewards_func(r, p_x, p_y, n_x, n_y, N):
     reward = r
     for i in range(N):

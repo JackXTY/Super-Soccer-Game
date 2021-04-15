@@ -29,27 +29,18 @@ agents = []
 just_shoot_team = -1
 
 # TODO: change into multiple players mode
-def getGameState(pid, players, ball, reverse = False):
+def getGameState(pid, players, ball):
     ret_state = [0, 0, 0, 0, 0, 0, 0]
     if ball.belong(pid):
         ret_state[0] = 1
     for p in players:
         if p.id == pid:
-            if reverse:
-                ret_state[1] = 2 * screen_rect.centerx - p.rect.centerx
-            else:
-                ret_state[1] = p.rect.centerx
+            ret_state[1] = p.rect.centerx
             ret_state[2] = p.rect.centery
         else:
-            if reverse:
-                ret_state[3] = 2 * screen_rect.centerx - p.rect.centerx
-            else:
-                ret_state[3] = p.rect.centerx
+            ret_state[3] = p.rect.centerx
             ret_state[4] = p.rect.centery
-    if reverse:
-        ret_state[5] = 2 * screen_rect.centerx - ball.rect.centerx
-    else:
-        ret_state[5] = ball.rect.centerx
+    ret_state[5] = ball.rect.centerx
     ret_state[6] = ball.rect.centery
     return ret_state
 
@@ -69,7 +60,7 @@ def initialize_game():
         players.add(p)
         print("player: id={}, team={}".format(p.id, p.team))
     
-def initialize_AI(agent_mode, reverse = False):
+def initialize_AI(agent_mode):
     if agent_mode == "QT":
         for p in players.sprites():
             agent = AgentsQT(p.id, N)
@@ -80,17 +71,9 @@ def initialize_AI(agent_mode, reverse = False):
             agents.append(agent)
     elif agent_mode == "DQN":
         print("DQN mode")
-        if reverse:
-            for p in players.sprites():
-                if p.team == 0:
-                    agent = AgentsDQN(p.id, N, features=7)
-                else:
-                    agent = AgentsDQN(p.id, N, features=7, reverse=reverse)
-                agents.append(agent)
-        else:
-            for p in players.sprites():
-                agent = AgentsDQN(p.id, N, features=7)
-                agents.append(agent)
+        for p in players.sprites():
+            agent = AgentsDQN(p.id, N, features=7)
+            agents.append(agent)
     else:
         print("DQN-K mode")
         for p in players.sprites():
@@ -138,22 +121,16 @@ def get_input(pid):
         return input_array
 
 
-def get_input_ai(pid, action, reverse= False):
+def get_input_ai(pid, action):
     ret_array = [0, 0, 0, 0, 0]
     if action[0] == 1 or action[0] == 2 or action[0] == 8:
         ret_array[0] = 1
     if action[0] == 2 or action[0] == 3 or action[0] == 4:
         ret_array[3] = 1
-    if reverse:
-        if action[0] == 4 or action[0] == 5 or action[0] == 6:
-            ret_array[2] = 1
-        if action[0] == 6 or action[0] == 7 or action[0] == 8:
-            ret_array[1] = 1
-    else:
-        if action[0] == 4 or action[0] == 5 or action[0] == 6:
-            ret_array[1] = 1
-        if action[0] == 6 or action[0] == 7 or action[0] == 8:
-            ret_array[2] = 1
+    if action[0] == 4 or action[0] == 5 or action[0] == 6:
+        ret_array[1] = 1
+    if action[0] == 6 or action[0] == 7 or action[0] == 8:
+        ret_array[2] = 1
     if action[1] == 1:
         ret_array[4] = 1
     return ret_array
@@ -206,8 +183,8 @@ if __name__ == "__main__":
     render_mode = True
     episodes = 100
     FPS = 500
+
     game_on = True
-    reverse = True
     
     # p1_id = 1
     score = [0, 0]
@@ -218,7 +195,7 @@ if __name__ == "__main__":
     if len(argv) > 1:
         agent_mode = argv[1]
     initialize_game()
-    initialize_AI(agent_mode, reverse)
+    initialize_AI(agent_mode)
     info = Text()
     step = 0
     test_mode = False
@@ -232,10 +209,7 @@ if __name__ == "__main__":
         game_time = 10000 #conf.max_time
         game_on = True
         for agent in agents:
-            if agent.id <= N/2:
-                agent.set_state(getGameState(agent.id, players, ball))
-            else:
-                agent.set_state(getGameState(agent.id, players, ball, reverse))
+            agent.set_state(getGameState(agent.id, players, ball))
             agent.update_greedy()
         # state = []
         # state.append(agents[0].get_state(getGameState(1, players, ball)))
@@ -252,6 +226,7 @@ if __name__ == "__main__":
             prev_pos_y[player.id - 1] = player.rect.centery
 
         while game_on:
+            
             new_pos_x = [0 for _i in range(N+1)]
             new_pos_y = [0 for _i in range(N+1)]
             # next_state = []
@@ -268,12 +243,8 @@ if __name__ == "__main__":
             # update position
             for p in players.sprites():
                 #input_array = get_input(p.id)
-                action[p.id - 1] = agents[p.id - 1].make_decision(no_random = True)
-                input_array = []
-                if p.team == 1:
-                    input_array = get_input_ai(p.id, action[p.id - 1], reverse)
-                else:
-                    input_array = get_input_ai(p.id, action[p.id - 1])
+                action[p.id - 1] = agents[p.id - 1].make_decision()
+                input_array = get_input_ai(p.id, action[p.id - 1])
                 # deal with input & calculate reward
                 team_shoot = deal_player_input(p, ball, input_array)
                 if team_shoot != -1:
@@ -328,7 +299,7 @@ if __name__ == "__main__":
                 new_pos_x[player.id - 1] = player.rect.centerx
                 new_pos_y[player.id - 1] = player.rect.centery
             # rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
-            rewards = newest_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            rewards = new_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
             # rewards = [0, 0]
             # print(rewards)
 

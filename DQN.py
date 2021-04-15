@@ -18,13 +18,12 @@ conf = Config()
 # author: MorvanZhou, Luo Lu, Xiao Tianyi
 # There is another version of DQN of keras below, whose structure of neural network is implemented by us.
 class AgentsDQN(Agent):
-    def __init__(self, id, N, features=6, reverse = False):
+    def __init__(self, id, N, features=6):
         self.id = id
         self.path = "./model/DQN/" + str(N) + "/" + str(id)
         self.state = []
         self.next_state = []
         self.has_model = os.path.exists(self.path)
-        self.N = N
         # learning rate
         if self.has_model:
             self.greedy = 0.001
@@ -47,7 +46,7 @@ class AgentsDQN(Agent):
 
         self.step_counter = 0
         self.memory = np.zeros((self.memory_size, self.features*2+2))
-        self.build_network(reverse)
+        self.build_network()
 
         self.sess = Session()
         self.batch_size = 16
@@ -70,39 +69,35 @@ class AgentsDQN(Agent):
         self.state = state
         # try to give up get_state in DQN, just use original state
 
-    def build_network(self, reverse = False):
-        id_str = str(self.id)
-        if reverse:
-            id_str = str(self.id - int(self.N / 2))
-        print("id_str:", id_str)
+    def build_network(self):
         tf.compat.v1.disable_eager_execution()
         # evaluate network
         self.s_eval = placeholder(tf.float32, [None, self.features], name='s')
         self.q_target = placeholder(tf.float32, [None, self.actions], name='Q_target')
-        with variable_scope('eval_net' + id_str, reuse=tf.AUTO_REUSE) as scope:
+        with variable_scope('eval_net' + str(self.id)) as scope:
             # scope.reuse_variables()
-            c_names = ['eval_net_params' + id_str, GraphKeys.GLOBAL_VARIABLES]
+            c_names = ['eval_net_params' + str(self.id), GraphKeys.GLOBAL_VARIABLES]
             n_l1 = 50
             w_init = tf.random_normal_initializer(0.01)
             b_init = tf.constant_initializer(0.01)
             # first layer. collections is used later when assign to target net
-            with variable_scope('l1', reuse=tf.AUTO_REUSE):
+            with variable_scope('l1'):
                 w1 = get_variable('w1', [self.features, n_l1],
                                   initializer=w_init, collections=c_names)
                 b1 = get_variable(
                     'b1', [1, n_l1], initializer=b_init, collections=c_names)
                 l1 = tf.nn.relu(tf.matmul(self.s_eval, w1) + b1)
             # second layer. collections is used later when assign to target net
-            with variable_scope('l2', reuse=tf.AUTO_REUSE):
+            with variable_scope('l2'):
                 w2 = get_variable('w2', [n_l1, self.actions],
                                   initializer=w_init, collections=c_names)
                 b2 = get_variable('b2', [1, self.actions],
                                   initializer=b_init, collections=c_names)
                 self.q_eval = tf.matmul(l1, w2) + b2
-        with variable_scope('loss', reuse=tf.AUTO_REUSE):
+        with variable_scope('loss'):
             self.loss = tf.reduce_mean(
                 tf.math.squared_difference(self.q_target, self.q_eval))
-        with variable_scope('train', reuse=tf.AUTO_REUSE):
+        with variable_scope('train'):
             #self._train_op = tf.compat.v1.train.RMSPropOptimizer(self.alpha).minimize(self.loss)
             self._train_op = tf.compat.v1.train.AdagradOptimizer(
                 self.greedy).minimize(self.loss)
@@ -110,12 +105,12 @@ class AgentsDQN(Agent):
         # target network
         self.s_target = placeholder(
             tf.float32, [None, self.features], name='s_')    # input
-        with variable_scope('target_net' + id_str, reuse=tf.AUTO_REUSE):
+        with variable_scope('target_net' + str(self.id)):
             # c_names(collections_names) are the collections to store variables
-            c_names = ['target_net_params' + id_str, GraphKeys.GLOBAL_VARIABLES]
+            c_names = ['target_net_params' + str(self.id), GraphKeys.GLOBAL_VARIABLES]
 
             # first layer. collections is used later when assign to target net
-            with variable_scope('l1', reuse=tf.AUTO_REUSE):
+            with variable_scope('l1'):
                 w1 = get_variable('w1', [self.features, n_l1],
                                   initializer=w_init, collections=c_names)
                 b1 = get_variable(
@@ -123,7 +118,7 @@ class AgentsDQN(Agent):
                 l1 = tf.nn.relu(tf.matmul(self.s_target, w1) + b1)
 
             # second layer. collections is used later when assign to target net
-            with variable_scope('l2', reuse=tf.AUTO_REUSE):
+            with variable_scope('l2'):
                 w2 = get_variable('w2', [n_l1, self.actions],
                                   initializer=w_init, collections=c_names)
                 b2 = get_variable('b2', [1, self.actions],
