@@ -236,9 +236,9 @@ With Single Player Mode, we need a new reward function. This one is simple. If t
 
 \subsubsection{New Reward Function}
 
-Then, with experience from single player mode, we modify our original reward function. We cancel the comparison of distance to ball between two agents, instead we only care if the agent is closer to the ball. Also, we cancel some punishment to avoid agent playing to negatively. And we adjust the amount of reward during our test.
+Then, with experience from single player mode, we try to modify our original reward function. We cancel the comparison of distance to ball between two agents, instead we only care if the agent is closer to the ball. Also, we cancel some punishment to avoid agent playing to negatively. And we adjust the amount of reward during our test.
 \begin{algorithm}[H]
-	\caption{Original Reward$(Agent1,Agent2,Ball)$}
+	\caption{New Reward$(Agent1,Agent2,Ball)$}
 	\begin{algorithmic}
 		\If {Closer(Agent1, Ball)}
 		\State Agent1.reward $+=$ 100
@@ -271,7 +271,7 @@ Then, with experience from single player mode, we modify our original reward fun
 \end{algorithm}
 
 \subsection{Neural Network}
-In the implementation of our DQN, we look through a good tutorial of MorvanZhou(Zhou), which help us a lot. And we use two DQN implementation in our project, one offered in the tutorial, and another one implemented by us with keras, inspired by previous version, referenced from tutorial. Below we will use the second implementation, to briefly introduce our neural network.
+In the implementation of our DQN, we look through a good tutorial of MorvanZhou(Zhou), which help us a lot. And we use two DQN implementation in our project, one offered in the tutorial, and another one implemented by us with keras, inspired by previous version, referenced from tutorial. Below we will use the second implementation, to briefly introduce our neural network. However for our experiment, since the training of keras is appearently slower than tensorflow, so we use first implementation to collect the data.
 
 \subsubsection{Structrue of Nerual Network}
 There are two layers in our nerual network. In the first layer, we add a relu activation layer in the end. All variables are initialized with random normal initializers.
@@ -340,7 +340,7 @@ However, these 2 measurement are not that accurate for measuring performance. So
 	\subfigure[Q-learning-51/100]{
 		\includegraphics[width=6cm]{score-1-QL-51.jpg}
 	}
-	\caption{total score for 100 round}
+	\caption{total score for 100 round in single mode}
 \end{figure}
 
  The result shows that both DQN and Q-learning can play the game with logic, since the score they get are appearntly higher than a random player. And the performance of DQN (73 in 100 scores) is higher than Q-learning(51 in 100 scores), which could prove that DQN is more powerful than Q-learning.
@@ -348,9 +348,71 @@ However, these 2 measurement are not that accurate for measuring performance. So
 
 \subsection{1v1 Mode}
 
-With the success and experience from single mode, we could better adjust the configure of DQN for the 1v1 mode. And below is our result of 1v1 mode with DQN.
+With the success and experience from single mode, we could better adjust the configure of DQN for the 1v1 mode.
 
-compare 0-0/1000-1000/2000-2000/4000-4000/0-1000/1000-2000/2000-4000
+Basically, the agent trained with DQN can play the game with some logic. There are able to chase for the ball and disturb its opponent at most of the time.
+
+However, we found that there are quite many own goals while testing. Therefore, we add own goals of each team for helping our discussion. And further discussion about our result would be introduced in our next part.
+
+\subsubsection{Different Training Episode}
+First of all, we train a pair of agents with 4000 episodes of game.
+\begin{figure}[htbp]
+	\centering
+	\subfigure[1000 episodes]{
+		\includegraphics[width=6cm]{score-2-1000-23-9-21-0.jpg}
+	}
+	\subfigure[2000 episodes]{
+		\includegraphics[width=6cm]{score-2-2000-40-15-23-3.jpg}
+	}
+	\subfigure[4000 episodes]{
+		\includegraphics[width=6cm]{score-2-4000-53-16-22-8.jpg}
+	}
+	\caption{total final scores for 100 round with different training episodes}
+\end{figure}
+
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			episodes  & blue score & red score & blue own goal & red own goal \\ \hline
+			0         & 0    & 0    & 0    & 0    \\ \hline
+			1000      & 23   & 9    & 21   & 0    \\ \hline
+			2000      & 40   & 15   & 23   & 3    \\ \hline
+			4000      & 53   & 16   & 22   & 8    \\ \hline
+		\end{tabular}
+		\caption{Statistics of scores and own goal}
+	\end{center}
+\end{table}  
+ 
+ From the result, we can see that with more training, the agent becomes more powerful, since both agent could get more scores (no matter if they get the goal by themselves). However, there are too many own goals, especially from the red team. And the diatance of scores are becoming larger and larger. These two phenomenons both show the imbalance of two players during training.
+
+\subsubsection{Different Reward Function}
+Then we'd like to find out the difference between our old and new reward function. And the result is below. In each case, the agent is trained with 1000 episodes.
+
+\begin{figure}[htbp]
+	\centering
+	\subfigure[original reward function]{
+		\includegraphics[width=6cm]{score-2-1000-23-9-21-0.jpg}
+	}
+	\subfigure[new reward function]{
+		\includegraphics[width=6cm]{score-2-new-1000-22-16-22-5.jpg}
+	}
+	\caption{total final scores for 100 round with different reward function}
+\end{figure}
+
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			reward  & blue score & red score & blue own goal & red own goal \\ \hline
+			original  & 23   & 9    & 21   & 0    \\ \hline
+			new       & 22   & 16   & 22   & 5    \\ \hline
+		\end{tabular}
+		\caption{Statistics of scores and own goal}
+	\end{center}
+\end{table}
+
+From the comparison we could see that, although no significant difference, but the imbalance between two agents do reduce to a certain extent, approximately 15\%.
 
 %----------------------------------------------------------------------------------------
 %	SECTION 5
