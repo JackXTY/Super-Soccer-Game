@@ -179,7 +179,7 @@ if __name__ == "__main__":
 
     render_mode = True
     episodes = 2000
-    FPS = 500
+    FPS = 1000
 
     game_on = True
     
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     for episode in range(episodes):
         print("episode: ", episode)
         reset()
-        game_time = 10000 #conf.max_time
+        game_time = 5000 #conf.max_time
         game_on = True
         for agent in agents:
             agent.set_state(getGameState(agent.id, players, ball))
@@ -312,7 +312,7 @@ if __name__ == "__main__":
             prev_pos_x = new_pos_x
             prev_pos_y = new_pos_y
 
-        if episode % 500 == 0:
+        if episode % 500 == 0 and episode > 0:
             for agent in agents:
                 agent.save_model(if_plot = False, postfix = "-" + str(episode))
 
