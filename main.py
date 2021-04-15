@@ -69,7 +69,7 @@ def initialize_game():
         players.add(p)
         print("player: id={}, team={}".format(p.id, p.team))
     
-def initialize_AI(agent_mode):
+def initialize_AI(agent_mode, reverse = False):
     if agent_mode == "QT":
         for p in players.sprites():
             agent = AgentsQT(p.id, N)
@@ -80,9 +80,17 @@ def initialize_AI(agent_mode):
             agents.append(agent)
     elif agent_mode == "DQN":
         print("DQN mode")
-        for p in players.sprites():
-            agent = AgentsDQN(p.id, N, features=7)
-            agents.append(agent)
+        if reverse:
+            for p in players.sprites():
+                if p.team == 0:
+                    agent = AgentsDQN(p.id, N, features=7)
+                else:
+                    agent = AgentsDQN(p.id, N, features=7, reverse=reverse)
+                agents.append(agent)
+        else:
+            for p in players.sprites():
+                agent = AgentsDQN(p.id, N, features=7)
+                agents.append(agent)
     else:
         print("DQN-K mode")
         for p in players.sprites():
@@ -198,8 +206,8 @@ if __name__ == "__main__":
     render_mode = True
     episodes = 100
     FPS = 500
-
     game_on = True
+    reverse = True
     
     # p1_id = 1
     score = [0, 0]
@@ -210,13 +218,12 @@ if __name__ == "__main__":
     if len(argv) > 1:
         agent_mode = argv[1]
     initialize_game()
-    initialize_AI(agent_mode)
+    initialize_AI(agent_mode, reverse)
     info = Text()
     step = 0
     test_mode = False
     score_history = [[], []]
     wrong_shoot = [0, 0]
-    reverse = True
 
     # While loop for main logic of the game
     for episode in range(episodes):
