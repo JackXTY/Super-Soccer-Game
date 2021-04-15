@@ -29,7 +29,7 @@ agents = []
 just_shoot_team = -1
 
 # TODO: change into multiple players mode
-def getGameState(pid, players, ball):
+def getGameState(pid, players, ball, reverse = False):
     ret_state = [0, 0, 0, 0, 0, 0, 0]
     if ball.belong(pid):
         ret_state[0] = 1
@@ -121,7 +121,7 @@ def get_input(pid):
         return input_array
 
 
-def get_input_ai(pid, action):
+def get_input_ai(pid, action, reverse= False):
     ret_array = [0, 0, 0, 0, 0]
     if action[0] == 1 or action[0] == 2 or action[0] == 8:
         ret_array[0] = 1
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     assert N in conf.available_player_numbers
 
     render_mode = True
-    episodes = 2000
+    episodes = 100
     FPS = 500
 
     game_on = True
@@ -201,6 +201,7 @@ if __name__ == "__main__":
     test_mode = False
     score_history = [[], []]
     wrong_shoot = [0, 0]
+    reverse = True
 
     # While loop for main logic of the game
     for episode in range(episodes):
@@ -209,7 +210,10 @@ if __name__ == "__main__":
         game_time = 10000 #conf.max_time
         game_on = True
         for agent in agents:
-            agent.set_state(getGameState(agent.id, players, ball))
+            if agent.id <= N/2:
+                agent.set_state(getGameState(agent.id, players, ball))
+            else:
+                agent.set_state(getGameState(agent.id, players, ball, reverse))
             agent.update_greedy()
         # state = []
         # state.append(agents[0].get_state(getGameState(1, players, ball)))
@@ -226,7 +230,6 @@ if __name__ == "__main__":
             prev_pos_y[player.id - 1] = player.rect.centery
 
         while game_on:
-            
             new_pos_x = [0 for _i in range(N+1)]
             new_pos_y = [0 for _i in range(N+1)]
             # next_state = []
@@ -243,13 +246,12 @@ if __name__ == "__main__":
             # update position
             for p in players.sprites():
                 #input_array = get_input(p.id)
-                if test_mode:
-                    action[p.id - 1] = agents[p.id - 1].make_decision(no_random = True)
-                elif step < 300:
-                    action[p.id - 1] = agents[p.id - 1].make_random_decision()
+                action[p.id - 1] = agents[p.id - 1].make_decision(no_random = True)
+                input_array = []
+                if p.team == 1:
+                    input_array = get_input_ai(p.id, action[p.id - 1], reverse)
                 else:
-                    action[p.id - 1] = agents[p.id - 1].make_decision()
-                input_array = get_input_ai(p.id, action[p.id - 1])
+                    input_array = get_input_ai(p.id, action[p.id - 1])
                 # deal with input & calculate reward
                 team_shoot = deal_player_input(p, ball, input_array)
                 if team_shoot != -1:
@@ -304,7 +306,7 @@ if __name__ == "__main__":
                 new_pos_x[player.id - 1] = player.rect.centerx
                 new_pos_y[player.id - 1] = player.rect.centery
             # rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
-            rewards = new_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            rewards = newest_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
             # rewards = [0, 0]
             # print(rewards)
 
@@ -324,8 +326,8 @@ if __name__ == "__main__":
                     team_now = 1
                 agent_state = getGameState(agent.id, players, ball)
                 agent.store_transition(action[agent.id - 1], rewards[team_now], agent_state)
-                if (step > 1000) and (step % 10 == 0) and not(test_mode):
-                    agent.update()
+                # if (step > 1000) and (step % 10 == 0) and not(test_mode):
+                #     agent.update()
 
             game_time -= game_timer.tick(FPS)
             if game_time < 0:
@@ -336,27 +338,27 @@ if __name__ == "__main__":
             prev_pos_x = new_pos_x
             prev_pos_y = new_pos_y
 
-        if episode % 500 == 0 and episode > 1 and not(test_mode):
-            for agent in agents:
-                agent.save_model(if_plot = False, postfix = "-" + str(episode))
+        # if episode % 500 == 0 and episode > 1 and not(test_mode):
+        #     for agent in agents:
+        #         agent.save_model(if_plot = False, postfix = "-" + str(episode))
 
-    if not(test_mode):
-        for agent in agents:
-            agent.save_model(if_plot = False)
-            agent.plot_qvalue()
-            agent.plot_reward()
+    # if not(test_mode):
+    #     for agent in agents:
+    #         agent.save_model(if_plot = False)
+    #         agent.plot_qvalue()
+    #         agent.plot_reward()
 
-    # print(wrong_shoot)
-    # print(score)
-    # print(score_history)
-    # import matplotlib.pyplot as plt
-    # plt.plot(np.array(score_history[0]))
-    # plt.plot(np.array(score_history[1]), color = "red")
-    # plt.ylabel('score_history')
-    # plt.xlabel('training episode')
-    # plt.grid()
-    # plt.savefig(agent.path+"score_history.jpg")
-    # plt.show()
+    print(wrong_shoot)
+    print(score)
+    print(score_history)
+    import matplotlib.pyplot as plt
+    plt.plot(np.array(score_history[0]))
+    plt.plot(np.array(score_history[1]), color = "red")
+    plt.ylabel('score_history')
+    plt.xlabel('training episode')
+    plt.grid()
+    plt.savefig(agent.path+"score_history.jpg")
+    plt.show()
 
     time.sleep(5)
     pygame.quit()
