@@ -35,12 +35,21 @@ def getGameState(pid, players, ball, reverse = False):
         ret_state[0] = 1
     for p in players:
         if p.id == pid:
-            ret_state[1] = p.rect.centerx
+            if reverse:
+                ret_state[1] = 2 * screen_rect.centerx - p.rect.centerx
+            else:
+                ret_state[1] = p.rect.centerx
             ret_state[2] = p.rect.centery
         else:
-            ret_state[3] = p.rect.centerx
+            if reverse:
+                ret_state[3] = 2 * screen_rect.centerx - p.rect.centerx
+            else:
+                ret_state[3] = p.rect.centerx
             ret_state[4] = p.rect.centery
-    ret_state[5] = ball.rect.centerx
+    if reverse:
+        ret_state[5] = 2 * screen_rect.centerx - ball.rect.centerx
+    else:
+        ret_state[5] = ball.rect.centerx
     ret_state[6] = ball.rect.centery
     return ret_state
 
@@ -127,10 +136,16 @@ def get_input_ai(pid, action, reverse= False):
         ret_array[0] = 1
     if action[0] == 2 or action[0] == 3 or action[0] == 4:
         ret_array[3] = 1
-    if action[0] == 4 or action[0] == 5 or action[0] == 6:
-        ret_array[1] = 1
-    if action[0] == 6 or action[0] == 7 or action[0] == 8:
-        ret_array[2] = 1
+    if reverse:
+        if action[0] == 4 or action[0] == 5 or action[0] == 6:
+            ret_array[2] = 1
+        if action[0] == 6 or action[0] == 7 or action[0] == 8:
+            ret_array[1] = 1
+    else:
+        if action[0] == 4 or action[0] == 5 or action[0] == 6:
+            ret_array[1] = 1
+        if action[0] == 6 or action[0] == 7 or action[0] == 8:
+            ret_array[2] = 1
     if action[1] == 1:
         ret_array[4] = 1
     return ret_array
