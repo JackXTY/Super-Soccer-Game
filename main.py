@@ -262,7 +262,7 @@ if __name__ == "__main__":
             if shot >= 0:
                 score[shot] += 1
                 rewards[shot] += 100000
-                rewards[shot-1] -= 10000
+                rewards[shot-1] -= 100000
                 print("team-", shot, " get score!!!!!")
                 reset()
             
@@ -282,7 +282,7 @@ if __name__ == "__main__":
                 new_pos_x[player.id - 1] = player.rect.centerx
                 new_pos_y[player.id - 1] = player.rect.centery
             # rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
-            rewards = new_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            rewards = newest_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
             # rewards = [0, 0]
             # print(rewards)
 
