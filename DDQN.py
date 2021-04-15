@@ -44,7 +44,7 @@ class AgentsDDQN(Agent):
         self.build_network()
 
         self.sess = Session()
-        self.batch_size = 16
+        self.batch_size = 64
         # tf.summary.FileWriter("logs/", self.sess.graph)
         print(self.id, self.sess)
         self.saver = train.Saver()
@@ -67,7 +67,7 @@ class AgentsDDQN(Agent):
         with variable_scope('eval_net' + str(self.id)) as scope:
             #scope.reuse_variables()
             c_names = ['eval_net_params' + str(self.id), GraphKeys.GLOBAL_VARIABLES]
-            n_l1 = 50
+            n_l1 = 100
             w_init = tf.random_normal_initializer(0.01)
             b_init = tf.constant_initializer(0.01)
             # first layer. collections is used later when assign to target net
@@ -211,9 +211,9 @@ class AgentsDDQN(Agent):
 
     def save_model(self, if_plot=False, postfix=''):
         try:
-            self.model.save(self.path+postfix)
-            print(self.path + ' saved successfully')
-            np.save(self.path+postfix+".npy", self.memory)
+            self.saver.save(self.sess, self.path+postfix)
+            print(self.path+postfix + ' saved successfully')
+            np.save(self.path + postfix +".npy", self.memory)
             if if_plot:
                 self.plot_cost()
         except:

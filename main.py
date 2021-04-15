@@ -200,7 +200,7 @@ if __name__ == "__main__":
     for episode in range(episodes):
         print("episode: ", episode)
         reset()
-        game_time = 5000 #conf.max_time
+        game_time = conf.max_time # 5000 
         game_on = True
         for agent in agents:
             agent.set_state(getGameState(agent.id, players, ball))

@@ -13,7 +13,7 @@ class Config:
         self.friction = 0.14
         self.shoot_cd_time = 1000
 
-        self.max_time = 20000
+        self.max_time = 10000 # 20000
         self.available_player_numbers = [2, 4, 6, 10]
         self.init_pos = {2: [[0.5, 1.0], [1.5, 1.0]], 
                         4: [[0.75, 0.5], [0.75, 1.5], [1.25, 0.5], [1.25, 1.5]],
