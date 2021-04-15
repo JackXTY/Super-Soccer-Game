@@ -271,7 +271,7 @@ Then, with experience from single player mode, we try to modify our original rew
 \end{algorithm}
 
 \subsection{Neural Network}
-In the implementation of our DQN, we look through a good tutorial of MorvanZhou(Zhou), which help us a lot. And we use two DQN implementation in our project, one offered in the tutorial, and another one implemented by us with keras, inspired by previous version, referenced from tutorial. Below we will use the second implementation, to briefly introduce our neural network.
+In the implementation of our DQN, we look through a good tutorial of MorvanZhou(Zhou), which help us a lot. And we use two DQN implementation in our project, one offered in the tutorial, and another one implemented by us with keras, inspired by previous version, referenced from tutorial. Below we will use the second implementation, to briefly introduce our neural network. However for our experiment, since the training of keras is appearently slower than tensorflow, so we use first implementation to collect the data.
 
 \subsubsection{Structrue of Nerual Network}
 There are two layers in our nerual network. In the first layer, we add a relu activation layer in the end. All variables are initialized with random normal initializers.
@@ -350,10 +350,12 @@ However, these 2 measurement are not that accurate for measuring performance. So
 
 With the success and experience from single mode, we could better adjust the configure of DQN for the 1v1 mode.
 
-In 1v1 mode, we found that there are quite many own goals while testing. Therefore, we add own goals of each team for helping our discussion. And further discussion about our result would be introduced in our next part.
+Basically, the agent trained with DQN can play the game with some logic. There are able to chase for the ball and disturb its opponent at most of the time.
+
+However, we found that there are quite many own goals while testing. Therefore, we add own goals of each team for helping our discussion. And further discussion about our result would be introduced in our next part.
 
 \subsubsection{Different Training Episode}
-First of all, we train our agent with 4000 episodes of game.
+First of all, we train a pair of agents with 4000 episodes of game.
 \begin{figure}[htbp]
 	\centering
 	\subfigure[1000 episodes]{
@@ -408,7 +410,9 @@ Then we'd like to find out the difference between our old and new reward functio
 		\end{tabular}
 		\caption{Statistics of scores and own goal}
 	\end{center}
-\end{table}  
+\end{table}
+
+From the comparison we could see that, although no significant difference, but the imbalance between two agents do reduce to a certain extent, approximately 15\%.
 
 %----------------------------------------------------------------------------------------
 %	SECTION 5

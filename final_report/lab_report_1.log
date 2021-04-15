@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/W32TeX) (preloaded format=pdflatex 2020.2.28)  15 APR 2021 20:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/W32TeX) (preloaded format=pdflatex 2020.2.28)  15 APR 2021 20:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -312,13 +312,12 @@ Package pdftex.def Info: reset_random.png  used on input line 170.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[8] [9]
-<network.png, id=45, 733.99219pt x 284.56313pt>
+[8] [9] [10]
+<network.png, id=48, 733.99219pt x 284.56313pt>
 File: network.png Graphic file (type png)
 <use network.png>
 Package pdftex.def Info: network.png  used on input line 280.
 (pdftex.def)             Requested size: 350.99762pt x 136.08072pt.
- [10]
 <update.png, id=49, 522.45187pt x 295.85532pt>
 File: update.png Graphic file (type png)
 <use update.png>
@@ -357,44 +356,45 @@ File: score-1-QL-51.jpg Graphic file (type jpg)
 <use score-1-QL-51.jpg>
 Package pdftex.def Info: score-1-QL-51.jpg  used on input line 342.
 (pdftex.def)             Requested size: 170.71652pt x 128.0372pt.
-<score-2-1000-23-9-21-0.jpg, id=68, 462.528pt x 346.896pt>
+ [14 <./score-1-DQN-73.jpg> <./score-1-QL-51.jpg>]
+<score-2-1000-23-9-21-0.jpg, id=71, 462.528pt x 346.896pt>
 File: score-2-1000-23-9-21-0.jpg Graphic file (type jpg)
 <use score-2-1000-23-9-21-0.jpg>
-Package pdftex.def Info: score-2-1000-23-9-21-0.jpg  used on input line 361.
+Package pdftex.def Info: score-2-1000-23-9-21-0.jpg  used on input line 363.
 (pdftex.def)             Requested size: 170.71652pt x 128.0372pt.
-<score-2-2000-40-15-23-3.jpg, id=69, 462.528pt x 346.896pt>
+<score-2-2000-40-15-23-3.jpg, id=72, 462.528pt x 346.896pt>
 File: score-2-2000-40-15-23-3.jpg Graphic file (type jpg)
 <use score-2-2000-40-15-23-3.jpg>
-Package pdftex.def Info: score-2-2000-40-15-23-3.jpg  used on input line 364.
+Package pdftex.def Info: score-2-2000-40-15-23-3.jpg  used on input line 366.
 (pdftex.def)             Requested size: 170.71652pt x 128.0372pt.
-<score-2-4000-53-16-22-8.jpg, id=70, 462.528pt x 346.896pt>
+<score-2-4000-53-16-22-8.jpg, id=73, 462.528pt x 346.896pt>
 File: score-2-4000-53-16-22-8.jpg Graphic file (type jpg)
 <use score-2-4000-53-16-22-8.jpg>
-Package pdftex.def Info: score-2-4000-53-16-22-8.jpg  used on input line 367.
+Package pdftex.def Info: score-2-4000-53-16-22-8.jpg  used on input line 369.
 (pdftex.def)             Requested size: 170.71652pt x 128.0372pt.
- [14 <./score-1-DQN-73.jpg> <./score-1-QL-51.jpg>] [15 <./score-2-1000-23-9-21-
-0.jpg> <./score-2-2000-40-15-23-3.jpg> <./score-2-4000-53-16-22-8.jpg>]
+ [15 <./score-2-1000-23-9-21-0.jpg> <./score-2-2000-40-15-23-3.jpg> <./score-2-
+4000-53-16-22-8.jpg>]
 File: score-2-1000-23-9-21-0.jpg Graphic file (type jpg)
 <use score-2-1000-23-9-21-0.jpg>
-Package pdftex.def Info: score-2-1000-23-9-21-0.jpg  used on input line 394.
+Package pdftex.def Info: score-2-1000-23-9-21-0.jpg  used on input line 396.
 (pdftex.def)             Requested size: 170.71652pt x 128.0372pt.
 <score-2-new-1000-22-16-22-5.jpg, id=77, 462.528pt x 346.896pt>
 File: score-2-new-1000-22-16-22-5.jpg Graphic file (type jpg)
 <use score-2-new-1000-22-16-22-5.jpg>
 Package pdftex.def Info: score-2-new-1000-22-16-22-5.jpg  used on input line 39
-7.
+9.
 (pdftex.def)             Requested size: 170.71652pt x 128.0372pt.
  [16 <./score-2-new-1000-22-16-22-5.jpg>]
-Underfull \hbox (badness 10000) in paragraph at lines 424--425
+Underfull \hbox (badness 10000) in paragraph at lines 440--441
 []\OT1/cmr/m/n/12 Zhou. "Re-in-force-ment Learn-ing Meth-ods and Tu-to-ri-als"
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 424--425
+Underfull \hbox (badness 10000) in paragraph at lines 440--441
 \OT1/cmr/m/n/12 https://github.com/MorvanZhou/Reinforcement-learning-with-
  []
 
-[17] (./lab_report_1.aux)
+[17] [18] (./lab_report_1.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
@@ -417,10 +417,10 @@ s/cm/cmr12.pfb><d:/TexLive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.
 pfb><d:/TexLive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><d:/T
 exLive/2019/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb><d:/TexLive/201
 9/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
-Output written on lab_report_1.pdf (17 pages, 1135942 bytes).
+Output written on lab_report_1.pdf (18 pages, 1137341 bytes).
 PDF statistics:
- 120 PDF objects out of 1000 (max. 8388607)
- 73 compressed objects within 1 object stream
+ 123 PDF objects out of 1000 (max. 8388607)
+ 75 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  66 words of extra memory for PDF output out of 10000 (max. 10000000)
 
