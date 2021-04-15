@@ -179,7 +179,7 @@ if __name__ == "__main__":
 
     render_mode = True
     episodes = 2000
-    FPS = 500
+    FPS = 1000
 
     game_on = True
     
@@ -188,7 +188,7 @@ if __name__ == "__main__":
     game_timer = pygame.time.Clock()
     game_time = conf.max_time
     game_timer.tick(FPS)
-    agent_mode = "DQN"
+    agent_mode = "DDQN"
     if len(argv) > 1:
         agent_mode = argv[1]
     initialize_game()

@@ -31,7 +31,7 @@ class AgentsDDQN(Agent):
         # discount factor
         self.gamma = 0.9
         # number of features
-        self.features = 6
+        self.features = 7
         # number of actions
         self.actions = 16
         self.replace_target_iter = 1000
@@ -209,10 +209,11 @@ class AgentsDDQN(Agent):
         plt.grid()
         plt.show()
 
-    def save_model(self, if_plot = False):
+    def save_model(self, if_plot=False, postfix=''):
         try:
-            self.saver.save(self.sess, self.path)
-            print(self.path + 'saved successfully')
+            self.model.save(self.path+postfix)
+            print(self.path + ' saved successfully')
+            np.save(self.path+postfix+".npy", self.memory)
             if if_plot:
                 self.plot_cost()
         except:
