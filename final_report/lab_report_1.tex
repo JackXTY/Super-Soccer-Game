@@ -440,7 +440,7 @@ However, CNN is also a popular deep learning algorithm, which is widely used in 
 \subsection{Random seed matters}
 Every time  we initialize a new agent, we will initialize the parameter of the network, because we will use the gradient decline to get optimal parameters and different initial values may result in different local optima. In most cases, this will not have a huge negative impact as long as we try several times.
 However, in our experiments, randomization will have a huge impact. Agents with the same hyper-parameters can have a huge difference in training speed and  performance after training. This also affects AI versus AI mode, because the power of agents with different initial estimators will be unbalanced during and after training.
-The most depressing impact is that it is hard to know if a bad result is caused by incorrect structure or parameters, or caused by bad luck. From previous research, we found that a model set correctly still has a 25\% fail probability(Houthooft et al.). Therefore, we need to train more models with the same parameters to ensure that we can make a fair judgement on our setting. However, slow and ineffective training makes repetition become a time-consuming process.
+The most depressing impact is that it is hard to know if a bad result is caused by incorrect structure or parameters, or caused by bad luck. From previous research, we found that a model set correctly still has a 25\% fail probability and the difference between the ceiling and floor in performance is huge(Houthooft et al.). Therefore, we need to train more models with the same parameters to ensure that we can make a fair judgement on our setting. However, slow and ineffective training makes repetition become a time-consuming process.
 We guess we can reduce the effect of randomization by giving some prior knowledge, which means we can initialize the network by a user defined function instead of randomizing function. This may help agents to converge in the way we expect.
 
 \subsection{Difficulty in reward functions}
@@ -457,7 +457,13 @@ In deep reinforcement learning, overfitting may not be a thing we have to avoid,
 
 This overfitting causes 2 problems. First, if there is difference in the performance between the 2 agents, the better one will become better and better as training. The stronger agent will get higher reward because it can always defeat the opponent, so it will become an expert against the other. However, the weaker one cannot get enough positive feedback because the reward is not satisfactory no matter what it does.
 
-The second problem is that a well-trained agent may not perform well when it faces a stranger. The overfitting makes the performance of an agent in a testing environment worse than the training environment. However, our goal is to train an agent to play the game, instead of beating a specific agent.
+The second problem is that a well-trained agent may not perform well when it faces a stranger. The overfitting makes the performance of an agent in a testing environment worse than the training environment. However, our goal is to train an agent to play the game, instead of beating a specific agent. Another difficulty is that it is hard to distinguish which models fit the general environment better. The only variable we can use to evaluate a model is the average rewards, but it does not make any sense to compare this values in different environments.
+
+\subsection{Other methods may be better}
+When we decide to choose topic, we were inspired by previous works done by OpenAI. We thought the deep reinforcement learning is a magic method and it can solve our problem without doing research to the problem itself. 
+
+However, this view may not be true. Deep reinforcement learning may have huge potential, and it may can solve all kind of problem as long as it is correctly set and trained. However, it may not be the \textbf{best} method in many cases since it has many fatal drawback. The difficulty of training bounds the efficiency of reinforcement learning, and the time we use to adjust the network may be much more than the time we need to solve the problem in a traditional way. Therefore, we will carefully consider the necessity before decide to use reinforcement learning.
+
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY
 %----------------------------------------------------------------------------------------
