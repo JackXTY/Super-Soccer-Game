@@ -178,7 +178,7 @@ if __name__ == "__main__":
     assert N in conf.available_player_numbers
 
     render_mode = True
-    episodes = 2000
+    episodes = 1500
     FPS = 1000
 
     game_on = True
