@@ -191,7 +191,7 @@ if __name__ == "__main__":
     game_timer = pygame.time.Clock()
     game_time = conf.max_time
     game_timer.tick(FPS)
-    agent_mode = "DQN"
+    agent_mode = "DDQN"
     if len(argv) > 1:
         agent_mode = argv[1]
     initialize_game()
@@ -299,7 +299,7 @@ if __name__ == "__main__":
                 new_pos_x[player.id - 1] = player.rect.centerx
                 new_pos_y[player.id - 1] = player.rect.centery
             # rewards = rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
-            rewards = new_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
+            rewards = newest_rewards_func(rewards, prev_pos_x, prev_pos_y, new_pos_x, new_pos_y, N)
             # rewards = [0, 0]
             # print(rewards)
 
